@@ -9,9 +9,12 @@
         "--privileged",
         "--cap-add=SYS_PTRACE",
         "--device=/dev",
-        "--security-opt", "seccomp=unconfined",
-        "-e", "DISPLAY",
-        "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
+        "--security-opt",
+        "seccomp=unconfined",
+        "-e",
+        "DISPLAY",
+        "-v",
+        "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
     "customizations": {
         "vscode": {
