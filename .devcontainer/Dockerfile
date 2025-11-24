@@ -8,11 +8,12 @@ ARG CUDA_MAJOR=11
 ARG CUDA_MINOR=8
 ARG ZED_MAJOR=4
 ARG ZED_MINOR=2
-
 ARG ZED_SDK_URL="https://download.stereolabs.com/zedsdk/${ZED_MAJOR}.${ZED_MINOR}/cu${CUDA_MAJOR}/ubuntu22"
 
 # Enable non-interactive mode.
 ARG DEBIAN_FRONTEND=noninteractive
+
+# ------------------------ SYSTEM SETUP  ------------------------
 
 # Set locale.
 RUN apt-get update && \
@@ -34,12 +35,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends keyboard-configuration console-setup && \
     rm -rf /var/lib/apt/lists/*
 
-# Download ZED SDK.
-WORKDIR /tmp
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-RUN echo "Downloading ZED SDK from ${ZED_SDK_URL}" && \
-    wget -qO ZED_SDK_Linux_Ubuntu.run ${ZED_SDK_URL} && \
-    chmod +x ZED_SDK_Linux_Ubuntu.run
+# ------------------------ CORE DEPENDENCIES ------------------------
 
 # Install APT dependencies.
 RUN apt-get update && apt-get install -y \
@@ -67,7 +63,25 @@ RUN apt-get update && apt-get install -y \
     python3-opencv \
     # Clean out the apt lists after `apt-get update`
     lsb-release gnupg \
+    wget \
     && rm -rf /var/lib/apt/lists/*
+
+# ------------------------ ZED SDK INSTALL ------------------------
+
+# Download ZED SDK.
+WORKDIR /tmp
+RUN echo "Downloading ZED SDK from ${ZED_SDK_URL}" && \
+    wget -qO ZED_SDK_Linux_Ubuntu.run ${ZED_SDK_URL} && \
+    chmod +x ZED_SDK_Linux_Ubuntu.run
+
+# Install the ZED SDK.
+RUN apt-get update && \
+    ./ZED_SDK_Linux_Ubuntu.run silent && \
+    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
+    rm ZED_SDK_Linux_Ubuntu.run && \
+    rm -rf /var/lib/apt/lists/*
+
+# ------------------------ PYTHON SETUP ------------------------
 
 # Install moteus python library.
 # https://github.com/mjbots/moteus/tree/main/lib/python
@@ -79,12 +93,23 @@ RUN pip3 install pyusb opencv-python
 # Update pydocstyle to remove a deprecation warning when testing for PEP257.
 RUN pip3 install --upgrade pydocstyle
 
-# Install the ZED SDK.
-RUN apt-get update && \
-    ./ZED_SDK_Linux_Ubuntu.run silent && \
-    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-    rm ZED_SDK_Linux_Ubuntu.run && \
-    rm -rf /var/lib/apt/lists/*
+# ------------------------ GAZEBO INSTALL------------------------
+
+# Install Gazebo Ignition Fortress
+RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
+
+# ------------------------ OPTIONAL DEV TOOLS ------------------------
+# You can add packages that the stuff above doens't depend on here
+# to decrease image building times
+
+RUN apt-get update && apt-get install -y \
+    # Tools like xeyes
+    x11-apps \
+    && rm -rf /var/lib/apt/lists/*
+
+# ------------------------ USER + BASH CUSTOMIZATION ------------------------
 
 # Add a user so we can remote into this container with a non-root user
 RUN useradd trickfire \
@@ -110,11 +135,5 @@ RUN rosdep fix-permissions && \
 
 # Change to the non-root user.
 USER trickfire
-
-RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
-
-# TODO: We might want another stage to minimize the image on the rover.
 
 ENV DISPLAY=:0
