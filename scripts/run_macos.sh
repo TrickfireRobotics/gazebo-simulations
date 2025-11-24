@@ -54,4 +54,7 @@ fi
 
 echo "Attaching to .devcontainer $CONTAINER_ID ..."
 echo "--------------------------------"
-docker exec -it -u "$USER_NAME" -e TERM=xterm-256color "$CONTAINER_ID" bash -il
+docker exec -it -u "$USER_NAME" \
+  -e TERM=xterm-256color \
+  "$CONTAINER_ID" \
+  bash -il -c '[ -d /home/trickfire/gazebo-simulations/ros2_ws ] && cd /home/trickfire/gazebo-simulations/ros2_ws; exec bash -il'
