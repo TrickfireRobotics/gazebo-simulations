@@ -1,8 +1,6 @@
-# Layers are generally ordered by volatility so as to perserve cache.
-# CUDA is not included in the image, run with NVIDIA Container Toolkit.
-
-# Base image: Ubuntu 22.04 with ROS2 Humble installed
-FROM ros:humble-ros-base
+# Force amd64 image so macOS (ARM) doesn’t pull the ARM variant
+#Required because ZED SDK and other x86_64-only tools fail on ARM images
+FROM --platform=linux/amd64 ros:humble-ros-base
 
 # Get the install arguments, or use the defaults.
 # TODO: Change these to the version of CUDA and ZED we are using.
@@ -71,7 +69,7 @@ RUN apt-get update && apt-get install -y \
     lsb-release gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Install moteus python library. 
+# Install moteus python library.
 # https://github.com/mjbots/moteus/tree/main/lib/python
 RUN pip3 install moteus
 
@@ -120,5 +118,3 @@ RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
 # TODO: We might want another stage to minimize the image on the rover.
 
 ENV DISPLAY=:0
-
-
