@@ -12,7 +12,7 @@
         "--security-opt",
         "seccomp=unconfined",
         "-e",
-        "DISPLAY",
+        "DISPLAY=host.docker.internal:0",
         "-v",
         "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
