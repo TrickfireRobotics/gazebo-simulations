@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+    <model name="tfr_bot">
+        <link name="base_link">
+            <pose>0 0 0.1 0 0 0</pose>
+            <inertial>
+                <mass>5.0</mass>
+            </inertial>
+            <collision name="base_col">
+                <geometry>
+                    <box>
+                        <size>0.4 0.3 0.1</size>
+                    </box>
+                </geometry>
+            </collision>
+            <visual name="base_vis">
+                <geometry>
+                    <box>
+                        <size>0.4 0.3 0.1</size>
+                    </box>
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="wheel_left">
+            <inertial>
+                <mass>0.5</mass>
+            </inertial>
+            <collision name="wl_col">
+                <geometry>
+                    <cylinder>
+                        <radius>0.05</radius>
+                        <length>0.03</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="wl_vis">
+                <geometry>
+                    <cylinder>
+                        <radius>0.05</radius>
+                        <length>0.03</length>
+                    </cylinder>
+                </geometry>
+            </visual>
+        </link>
+        <joint name="left_wheel_joint" type="revolute">
+            <parent>base_link</parent>
+            <child>wheel_left</child>
+            <pose>0 0.15 0.05 0 1.5708 0</pose>
+            <axis>
+                <xyz>0 1 0</xyz>
+                <limit>
+                    <lower>-1e16</lower>
+                    <upper>1e16</upper>
+                </limit>
+            </axis>
+        </joint>
+
+        <link name="wheel_right">
+            <inertial>
+                <mass>0.5</mass>
+            </inertial>
+            <collision name="wr_col">
+                <geometry>
+                    <cylinder>
+                        <radius>0.05</radius>
+                        <length>0.03</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            <visual name="wr_vis">
+                <geometry>
+                    <cylinder>
+                        <radius>0.05</radius>
+                        <length>0.03</length>
+                    </cylinder>
+                </geometry>
+            </visual>
+        </link>
+        <joint name="right_wheel_joint" type="revolute">
+            <parent>base_link</parent>
+            <child>wheel_right</child>
+            <pose>0 -0.15 0.05 0 1.5708 0</pose>
+            <axis>
+                <xyz>0 1 0</xyz>
+                <limit>
+                    <lower>-1e16</lower>
+                    <upper>1e16</upper>
+                </limit>
+            </axis>
+        </joint>
+
+        <plugin
+            name="gz::sim::systems::DiffDrive"
+            filename="gz-sim-diff-drive-system">
+            <left_joint>left_wheel_joint</left_joint>
+            <right_joint>right_wheel_joint</right_joint>
+            <wheel_separation>0.30</wheel_separation>
+            <wheel_radius>0.05</wheel_radius>
+            <odom_frame>odom</odom_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+            <topic>/cmd_vel</topic>
+            <max_linear_acceleration>5.0</max_linear_acceleration>
+            <max_angular_acceleration>5.0</max_angular_acceleration>
+        </plugin>
+    </model>
+</sdf>
