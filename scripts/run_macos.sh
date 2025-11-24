@@ -20,16 +20,19 @@ USER_NAME="trickfire"
 # 3) Start XQuartz, then run this script.
 
 # Open XQuartz if not running
+echo "Opening xQuartz..."
 open -ga XQuartz
 
 # Give it a moment
 sleep 2
 
 # Allow local connections
+echo "Allowing local connections..."
 xhost + 127.0.0.1 >/dev/null 2>&1 || true
 xhost + localhost >/dev/null 2>&1 || true
 
 # Docker Desktop forwards host.docker.internal to the host
+echo "Setting up display..."
 export DISPLAY=host.docker.internal:0
 
 # Attach to .devcontainer ------------------------------------------------------------
@@ -49,6 +52,6 @@ if [ -z "$CONTAINER_ID" ]; then
     exit 1
 fi
 
-echo "Attaching to container: $CONTAINER_ID"
+echo "Attaching to .devcontainer $CONTAINER_ID ..."
 echo "--------------------------------"
 docker exec -it -u "$USER_NAME" -e TERM=xterm-256color "$CONTAINER_ID" bash -il
