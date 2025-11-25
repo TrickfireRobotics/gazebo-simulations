@@ -1,15 +1,19 @@
 # Repo for simulations for drivebase, arm, and autonomous
 fyi it takes about ~35 min to compile this docker on windows depending on your machine
 
-## Setup steps for windows
-In a wsl terminal, clone this repo 
+## Setup steps for Windows
+In a WSL terminal, clone this repo 
 
-Make sure Docker is running 
+`git clone https://github.com/TrickfireRobotics/gazebo-simulations.git`
 
-In VSCode, open a folder in WSL, and find this repo. Open it, and run the Reopen in Container command
+Make sure Docker Desktop is running on your machine
 
-wait for the container to compile
+In VSCode, press `Ctrl+Shift+P` to open the command palette. Search for the "Open Folder in WSL" command and select it. Find and select this repo's folder in your WSL file system. 
 
-run the command "ign gazebo empty.sdf" in a new terminal
+Run the Reopen in Container command (`Ctrl+Shift+P` and search "Reopen in Container")
 
-should see a gazebo gui window appear with an empty world
+Wait for the container to compile, this will take a while
+
+In VSCode, open a new terminal and run the command `ign gazebo empty.sdf` 
+
+You should see a Gazebo GUI window appear with an empty world
