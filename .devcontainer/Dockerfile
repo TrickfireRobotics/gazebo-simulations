@@ -107,6 +107,10 @@ RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
 RUN apt-get update && apt-get install -y \
     # Tools like xeyes
     x11-apps \
+    # Mesa rendering (make rendering work on MacOS)
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    mesa-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------ USER + BASH CUSTOMIZATION ------------------------
