@@ -19,12 +19,17 @@ USER_NAME="trickfire"
 #    [x] Allow connections from network clients
 # 3) Start XQuartz, then run this script.
 
-# Open XQuartz if not running
-echo "Opening xQuartz..."
-open -ga XQuartz
+# Check if XQuartz is running
+if pgrep -x "XQuartz" > /dev/null; then
+    echo "XQuartz already running."
+    sleep_time=2
+else
+    echo "Opening XQuartz..."
+    open -ga XQuartz
+    sleep_time=10
+fi
 
-# Give it a moment
-sleep 2
+sleep "$sleep_time"
 
 # Allow local connections
 echo "Allowing local connections..."
