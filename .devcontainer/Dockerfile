@@ -1,6 +1,6 @@
 # Force amd64 image so macOS (ARM) doesn’t pull the ARM variant
 # Required because ZED SDK and other x86_64-only tools fail on ARM images
-FROM --platform=linux/amd64 ros:humble-ros-base
+FROM ros:humble-ros-base
 
 # Enable non-interactive mode.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -91,9 +91,7 @@ RUN useradd trickfire \
     # Give it a directory in /home
     --create-home \
     # Don't make a giant log file for login data, we don't care about it
-    --no-log-init \
-    # Allow the user to access video cameras.
-    -G video,zed
+    --no-log-init
 
 # Copy all the bash customizations over to the user.
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
