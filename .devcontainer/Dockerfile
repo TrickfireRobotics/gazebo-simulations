@@ -106,5 +106,3 @@ RUN rosdep fix-permissions && \
 
 # Change to the non-root user.
 USER trickfire
-
-ENV DISPLAY=:0
