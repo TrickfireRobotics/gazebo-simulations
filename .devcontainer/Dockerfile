@@ -27,9 +27,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends keyboard-configuration console-setup && \
     rm -rf /var/lib/apt/lists/*
 
-# ------------------------ CORE DEPENDENCIES ------------------------
+# ------------------------ APT DEPENDENCIES ------------------------
 
-# Install APT dependencies.
 RUN apt-get update && apt-get install -y \
     zstd \
     # To use git in the container
@@ -56,6 +55,12 @@ RUN apt-get update && apt-get install -y \
     # Clean out the apt lists after `apt-get update`
     lsb-release gnupg \
     wget \
+    # Tools like xeyes
+    x11-apps \
+    # LibGL libraries
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    mesa-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------ PYTHON SETUP ------------------------
@@ -76,19 +81,6 @@ RUN pip3 install --upgrade pydocstyle
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
 RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
-
-# ------------------------ OPTIONAL DEV TOOLS ------------------------
-# You can add packages that the stuff above doens't depend on here
-# to decrease image building times
-
-RUN apt-get update && apt-get install -y \
-    # Tools like xeyes
-    x11-apps \
-    # Mesa rendering (make rendering work on MacOS)
-    libgl1-mesa-glx \
-    libgl1-mesa-dri \
-    mesa-utils \
-    && rm -rf /var/lib/apt/lists/*
 
 # ------------------------ USER + BASH CUSTOMIZATION ------------------------
 
