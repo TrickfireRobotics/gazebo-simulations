@@ -1,5 +1,3 @@
-# Force amd64 image so macOS (ARM) doesn’t pull the ARM variant
-# Required because ZED SDK and other x86_64-only tools fail on ARM images
 FROM ros:humble-ros-base
 
 # Enable non-interactive mode.
