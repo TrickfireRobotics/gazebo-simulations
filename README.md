@@ -14,15 +14,15 @@
 1. Make sure you have Docker installed, and this repository cloned
 
 2.	Install and configure XQuartz:
-    
+
   ```bash
   brew install --cask xquartz
   defaults write org.xquartz.X11 nolisten_tcp -bool false
   ```
 
 3.	Open XQuartz → Settings → Security and enable Allow connections from network clients
-   
-   
+
+
 Now everytime you want to lauch the container, open the project in VSCode, ensure the Remote Containers extension is installed (`ms-vscode-remote.remote-containers`). You should be prompted to `Reopen in Container`.
 
 When the container builds and VSCode opens, you can use this launch script to set up xQuartz for you, and attach you to the container:
@@ -39,7 +39,7 @@ This script launches XQuartz, configures it, and then attaches you to the runnin
 
 
 ### Windows (WSL)
-	
+
   1.	In a WSL terminal, clone the repository:
 
   ```bash
@@ -47,18 +47,18 @@ This script launches XQuartz, configures it, and then attaches you to the runnin
   ```
 
   2.	Ensure Docker Desktop is running.
-	
+
   3.	Open the repo in VSCode through WSL:
 
   - Press Ctrl+Shift+P
 	- Run Open Folder in WSL
 	- Select the cloned repository
-   
+
 	4.	Reopen the project in the devcontainer:
 
 	- Ctrl+Shift+P
   - Run Reopen in Container
-    
+
 	6.	Wait for the container to build. This can take ~35 minutes depending on hardware.
 
 	8.	Once inside the devcontainer, open a terminal in VSCode and run:
