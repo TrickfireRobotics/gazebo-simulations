@@ -1,14 +1,6 @@
 # Force amd64 image so macOS (ARM) doesn’t pull the ARM variant
-#Required because ZED SDK and other x86_64-only tools fail on ARM images
+# Required because ZED SDK and other x86_64-only tools fail on ARM images
 FROM --platform=linux/amd64 ros:humble-ros-base
-
-# Get the install arguments, or use the defaults.
-# TODO: Change these to the version of CUDA and ZED we are using.
-ARG CUDA_MAJOR=11
-ARG CUDA_MINOR=8
-ARG ZED_MAJOR=4
-ARG ZED_MINOR=2
-ARG ZED_SDK_URL="https://download.stereolabs.com/zedsdk/${ZED_MAJOR}.${ZED_MINOR}/cu${CUDA_MAJOR}/ubuntu22"
 
 # Enable non-interactive mode.
 ARG DEBIAN_FRONTEND=noninteractive
@@ -65,21 +57,6 @@ RUN apt-get update && apt-get install -y \
     lsb-release gnupg \
     wget \
     && rm -rf /var/lib/apt/lists/*
-
-# ------------------------ ZED SDK INSTALL ------------------------
-
-# Download ZED SDK.
-WORKDIR /tmp
-RUN echo "Downloading ZED SDK from ${ZED_SDK_URL}" && \
-    wget -qO ZED_SDK_Linux_Ubuntu.run ${ZED_SDK_URL} && \
-    chmod +x ZED_SDK_Linux_Ubuntu.run
-
-# Install the ZED SDK.
-RUN apt-get update && \
-    ./ZED_SDK_Linux_Ubuntu.run silent && \
-    ln -sf /lib/x86_64-linux-gnu/libusb-1.0.so.0 /usr/lib/x86_64-linux-gnu/libusb-1.0.so && \
-    rm ZED_SDK_Linux_Ubuntu.run && \
-    rm -rf /var/lib/apt/lists/*
 
 # ------------------------ PYTHON SETUP ------------------------
 
