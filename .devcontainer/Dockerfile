@@ -1,11 +1,11 @@
 FROM ros:humble-ros-base
 
-# Enable non-interactive mode.
+# Enable non-interactive mode
 ARG DEBIAN_FRONTEND=noninteractive
 
 # ------------------------ SYSTEM SETUP  ------------------------
 
-# Set locale.
+# Set locale
 RUN apt-get update && \
     apt-get install --no-install-recommends -y locales && \
     locale-gen en_US en_US.UTF-8 && \
@@ -13,7 +13,7 @@ RUN apt-get update && \
     export LANG=en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
-# Set the timezone and keyboard layout.
+# Set the timezone and keyboard layout
 ARG TZ="America/Los_Angeles"
 RUN echo "${TZ}" > /etc/localtime && \
     echo "${TZ}" > /etc/timezone
@@ -63,14 +63,14 @@ RUN apt-get update && apt-get install -y \
 
 # ------------------------ PYTHON SETUP ------------------------
 
-# Install moteus python library.
+# Install moteus python library
 # https://github.com/mjbots/moteus/tree/main/lib/python
 RUN pip3 install moteus
 
-# Install additional Python dependencies.
+# Install additional Python dependencies
 RUN pip3 install pyusb opencv-python
 
-# Update pydocstyle to remove a deprecation warning when testing for PEP257.
+# Update pydocstyle to remove a deprecation warning when testing for PEP257
 RUN pip3 install --upgrade pydocstyle
 
 # ------------------------ GAZEBO INSTALL------------------------
@@ -91,16 +91,16 @@ RUN useradd trickfire \
     # Don't make a giant log file for login data, we don't care about it
     --no-log-init
 
-# Copy all the bash customizations over to the user.
+# Copy all the bash customizations over to the user
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 
-# Give sudo access.
+# Give sudo access
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
-# Fix permissions.
+# Fix permissions
 RUN rosdep fix-permissions && \
     chown -R trickfire:trickfire /usr/local/lib/python3.10/dist-packages && \
     chmod -R a+rX /usr/local/lib/python3.10/dist-packages
 
-# Change to the non-root user.
+# Change to the non-root user
 USER trickfire
