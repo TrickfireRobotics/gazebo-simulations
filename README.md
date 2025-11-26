@@ -1,42 +1,82 @@
-# Gazebo simulations
+# Gazebo Simulations
 
-> This repository is for Gazebo simulations for drivebase, arm, and autonomous
+> This repository contains Gazebo simulations for the drivebase, arm, and autonomous.
 
-## First Time Setup
+> [!NOTE]
+> The first container build can take 20–35 minutes depending on your machine
+
+---
+
+## Setting up the environment & container:
 
 ### MacOS
 
-You need Docker if you don't have it:
+1. Make sure you have Docker installed, and this repository cloned
+
+2.	Install and configure XQuartz:
+    
+  ```bash
+  brew install --cask xquartz
+  defaults write org.xquartz.X11 nolisten_tcp -bool false
+  ```
+
+3.	Open XQuartz → Settings → Security and enable Allow connections from network clients
+   
+   
+Now everytime you want to lauch the container, open the project in VSCode, ensure the Remote Containers extension is installed (`ms-vscode-remote.remote-containers`). You should be prompted to `Reopen in Container`.
+
+When the container builds and VSCode opens, you can use this launch script to set up xQuartz for you, and attach you to the container:
 
 ```bash
-brew install --cask docker
-```
-Than you also need [XQuartz](https://www.xquartz.org):
-
-```bash
-# Install and start XQuartz
-brew install --cask xquartz
-defaults write org.xquartz.X11 nolisten_tcp -bool false
+scripts/run_macos.sh
 ```
 
-After install, open XQuartz → Settings → Security and check “Allow connections from network clients.”
-
-### TODO: Windows and MacOS
-
-There are existing instructions [here](https://github.com/TrickfireRobotics/drivebase-gazebo-simulation#firsttime-setup), they need to be reviewed and placed here.
-
-## Running Docker
-
-### Opening the `.devcontainer`
-
-Open the repo in VSCode, ensure you have `ms-vscode-remote.remote-containers` extension installed.
-In the bottom right you should get a prompt to open the project in a container, click on `Reopen in Container` option.
-It is going to take a while (20 to 30 minutes) to open for the first time.
-
-### Attaching to Docker on MacOS
-
-You cannot run Gazebo just yet, because everytime you want to run Gazebo in Docker on MacOS you need to open XQuartz and run command to configure it.
-There is a script at `scripts/run_macos.sh` direectory that you can run in a terminal to configure XQuartz and attach to the container
+This script launches XQuartz, configures it, and then attaches you to the running devcontainer.
 
 > [!WARNING]
-> Don't run the script inside of the Docker container shell! It needs to be run outside! The script will automatically attach you to the `.devcontainer.` Make sure VSCode is running with the opened `.devcontainer`
+> Do not run this script inside the container!
+> Run it from your host terminal while VSCode is open in the devcontainer
+
+
+### Windows (WSL)
+	
+  1.	In a WSL terminal, clone the repository:
+
+  ```bash
+  git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
+  ```
+
+  2.	Ensure Docker Desktop is running.
+	
+  3.	Open the repo in VSCode through WSL:
+
+  - Press Ctrl+Shift+P
+	- Run Open Folder in WSL
+	- Select the cloned repository
+   
+	4.	Reopen the project in the devcontainer:
+
+	- Ctrl+Shift+P
+  - Run Reopen in Container
+    
+	6.	Wait for the container to build. This can take ~35 minutes depending on hardware.
+
+	8.	Once inside the devcontainer, open a terminal in VSCode and run:
+
+---
+
+## Running Gazebo inside the container:
+
+When you succesfully attach to the Docker Container, you can launch Gazebo using the following command:
+
+```bash
+ign gazebo empty.sdf
+```
+
+Or by using a script that runs the same exact thing (easier to type):
+
+```bash
+scripts/run_gazebo.sh
+```
+
+If everything is configured properly, Gazebo should open with an empty world.
