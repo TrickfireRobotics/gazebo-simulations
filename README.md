@@ -23,6 +23,7 @@
 3.	Open XQuartz → Settings → Security and enable Allow connections from network clients
 
 
+
 Now everytime you want to lauch the container, open the project in VSCode, ensure the Remote Containers extension is installed (`ms-vscode-remote.remote-containers`). You should be prompted to `Reopen in Container`.
 
 When the container builds and VSCode opens, you can use this launch script to set up xQuartz for you, and attach you to the container:
@@ -48,6 +49,7 @@ This script launches XQuartz, configures it, and then attaches you to the runnin
   once in the devcontainer run: 
   ```bash
   export DISPLAY=host.docker.internal:0.0
+  export LIBGL_ALWAYS_INDIRECT=1
   ```
 
   1.	In a WSL terminal, clone the repository:
