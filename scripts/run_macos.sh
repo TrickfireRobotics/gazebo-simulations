@@ -11,13 +11,13 @@ set -euo pipefail
 
 CONTAINER_NAME="vsc-gazebo-simulations"
 USER_NAME="trickfire"
+DISPLAY=host.docker.internal:0
 
 # Setup XQuartz ----------------------------------------------------------------------
 
-# 1) Install XQuartz from https://www.xquartz.org/ (once)
-# 2) In XQuartz Preferences > Security, check:
+# Install XQuartz from https://www.xquartz.org/ (once)
+# In XQuartz Preferences > Security, check:
 #    [x] Allow connections from network clients
-# 3) Start XQuartz, then run this script.
 
 # Check if XQuartz is running
 if pgrep -x "XQuartz" > /dev/null; then
@@ -36,9 +36,7 @@ echo "Allowing local connections..."
 xhost + 127.0.0.1 >/dev/null 2>&1 || true
 xhost + localhost >/dev/null 2>&1 || true
 
-# Docker Desktop forwards host.docker.internal to the host
-echo "Setting up display..."
-export DISPLAY=host.docker.internal:0
+echo "Using display: $DISPLAY"
 
 # Attach to .devcontainer ------------------------------------------------------------
 
