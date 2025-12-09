@@ -13,7 +13,7 @@
         "seccomp=unconfined",
         "-e", "DISPLAY",
         "-e", "QT_X11_NO_MITSHM=1",
-        "-v", "LIBGL_ALWAYS_INDIRECT=1",
+        "-e", "LIBGL_ALWAYS_INDIRECT=1",
         "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
     "customizations": {
