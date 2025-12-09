@@ -15,10 +15,9 @@ DISPLAY=host.docker.internal:0
 
 # Setup XQuartz ----------------------------------------------------------------------
 
-# 1) Install XQuartz from https://www.xquartz.org/ (once)
-# 2) In XQuartz Preferences > Security, check:
+# Install XQuartz from https://www.xquartz.org/ (once)
+# In XQuartz Preferences > Security, check:
 #    [x] Allow connections from network clients
-# 3) Start XQuartz, then run this script.
 
 # Check if XQuartz is running
 if pgrep -x "XQuartz" > /dev/null; then
