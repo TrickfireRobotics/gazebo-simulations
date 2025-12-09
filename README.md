@@ -23,6 +23,7 @@
 3.	Open XQuartz → Settings → Security and enable Allow connections from network clients
 
 
+
 Now everytime you want to lauch the container, open the project in VSCode, ensure the Remote Containers extension is installed (`ms-vscode-remote.remote-containers`). You should be prompted to `Reopen in Container`.
 
 When the container builds and VSCode opens, you can use this launch script to set up xQuartz for you, and attach you to the container:
@@ -43,13 +44,18 @@ This script launches XQuartz, configures it, and then attaches you to the runnin
 
   Install x410 - x server for windows at https://apps.microsoft.com/detail/9pm8lp83g3l3?hl=en-US&gl=KE
   
-  open the x410 app. Nothing will show up, but it should be running.
+  Open the x410 app. Nothing will show up, but it should be running in the background.
 
-  once in the devcontainer run: 
+  Once in the devcontainer, in the terminal run:
   ```bash
   export DISPLAY=host.docker.internal:0.0
   ```
 
+  If you get LibGL errors, run this in the terminal as well:
+  ```bash
+  export LIBGL_ALWAYS_INDIRECT=1
+  ```
+  #### Cloning the repository:
   1.	In a WSL terminal, clone the repository:
 
   ```bash
