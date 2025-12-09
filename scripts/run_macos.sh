@@ -11,6 +11,7 @@ set -euo pipefail
 
 CONTAINER_NAME="vsc-gazebo-simulations"
 USER_NAME="trickfire"
+DISPLAY=host.docker.internal:0
 
 # Setup XQuartz ----------------------------------------------------------------------
 
@@ -36,9 +37,7 @@ echo "Allowing local connections..."
 xhost + 127.0.0.1 >/dev/null 2>&1 || true
 xhost + localhost >/dev/null 2>&1 || true
 
-# Docker Desktop forwards host.docker.internal to the host
-echo "Setting up display..."
-export DISPLAY=host.docker.internal:0
+echo "Using display: $DISPLAY"
 
 # Attach to .devcontainer ------------------------------------------------------------
 
