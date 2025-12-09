@@ -39,6 +39,16 @@ This script launches XQuartz, configures it, and then attaches you to the runnin
 
 
 ### Windows (WSL)
+  Make sure you have docker desktop installed.
+
+  Install x410 - x server for windows at https://apps.microsoft.com/detail/9pm8lp83g3l3?hl=en-US&gl=KE
+  
+  open the x410 app. Nothing will show up, but it should be running.
+
+  once in the devcontainer run: 
+  ```bash
+  export DISPLAY=host.docker.internal:0.0
+  ```
 
   1.	In a WSL terminal, clone the repository:
 
