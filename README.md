@@ -44,14 +44,18 @@ This script launches XQuartz, configures it, and then attaches you to the runnin
 
   Install x410 - x server for windows at https://apps.microsoft.com/detail/9pm8lp83g3l3?hl=en-US&gl=KE
   
-  open the x410 app. Nothing will show up, but it should be running.
+  Open the x410 app. Nothing will show up, but it should be running in the background.
 
-  once in the devcontainer run: 
+  Once in the devcontainer, in the terminal run:
   ```bash
   export DISPLAY=host.docker.internal:0.0
-  export LIBGL_ALWAYS_INDIRECT=1
   ```
 
+  If you get LibGL errors, run this in the terminal as well:
+  ```bash
+  export LIBGL_ALWAYS_INDIRECT=1
+  ```
+  #### Cloning the repository:
   1.	In a WSL terminal, clone the repository:
 
   ```bash
