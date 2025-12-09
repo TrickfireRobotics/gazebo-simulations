@@ -9,8 +9,10 @@
         "--privileged",
         "--cap-add=SYS_PTRACE",
         "--device=/dev",
-        "--security-opt", "seccomp=unconfined",
+        "--security-opt",
+        "seccomp=unconfined",
         "-e", "DISPLAY",
+        "-e", "QT_X11_NO_MITSHM=1",
         "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
     "customizations": {
