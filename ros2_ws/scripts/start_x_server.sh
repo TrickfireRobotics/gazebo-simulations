@@ -106,5 +106,5 @@ x11vnc \
 # Runs in the background so the script continues normally.
 #
 log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
-/usr/share/novnc/utils/launch.sh --vnc localhost:5900 --listen 6080 &
+/usr/share/novnc/utils/launch.sh --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}" &
 log "Done"
