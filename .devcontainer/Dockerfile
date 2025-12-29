@@ -28,7 +28,14 @@ RUN apt-get update && \
 # ------------------------ APT DEPENDENCIES ------------------------
 
 RUN apt-get update && apt-get install -y \
-    zstd \
+    # Stuff for display
+    xvfb \
+    novnc \
+    xterm \
+    x11vnc \
+    openbox \
+    websockify \
+    python3-xdg \
     # To use git in the container
     git \
     # pip is a package manager for Python
@@ -59,6 +66,8 @@ RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libgl1-mesa-dri \
     mesa-utils \
+    # Other
+    zstd \
     && rm -rf /var/lib/apt/lists/*
 
 # ------------------------ PYTHON SETUP ------------------------
@@ -79,6 +88,17 @@ RUN pip3 install --upgrade pydocstyle
 RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
 RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
+
+# ------------------------ DISPLAY SETUP------------------------
+
+EXPOSE 6080 5900
+
+ENV DISPLAY=:1
+ENV VNC_PORT=5900
+ENV NOVNC_PORT=6080
+ENV SCREEN_WIDTH=1280
+ENV SCREEN_HEIGHT=720
+ENV SCREEN_DEPTH=24
 
 # ------------------------ USER + BASH CUSTOMIZATION ------------------------
 
