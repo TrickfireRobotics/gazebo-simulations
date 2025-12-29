@@ -37,4 +37,4 @@ docker exec -it -u "$USER_NAME" \
     -e TERM=xterm-256color \
     -e XAUTHORITY="${XAUTHORITY:-}" \
     "$CONTAINER_ID" \
-    bash -il -c '[ -d /home/trickfire/gazebo-simulations/ros2_ws ] && cd /home/trickfire/gazebo-simulations/ros2_ws; exec bash -il'
+    bash -il -c '[ -d /home/trickfire/gazebo-simulations ] && cd /home/trickfire/gazebo-simulations; exec bash -il'
