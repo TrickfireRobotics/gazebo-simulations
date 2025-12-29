@@ -62,3 +62,27 @@ x11vnc \
     -rfbport "$VNC_PORT" \
     -nopw \
     -xkb &
+
+# --------------------------------------------------------------------------------------------
+# START BROWSER-BASED DESKTOP (noVNC)
+# --------------------------------------------------------------------------------------------
+# launch.sh is the official noVNC helper script.
+# It starts:
+#   - websockify (WebSocket <-> VNC bridge)
+#   - a small web server that serves the noVNC HTML/JS client
+#
+# This allows connecting to the container's desktop from a web browser
+#
+# Flags:
+#   --vnc localhost:$VNC_PORT  -> Address of the local VNC server (defined in Dockerfile)
+#   --listen $NO_VMC_PORT             -> Port exposed for browser access (defined in Dockerfile)
+#
+# Usage:
+#   Open a browser and navigate to:
+#     http://<docker-host>:6080/vnc.html
+#
+# Runs in the background so the script continues normally.
+#
+/usr/share/novnc/utils/launch.sh \
+    --vnc localhost:$VNC_PORT \
+    --listen "$NO_VNC_PORT" &
