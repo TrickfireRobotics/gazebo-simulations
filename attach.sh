@@ -11,32 +11,6 @@ set -euo pipefail
 
 CONTAINER_NAME="vsc-gazebo-simulations"
 USER_NAME="trickfire"
-DISPLAY=host.docker.internal:0
-
-# Setup XQuartz ----------------------------------------------------------------------
-
-# Install XQuartz from https://www.xquartz.org/ (once)
-# In XQuartz Preferences > Security, check:
-#    [x] Allow connections from network clients
-
-# Check if XQuartz is running
-if pgrep -x "XQuartz" > /dev/null; then
-    echo "XQuartz already running."
-    sleep_time=2
-else
-    echo "Opening XQuartz..."
-    open -ga XQuartz
-    sleep_time=10
-fi
-
-sleep "$sleep_time"
-
-# Allow local connections
-echo "Allowing local connections..."
-xhost + 127.0.0.1 >/dev/null 2>&1 || true
-xhost + localhost >/dev/null 2>&1 || true
-
-echo "Using display: $DISPLAY"
 
 # Attach to .devcontainer ------------------------------------------------------------
 
@@ -55,13 +29,10 @@ if [ -z "$CONTAINER_ID" ]; then
     exit 1
 fi
 
-# -e LIBGL_ALWAYS_SOFTWARE=1 \ Doesnt work
-
 echo "Attaching to .devcontainer $CONTAINER_ID ..."
 echo "--------------------------------"
 docker exec -it -u "$USER_NAME" \
     -e TERM=xterm-256color \
-    -e DISPLAY="$DISPLAY" \
     -e LIBGL_ALWAYS_INDIRECT=1 \
     -e XAUTHORITY="${XAUTHORITY:-}" \
     "$CONTAINER_ID" \
