@@ -36,6 +36,13 @@ RUN apt-get update && apt-get install -y \
     openbox \
     websockify \
     python3-xdg \
+    # LibGL libraries and dummy x server
+    mesa-utils \
+    libglx-mesa0 \
+    libgl1-mesa-glx \
+    libgl1-mesa-dri \
+    xserver-xorg-core \
+    xserver-xorg-video-dummy \
     # To use git in the container
     git \
     # pip is a package manager for Python
@@ -62,10 +69,6 @@ RUN apt-get update && apt-get install -y \
     wget \
     # Tools like xeyes
     x11-apps \
-    # LibGL libraries
-    libgl1-mesa-glx \
-    libgl1-mesa-dri \
-    mesa-utils \
     # Other
     zstd \
     && rm -rf /var/lib/apt/lists/*
@@ -99,6 +102,8 @@ ENV NOVNC_PORT=6080
 ENV SCREEN_WIDTH=1280
 ENV SCREEN_HEIGHT=720
 ENV SCREEN_DEPTH=24
+
+COPY xorg.conf /etc/X11/xorg.conf
 
 # ------------------------ USER + BASH CUSTOMIZATION ------------------------
 
