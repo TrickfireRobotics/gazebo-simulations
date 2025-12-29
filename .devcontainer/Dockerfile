@@ -1,11 +1,27 @@
+# --------------------------------------------------------------------------------------------
+# Base image
+# --------------------------------------------------------------------------------------------
+# Start from the official ROS 2 Humble base image
+# This gives us:
+#   - Ubuntu Jammy (22.04)
+#   - ROS 2 Humble
 FROM ros:humble-ros-base
 
-# Enable non-interactive mode
+
+# --------------------------------------------------------------------------------------------
+# APT / DEBIAN CONFIGURATION
+# --------------------------------------------------------------------------------------------
+# Prevent apt from asking interactive questions during installs
+# (for automated Docker builds)
 ARG DEBIAN_FRONTEND=noninteractive
 
-# ------------------------ SYSTEM SETUP  ------------------------
 
-# Set locale
+# --------------------------------------------------------------------------------------------
+# SYSTEM LOCALE + TIMEZONE SETUP
+# --------------------------------------------------------------------------------------------
+
+# Install locale tools and configure UTF-8 support
+# This avoids weird issues with Python, ROS, and CLI tools that expect UTF-8
 RUN apt-get update && \
     apt-get install --no-install-recommends -y locales && \
     locale-gen en_US en_US.UTF-8 && \
@@ -13,11 +29,13 @@ RUN apt-get update && \
     export LANG=en_US.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
-# Set the timezone and keyboard layout
+# Configure the system timezone
+# For logs, timestamps and tools to use correct local time
 ARG TZ="America/Los_Angeles"
 RUN echo "${TZ}" > /etc/localtime && \
     echo "${TZ}" > /etc/timezone
 
+# Configure keyboard layout
 RUN apt-get update && \
     echo "keyboard-configuration keyboard-configuration/layoutcode string us" | debconf-set-selections && \
     echo "keyboard-configuration keyboard-configuration/modelcode string pc105" | debconf-set-selections && \
@@ -25,82 +43,161 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends keyboard-configuration console-setup && \
     rm -rf /var/lib/apt/lists/*
 
-# ------------------------ APT DEPENDENCIES ------------------------
 
+# --------------------------------------------------------------------------------------------
+# SYSTEM / APT DEPENDENCIES
+# --------------------------------------------------------------------------------------------
+# Install all system-level packages needed for:
+#   - Graphics (X11, OpenGL, VNC)
+#   - ROS tooling
+#   - Computer vision
+#   - USB / CAN devices
+#   - Development utilities
 RUN apt-get update && apt-get install -y \
-    zstd \
-    # To use git in the container
-    git \
-    # pip is a package manager for Python
-    python3-pip \
-    # To let us sync with GitHub over SSH
-    ssh-client \
-    ros-humble-rosbridge-server \
-    # To use rosdep for installing system dependencies
-    python3-rosdep \
-    python3-colcon-common-extensions \
-    # Install usb utilities
-    usbutils \
-    can-utils \
-    iproute2 \
-    kmod \
-    # Used for cv_bridge
-    python3-numpy \
-    libboost-python-dev \
-    # OpenCV
-    libopencv-dev \
-    python3-opencv \
-    # Clean out the apt lists after `apt-get update`
-    lsb-release gnupg \
-    wget \
-    # Tools like xeyes
-    x11-apps \
-    # LibGL libraries
+    \
+    # ---------------- DISPLAY / GUI STACK ----------------
+    # Virtual X server
+    xvfb \
+    # VNC + browser-based remote desktop support
+    novnc \
+    x11vnc \
+    websockify \
+    # Simple window manager and terminal
+    openbox \
+    xterm \
+    # Helpers
+    python3-xdg \
+    \
+    # ---------------- OPENGL / GRAPHICS ----------------
+    # Mesa OpenGL utilities and drivers
+    mesa-utils \
+    libglx-mesa0 \
     libgl1-mesa-glx \
     libgl1-mesa-dri \
-    mesa-utils \
+    # Dummy X11 server so graphical apps run without real GPU/display
+    xserver-xorg-core \
+    xserver-xorg-video-dummy \
+    \
+    # ---------------- DEVELOPMENT TOOLS ----------------
+    # Git for version control
+    git \
+    # Python package manager
+    python3-pip \
+    # SSH client for GitHub / remote access
+    ssh-client \
+    \
+    # ---------------- ROS 2 TOOLS ----------------
+    # ROS bridge for websocket communication
+    ros-humble-rosbridge-server \
+    # rosdep installs system dependencies for ROS packages
+    python3-rosdep \
+    # colcon build tools for ROS workspaces
+    python3-colcon-common-extensions \
+    \
+    # ---------------- HARDWARE / NETWORK ----------------
+    # USB utilities
+    usbutils \
+    # CAN bus utilities
+    can-utils \
+    # Networking utilities
+    iproute2 \
+    # Kernel module tools
+    kmod \
+    \
+    # ---------------- PYTHON ----------------
+    python3-numpy \
+    libboost-python-dev \
+    libopencv-dev \
+    python3-opencv \
+    \
+    # ---------------- MISC / UTILITIES ----------------
+    lsb-release \
+    gnupg \
+    wget \
+    zstd \
     && rm -rf /var/lib/apt/lists/*
 
-# ------------------------ PYTHON SETUP ------------------------
 
-# Install moteus python library
-# https://github.com/mjbots/moteus/tree/main/lib/python
+# --------------------------------------------------------------------------------------------
+# PYTHON DEPENDENCIES
+# --------------------------------------------------------------------------------------------
+
+# Install the moteus Python library (motor controller interface)
+# https://github.com/mjbots/moteus
 RUN pip3 install moteus
 
-# Install additional Python dependencies
+# Install additional Python libraries used by the project
+#   - pyusb: USB device communication
+#   - opencv-python: Python OpenCV bindings
 RUN pip3 install pyusb opencv-python
 
-# Update pydocstyle to remove a deprecation warning when testing for PEP257
+# Update pydocstyle to avoid deprecation warnings during testing
 RUN pip3 install --upgrade pydocstyle
 
-# ------------------------ GAZEBO INSTALL------------------------
 
-# Install Gazebo Ignition Fortress
-RUN sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-RUN sudo apt-get update && sudo apt-get install -y ignition-fortress
+# --------------------------------------------------------------------------------------------
+# GAZEBO / SIMULATION SETUP
+# --------------------------------------------------------------------------------------------
 
-# ------------------------ USER + BASH CUSTOMIZATION ------------------------
+# Add the OSRF Gazebo package signing key
+RUN curl https://packages.osrfoundation.org/gazebo.gpg \
+    --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
 
-# Add a user so we can remote into this container with a non-root user
+# Add the Gazebo stable repository
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] \
+    https://packages.osrfoundation.org/gazebo/ubuntu-stable \
+    $(lsb_release -cs) main" \
+    | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+
+# Install Gazebo Ignition Fortress (simulation environment)
+RUN apt-get update && apt-get install -y ignition-fortress
+
+
+# --------------------------------------------------------------------------------------------
+# DISPLAY / VNC CONFIGURATION
+# --------------------------------------------------------------------------------------------
+
+# Expose ports for:
+#   - noVNC (browser-based desktop)
+#   - VNC client connections
+EXPOSE 6080 5900
+
+# Environment variables used by X11, VNC, and helper scripts
+ENV DISPLAY=:1
+ENV VNC_PORT=5900
+ENV NOVNC_PORT=6080
+ENV SCREEN_WIDTH=1280
+ENV SCREEN_HEIGHT=720
+ENV SCREEN_DEPTH=24
+
+# Custom Xorg configuration for the dummy display
+COPY xorg.conf /etc/X11/xorg.conf
+
+
+# --------------------------------------------------------------------------------------------
+# USER SETUP + SHELL CUSTOMIZATION
+# --------------------------------------------------------------------------------------------
+
+# Create a non-root user for daily development.
+# Running as non-root is safer and matches real dev environments.
 RUN useradd trickfire \
-    # Bash will be its default shell
     --shell /bin/bash \
-    # Give it a directory in /home
     --create-home \
-    # Don't make a giant log file for login data, we don't care about it
     --no-log-init
 
-# Copy all the bash customizations over to the user
+# Copy custom bash configuration for the user
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 
-# Give sudo access
+# Allow the user to run sudo commands without a password
+# (useful inside devcontainers)
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
-# Fix permissions
+# Fix permissions for ROS + Python tooling
+#   - rosdep requires correct permissions
+#   - ensure Python packages are readable
 RUN rosdep fix-permissions && \
     chown -R trickfire:trickfire /usr/local/lib/python3.10/dist-packages && \
     chmod -R a+rX /usr/local/lib/python3.10/dist-packages
 
-# Change to the non-root user
+# Switch to the non-root user by default
 USER trickfire
