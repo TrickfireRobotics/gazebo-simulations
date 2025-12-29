@@ -3,8 +3,7 @@
 # --------------------------------------------------------------------------------------------
 # run_macos.sh
 # --------------------------------------------------------------------------------------------
-# Open XQuartz, allows local connections, and then tries to find a running vscode
-# devcontainer, and than attaches to it
+# Finds the running vscode devcontainer, and than attaches to it
 # --------------------------------------------------------------------------------------------
 
 set -euo pipefail
