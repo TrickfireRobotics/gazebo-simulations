@@ -107,28 +107,4 @@ x11vnc \
 #
 log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
 /usr/share/novnc/utils/launch.sh --vnc localhost:5900 --listen 6080 &
-
-# --------------------------------------------------------------------------------------------
-# STARTUP SUMMARY
-# --------------------------------------------------------------------------------------------
-#
-echo -e "\n\n"
-echo "============================================================"
-echo " Headless Desktop Environment Started Successfully"
-echo "============================================================"
-echo ""
-echo " Display:"
-echo "   DISPLAY        = ${DISPLAY}"
-echo "   Resolution     = ${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
-echo ""
-echo " VNC Access:"
-echo "   Port           = ${VNC_PORT}"
-echo ""
-echo " Browser Access (noVNC):"
-echo "   URL            = http://localhost:${NOVNC_PORT}/vnc.html"
-echo ""
-echo " Notes:"
-echo "   - Ports must be exposed with Docker"
-echo "   - This script runs all services in the background"
-echo ""
-echo "============================================================"
+log "Done"
