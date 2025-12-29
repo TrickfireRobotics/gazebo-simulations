@@ -27,10 +27,24 @@ Open up [http://localhost:6080/vnc.html](http://localhost:6080/vnc.html) and cli
 Make sure you have docker desktop installed.
 
 Install [x410 - x server for windows](https://apps.microsoft.com/detail/9pm8lp83g3l3?hl=en-US&gl=KE)
-
-Open the `x410 app`. Nothing will show up, but it should be running in the background.
+  
+Open the `x410` app. Nothing will show up, but it should be running in the background.
 
 Once in the devcontainer, in the terminal run:
+
+```bash
+export DISPLAY=host.docker.internal:0.0
+```
+
+If you get LibGL errors, run this in the terminal as well:
+
+```bash
+export LIBGL_ALWAYS_INDIRECT=1
+```
+
+#### Cloning the repository:
+ 
+1.	In a WSL terminal, clone the repository:
 
 ```bash
 export DISPLAY=host.docker.internal:0.0
