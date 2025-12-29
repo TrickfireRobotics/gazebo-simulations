@@ -14,7 +14,27 @@
 #   - Running GUI apps (Gazebo) in a Docker container
 # --------------------------------------------------------------------------------------------
 
-set -e
+log() {
+    local message="$1"
+    local bold_cyan="\033[1;36m"  # 1 = bold, 36 = cyan
+    local reset="\033[0m"         # Reset colors
+    echo -e "${bold_cyan}${message}${reset}"
+}
+
+# --------------------------------------------------------------------------------------------
+# ENVIRONMENT VALIDATION
+# --------------------------------------------------------------------------------------------
+#
+# Ensure all required environment variables are set before continuing.
+# These are normally defined in the Dockerfile.
+#
+: "${DISPLAY:?DISPLAY is not set (expected something like :1)}"
+: "${VNC_PORT:?VNC_PORT is not set (expected 5900)}"
+: "${NOVNC_PORT:?NOVNC_PORT is not set (expected 6080)}"
+: "${SCREEN_WIDTH:?SCREEN_WIDTH is not set}"
+: "${SCREEN_HEIGHT:?SCREEN_HEIGHT is not set}"
+: "${SCREEN_DEPTH:?SCREEN_DEPTH is not set}"
+
 
 # --------------------------------------------------------------------------------------------
 # START X11 SERVER (HEADLESS)
@@ -26,9 +46,9 @@ set -e
 #   -noreset              -> Prevent Xorg from restarting when clients disconnect
 #   -config xorg.conf     -> Use a custom dummy display configuration
 #
+log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
 Xorg "$DISPLAY" -noreset -config /etc/X11/xorg.conf &
 sleep 1
-
 
 # --------------------------------------------------------------------------------------------
 # START WINDOW MANAGER
@@ -39,6 +59,7 @@ sleep 1
 #   - Basic window movement / resizing
 #   - A usable desktop environment
 #
+log "[WM] Starting Openbox window manager"
 openbox-session &
 
 
@@ -55,6 +76,7 @@ openbox-session &
 #   -nopw                 -> Disable password auth
 #   -xkb                  -> Enable proper keyboard mapping
 #
+log "[VNC] Starting x11vnc on port ${VNC_PORT}"
 x11vnc \
     -display "$DISPLAY" \
     -forever \
@@ -83,6 +105,30 @@ x11vnc \
 #
 # Runs in the background so the script continues normally.
 #
-/usr/share/novnc/utils/launch.sh \
-    --vnc localhost:$VNC_PORT \
-    --listen "$NO_VNC_PORT" &
+log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
+/usr/share/novnc/utils/launch.sh --vnc localhost:5900 --listen 6080 &
+
+# --------------------------------------------------------------------------------------------
+# STARTUP SUMMARY
+# --------------------------------------------------------------------------------------------
+#
+echo -e "\n\n"
+echo "============================================================"
+echo " Headless Desktop Environment Started Successfully"
+echo "============================================================"
+echo ""
+echo " Display:"
+echo "   DISPLAY        = ${DISPLAY}"
+echo "   Resolution     = ${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
+echo ""
+echo " VNC Access:"
+echo "   Port           = ${VNC_PORT}"
+echo ""
+echo " Browser Access (noVNC):"
+echo "   URL            = http://localhost:${NOVNC_PORT}/vnc.html"
+echo ""
+echo " Notes:"
+echo "   - Ports must be exposed with Docker"
+echo "   - This script runs all services in the background"
+echo ""
+echo "============================================================"
