@@ -24,13 +24,12 @@ log() {
 # --------------------------------------------------------------------------------------------
 # ENVIRONMENT VALIDATION
 # --------------------------------------------------------------------------------------------
-#
 # Ensure all required environment variables are set before continuing.
 # These are normally defined in the Dockerfile.
 #
-: "${DISPLAY:?DISPLAY is not set (expected something like :1)}"
-: "${VNC_PORT:?VNC_PORT is not set (expected 5900)}"
-: "${NOVNC_PORT:?NOVNC_PORT is not set (expected 6080)}"
+: "${DISPLAY:?DISPLAY is not set}"
+: "${VNC_PORT:?VNC_PORT is not set}"
+: "${NOVNC_PORT:?NOVNC_PORT is not set}"
 : "${SCREEN_WIDTH:?SCREEN_WIDTH is not set}"
 : "${SCREEN_HEIGHT:?SCREEN_HEIGHT is not set}"
 : "${SCREEN_DEPTH:?SCREEN_DEPTH is not set}"
