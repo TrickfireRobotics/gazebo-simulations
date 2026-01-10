@@ -160,7 +160,7 @@ log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
 run /usr/share/novnc/utils/launch.sh \
     --vnc "localhost:${VNC_PORT}" \
     --listen "${NOVNC_PORT}" &
-log "[noVNC] Desktop available at: http://localhost:6080/vnc.html"
+log "[noVNC] Desktop available at: http://localhost:${NOVNC_PORT}/vnc.html"
 
 log "[MAIN] All services started. Press Ctrl+C to stop"
 wait
