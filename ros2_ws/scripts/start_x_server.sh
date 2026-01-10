@@ -10,6 +10,7 @@ set -o pipefail
 #   - A virtual X server (Xorg) using a dummy display
 #   - A lightweight window manager (Openbox)
 #   - A VNC server (x11vnc) for remote access
+#   - noVNC for accesing the VNC server through a browser
 #
 # Intended for:
 #   - Running GUI apps (Gazebo) in a Docker container
@@ -55,6 +56,23 @@ run() {
         }
     fi
 }
+
+cleanup() {
+    # disable traps to prevent infinitre rercustion
+    trap - SIGINT SIGTERM EXIT
+    log "[CLEANUP] Shutting down X11 / VNC / noVNC…"
+    kill -- -$$ 2>/dev/null
+    wait 2>/dev/null
+    exit 0
+}
+
+# --------------------------------------------------------------------------------------------
+# CLEANUP
+# --------------------------------------------------------------------------------------------
+# Kills all the processes this script startet when it ends. This method specifically traps
+# the method cleanup on the three events.
+#
+trap cleanup SIGINT SIGTERM EXIT
 
 # --------------------------------------------------------------------------------------------
 # ENVIRONMENT VALIDATION
@@ -144,4 +162,5 @@ run /usr/share/novnc/utils/launch.sh \
     --listen "${NOVNC_PORT}" &
 log "[noVNC] Desktop available at: http://localhost:6080/vnc.html"
 
-log "Done"
+log "[MAIN] All services started. Press Ctrl+C to stop"
+wait
