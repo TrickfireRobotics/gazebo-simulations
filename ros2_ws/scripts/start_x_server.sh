@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o pipefail
 
 # --------------------------------------------------------------------------------------------
 # start_x_server.sh
@@ -12,6 +13,25 @@
 #
 # Intended for:
 #   - Running GUI apps (Gazebo) in a Docker container
+
+VERBOSE=false
+LOG_FILE="/tmp/start_x_server.log"
+: > "$LOG_FILE"
+
+# --------------------------------------------------------------------------------------------
+# ARGUMENT PARSING
+# --------------------------------------------------------------------------------------------
+
+for arg in "$@"; do
+    case "$arg" in
+        -v|--verbose)
+            VERBOSE=true
+            ;;
+    esac
+done
+
+# --------------------------------------------------------------------------------------------
+# HELPER METHODS
 # --------------------------------------------------------------------------------------------
 
 log() {
@@ -19,6 +39,21 @@ log() {
     local bold_cyan="\033[1;36m"  # 1 = bold, 36 = cyan
     local reset="\033[0m"         # Reset colors
     echo -e "${bold_cyan}${message}${reset}"
+}
+
+run() {
+    if $VERBOSE; then
+        "$@"
+    else
+        "$@" >>"$LOG_FILE" 2>&1 || {
+            echo
+            echo "❌ Command failed: $*"
+            echo "────────── OUTPUT START ──────────"
+            cat "$LOG_FILE"
+            echo "─────────── OUTPUT END ───────────"
+            exit 1
+        }
+    fi
 }
 
 # --------------------------------------------------------------------------------------------
@@ -36,7 +71,7 @@ log() {
 
 
 # --------------------------------------------------------------------------------------------
-# START X11 SERVER (HEADLESS)
+# START X11 SERVER
 # --------------------------------------------------------------------------------------------
 # Launch an Xorg server on display :1
 #
@@ -46,7 +81,7 @@ log() {
 #   -config xorg.conf     -> Use a custom dummy display configuration
 #
 log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
-Xorg "$DISPLAY" -noreset -config /etc/X11/xorg.conf &
+run Xorg "$DISPLAY" -noreset -config /etc/X11/xorg.conf &
 sleep 1
 
 # --------------------------------------------------------------------------------------------
@@ -59,8 +94,7 @@ sleep 1
 #   - A usable desktop environment
 #
 log "[WM] Starting Openbox window manager"
-openbox-session &
-
+run openbox-session &
 
 # --------------------------------------------------------------------------------------------
 # START VNC SERVER
@@ -76,7 +110,7 @@ openbox-session &
 #   -xkb                  -> Enable proper keyboard mapping
 #
 log "[VNC] Starting x11vnc on port ${VNC_PORT}"
-x11vnc \
+run x11vnc \
     -display "$DISPLAY" \
     -forever \
     -shared \
@@ -85,7 +119,7 @@ x11vnc \
     -xkb &
 
 # --------------------------------------------------------------------------------------------
-# START BROWSER-BASED DESKTOP (noVNC)
+# START noVNC
 # --------------------------------------------------------------------------------------------
 # launch.sh is the official noVNC helper script.
 # It starts:
@@ -105,5 +139,9 @@ x11vnc \
 # Runs in the background so the script continues normally.
 #
 log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
-/usr/share/novnc/utils/launch.sh --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}" &
+run /usr/share/novnc/utils/launch.sh \
+    --vnc "localhost:${VNC_PORT}" \
+    --listen "${NOVNC_PORT}" &
+log "[noVNC] Desktop available at: http://localhost:6080/vnc.html"
+
 log "Done"
