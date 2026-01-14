@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------------
-# attach.sh
+# attach_to_container.sh
 # --------------------------------------------------------------------------------------------
-# Finds the running vscode devcontainer, and than attaches to it
+# Host-side helper script to attach an external terminal to a running VS Code devcontainer.
+#
+# This script:
+#   - Locates the active devcontainer started by VS Code
+#   - Opens an interactive shell inside the container as the configured user
+#   - Preserves terminal settings for a proper interactive experience
+#
+# Intended usage:
+#   - Run from the HOST system (e.g. not inside the container)
+#   - Useful for attaching additional terminals to an already-running devcontainer
+#
+# IMPORTANT:
+#   - This script is NOT meant to be executed from inside the container
 # --------------------------------------------------------------------------------------------
 
 set -euo pipefail
