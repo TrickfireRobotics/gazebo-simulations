@@ -171,7 +171,7 @@ ENV SCREEN_HEIGHT=720
 ENV SCREEN_DEPTH=24
 
 # Custom Xorg configuration for the dummy display
-COPY xorg.conf /etc/X11/xorg.conf
+COPY .devcontainer/xorg.conf /etc/X11/xorg.conf
 
 
 # --------------------------------------------------------------------------------------------
