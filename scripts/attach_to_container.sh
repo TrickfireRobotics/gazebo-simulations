@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------------
-# attach.sh
+# attach_to_container.sh
 # --------------------------------------------------------------------------------------------
 # Host-side helper script to attach an external terminal to a running VS Code devcontainer.
 #
