@@ -163,7 +163,7 @@ RUN apt-get update && apt-get install -y ignition-fortress
 EXPOSE 6080 5900
 
 # Environment variables used by X11, VNC, and helper scripts
-ENV DISPLAY=:1
+ENV DISPLAY=:0
 ENV VNC_PORT=5900
 ENV NOVNC_PORT=6080
 ENV SCREEN_WIDTH=1280
