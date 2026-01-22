@@ -25,7 +25,9 @@ SCREEN_HEIGHT=720
 SCREEN_DEPTH=24
 
 # These are defined in the .devcontainer Dockerfile
+# or in the .devcontainer/launch.env file
 # The following lines check if the env vars are set
+: "${DISPLAY:?DISPLAY is not set}"
 : "${VNC_PORT:?VNC_PORT is not set}"
 : "${NOVNC_PORT:?NOVNC_PORT is not set}"
 
@@ -79,6 +81,16 @@ cleanup() {
     wait 2>/dev/null
     exit 0
 }
+
+# --------------------------------------------------------------------------------------------
+# DISPLAY CHECK
+# --------------------------------------------------------------------------------------------
+# Checks if anything is already using the display this x-server is planning to use
+#
+if xdpyinfo -display "$DISPLAY" &>/dev/null; then
+    log "[ERROR] Display $DISPLAY is in use!"
+    exit 1
+fi
 
 # --------------------------------------------------------------------------------------------
 # CLEANUP
