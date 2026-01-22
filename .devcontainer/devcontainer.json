@@ -5,13 +5,12 @@
     "remoteUser": "trickfire",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
-    "initializeCommand": ".devcontainer/launch.sh",
     "runArgs": [
         "--privileged",
         "--cap-add=SYS_PTRACE",
         "--device=/dev",
-        "--security-opt", "seccomp=unconfined",
-        "--env-file", ".devcontainer/launch.env",
+        "--security-opt",
+        "seccomp=unconfined",
         "-e", "QT_X11_NO_MITSHM=1",
         "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
     ],

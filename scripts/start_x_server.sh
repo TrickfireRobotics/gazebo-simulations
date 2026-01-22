@@ -15,22 +15,6 @@ set -o pipefail
 # Intended for:
 #   - Running GUI apps (Gazebo) in a Docker container
 
-# --------------------------------------------------------------------------------------------
-# VARIABLES
-# --------------------------------------------------------------------------------------------
-# These are all the values the commands below use
-
-SCREEN_WIDTH=1280
-SCREEN_HEIGHT=720
-SCREEN_DEPTH=24
-
-# These are defined in the .devcontainer Dockerfile
-# or in the .devcontainer/launch.env file
-# The following lines check if the env vars are set
-: "${DISPLAY:?DISPLAY is not set}"
-: "${VNC_PORT:?VNC_PORT is not set}"
-: "${NOVNC_PORT:?NOVNC_PORT is not set}"
-
 VERBOSE=false
 LOG_FILE="/tmp/start_x_server.log"
 : > "$LOG_FILE"
@@ -83,22 +67,26 @@ cleanup() {
 }
 
 # --------------------------------------------------------------------------------------------
-# DISPLAY CHECK
-# --------------------------------------------------------------------------------------------
-# Checks if anything is already using the display this x-server is planning to use
-#
-if xdpyinfo -display "$DISPLAY" &>/dev/null; then
-    log "[ERROR] Display $DISPLAY is in use!"
-    exit 1
-fi
-
-# --------------------------------------------------------------------------------------------
 # CLEANUP
 # --------------------------------------------------------------------------------------------
 # Kills all the processes this script startet when it ends. This method specifically traps
 # the method cleanup on the three events.
 #
 trap cleanup SIGINT SIGTERM EXIT
+
+# --------------------------------------------------------------------------------------------
+# ENVIRONMENT VALIDATION
+# --------------------------------------------------------------------------------------------
+# Ensure all required environment variables are set before continuing.
+# These are normally defined in the Dockerfile.
+#
+: "${DISPLAY:?DISPLAY is not set}"
+: "${VNC_PORT:?VNC_PORT is not set}"
+: "${NOVNC_PORT:?NOVNC_PORT is not set}"
+: "${SCREEN_WIDTH:?SCREEN_WIDTH is not set}"
+: "${SCREEN_HEIGHT:?SCREEN_HEIGHT is not set}"
+: "${SCREEN_DEPTH:?SCREEN_DEPTH is not set}"
+
 
 # --------------------------------------------------------------------------------------------
 # START X11 SERVER
