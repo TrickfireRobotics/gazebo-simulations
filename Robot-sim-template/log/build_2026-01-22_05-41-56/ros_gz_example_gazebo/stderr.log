@@ -1,0 +1,17 @@
+[31mCMake Error at CMakeLists.txt:16 (find_package):
+  By not providing "Findgz-common5.cmake" in CMAKE_MODULE_PATH this project
+  has asked CMake to find a package configuration file provided by
+  "gz-common5", but CMake did not find one.
+
+  Could not find a package configuration file provided by "gz-common5" with
+  any of the following names:
+
+    gz-common5Config.cmake
+    gz-common5-config.cmake
+
+  Add the installation prefix of "gz-common5" to CMAKE_PREFIX_PATH or set
+  "gz-common5_DIR" to a directory containing one of the above files.  If
+  "gz-common5" provides a separate development package or SDK, be sure it has
+  been installed.
+
+[0m

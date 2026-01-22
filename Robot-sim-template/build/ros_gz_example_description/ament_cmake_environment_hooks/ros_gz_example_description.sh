@@ -1,0 +1,2 @@
+ament_prepend_unique_value GZ_SIM_RESOURCE_PATH "$AMENT_CURRENT_PREFIX/share/ros_gz_example_description/models"
+

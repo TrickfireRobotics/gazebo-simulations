@@ -1,0 +1,271 @@
+[0.043s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--cmake-args', '-DBUILD_TESTING=ON']
+[0.043s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=10, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, cmake_args=['-DBUILD_TESTING=ON'], cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0xffff98c0f3a0>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0xffff98c0ed10>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0xffff98c0ed10>>, mixin_verb=('build',))
+[0.086s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.087s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.087s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.087s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.087s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.087s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.087s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/trickfire/gazebo-simulations/Robot-sim-template'
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.087s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.088s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.092s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.092s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.092s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.092s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.092s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.093s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.093s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.093s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.094s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.094s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.094s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.094s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.094s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.094s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extensions ['ignore', 'ignore_ament_install']
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extension 'ignore'
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extension 'ignore_ament_install'
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extensions ['colcon_pkg']
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extension 'colcon_pkg'
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extensions ['colcon_meta']
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extension 'colcon_meta'
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extensions ['ros']
+[0.095s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_application) by extension 'ros'
+[0.097s] DEBUG:colcon.colcon_core.package_identification:Package 'ros_gz_example_application' with type 'ros.ament_cmake' and name 'ros_gz_example_application'
+[0.097s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extensions ['ignore', 'ignore_ament_install']
+[0.097s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extension 'ignore'
+[0.097s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extension 'ignore_ament_install'
+[0.098s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extensions ['colcon_pkg']
+[0.098s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extension 'colcon_pkg'
+[0.098s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extensions ['colcon_meta']
+[0.098s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extension 'colcon_meta'
+[0.098s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extensions ['ros']
+[0.098s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_bringup) by extension 'ros'
+[0.098s] DEBUG:colcon.colcon_core.package_identification:Package 'ros_gz_example_bringup' with type 'ros.ament_cmake' and name 'ros_gz_example_bringup'
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extensions ['ignore', 'ignore_ament_install']
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extension 'ignore'
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extension 'ignore_ament_install'
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extensions ['colcon_pkg']
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extension 'colcon_pkg'
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extensions ['colcon_meta']
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extension 'colcon_meta'
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extensions ['ros']
+[0.099s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_description) by extension 'ros'
+[0.100s] DEBUG:colcon.colcon_core.package_identification:Package 'ros_gz_example_description' with type 'ros.ament_cmake' and name 'ros_gz_example_description'
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extensions ['ignore', 'ignore_ament_install']
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extension 'ignore'
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extension 'ignore_ament_install'
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extensions ['colcon_pkg']
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extension 'colcon_pkg'
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extensions ['colcon_meta']
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extension 'colcon_meta'
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extensions ['ros']
+[0.100s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_example_gazebo) by extension 'ros'
+[0.101s] DEBUG:colcon.colcon_core.package_identification:Package 'ros_gz_example_gazebo' with type 'ros.ament_cmake' and name 'ros_gz_example_gazebo'
+[0.101s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extensions ['ignore', 'ignore_ament_install']
+[0.101s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'ignore'
+[0.101s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'ignore_ament_install'
+[0.101s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extensions ['colcon_pkg']
+[0.101s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'colcon_pkg'
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extensions ['colcon_meta']
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'colcon_meta'
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extensions ['ros']
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'ros'
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extensions ['cmake', 'python']
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'cmake'
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'python'
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extensions ['python_setup_py']
+[0.102s] Level 1:colcon.colcon_core.package_identification:_identify(ros_gz_project_template) by extension 'python_setup_py'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.103s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.103s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.104s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.104s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.104s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.104s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.111s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'cmake_args' from command line to '['-DBUILD_TESTING=ON']'
+[0.111s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'cmake_target' from command line to 'None'
+[0.111s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.111s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'cmake_clean_cache' from command line to 'False'
+[0.111s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'cmake_clean_first' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'cmake_force_configure' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'ament_cmake_args' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'catkin_cmake_args' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_application' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.112s] DEBUG:colcon.colcon_core.verb:Building package 'ros_gz_example_application' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': ['-DBUILD_TESTING=ON'], 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application', 'merge_install': False, 'path': '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_application', 'symlink_install': False, 'test_result_base': None}
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'cmake_args' from command line to '['-DBUILD_TESTING=ON']'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'cmake_target' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'cmake_clean_cache' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'cmake_clean_first' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'cmake_force_configure' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'ament_cmake_args' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'catkin_cmake_args' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_description' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.112s] DEBUG:colcon.colcon_core.verb:Building package 'ros_gz_example_description' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': ['-DBUILD_TESTING=ON'], 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description', 'merge_install': False, 'path': '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_description', 'symlink_install': False, 'test_result_base': None}
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'cmake_args' from command line to '['-DBUILD_TESTING=ON']'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'cmake_target' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'cmake_clean_cache' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'cmake_clean_first' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'cmake_force_configure' from command line to 'False'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'ament_cmake_args' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'catkin_cmake_args' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_gazebo' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.112s] DEBUG:colcon.colcon_core.verb:Building package 'ros_gz_example_gazebo' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': ['-DBUILD_TESTING=ON'], 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo', 'merge_install': False, 'path': '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo', 'symlink_install': False, 'test_result_base': None}
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'cmake_args' from command line to '['-DBUILD_TESTING=ON']'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'cmake_target' from command line to 'None'
+[0.112s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.113s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'cmake_clean_cache' from command line to 'False'
+[0.113s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'cmake_clean_first' from command line to 'False'
+[0.113s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'cmake_force_configure' from command line to 'False'
+[0.113s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'ament_cmake_args' from command line to 'None'
+[0.113s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'catkin_cmake_args' from command line to 'None'
+[0.113s] Level 5:colcon.colcon_core.verb:set package 'ros_gz_example_bringup' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.113s] DEBUG:colcon.colcon_core.verb:Building package 'ros_gz_example_bringup' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_bringup', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': ['-DBUILD_TESTING=ON'], 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_bringup', 'merge_install': False, 'path': '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_bringup', 'symlink_install': False, 'test_result_base': None}
+[0.113s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.113s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.114s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_description' with build type 'ament_cmake'
+[0.114s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_description'
+[0.115s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.115s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.115s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.117s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_application' with build type 'ament_cmake'
+[0.118s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_application'
+[0.118s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.118s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.126s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description -- -j10 -l10
+[0.129s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application -- -j10 -l10
+[0.140s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description -- -j10 -l10
+[0.145s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description
+[0.145s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application -- -j10 -l10
+[0.147s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application
+[0.160s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(ros_gz_example_application)
+[0.162s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application' for CMake module files
+[0.164s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application' for CMake config files
+[0.164s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_application
+[0.165s] Level 1:colcon.colcon_core.shell:create_environment_hook('ros_gz_example_application', 'cmake_prefix_path')
+[0.165s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/hook/cmake_prefix_path.ps1'
+[0.166s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/hook/cmake_prefix_path.dsv'
+[0.167s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/hook/cmake_prefix_path.sh'
+[0.168s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/bin'
+[0.168s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/lib/pkgconfig/ros_gz_example_application.pc'
+[0.169s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/lib/python3.10/site-packages'
+[0.169s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/bin'
+[0.169s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.ps1'
+[0.170s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.dsv'
+[0.170s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.sh'
+[0.170s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.bash'
+[0.171s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.zsh'
+[0.171s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/colcon-core/packages/ros_gz_example_application)
+[0.172s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(ros_gz_example_application)
+[0.172s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application' for CMake module files
+[0.173s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application' for CMake config files
+[0.174s] Level 1:colcon.colcon_core.shell:create_environment_hook('ros_gz_example_application', 'cmake_prefix_path')
+[0.174s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/hook/cmake_prefix_path.ps1'
+[0.175s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/hook/cmake_prefix_path.dsv'
+[0.175s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/hook/cmake_prefix_path.sh'
+[0.176s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/bin'
+[0.176s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/lib/pkgconfig/ros_gz_example_application.pc'
+[0.176s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/lib/python3.10/site-packages'
+[0.177s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/bin'
+[0.177s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.ps1'
+[0.177s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.dsv'
+[0.178s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.sh'
+[0.178s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.bash'
+[0.179s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/ros_gz_example_application/package.zsh'
+[0.179s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_application/share/colcon-core/packages/ros_gz_example_application)
+[0.180s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(ros_gz_example_description)
+[0.180s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description' for CMake module files
+[0.180s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_description
+[0.182s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description' for CMake config files
+[0.183s] Level 1:colcon.colcon_core.shell:create_environment_hook('ros_gz_example_description', 'cmake_prefix_path')
+[0.183s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/hook/cmake_prefix_path.ps1'
+[0.183s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/hook/cmake_prefix_path.dsv'
+[0.184s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/hook/cmake_prefix_path.sh'
+[0.184s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/bin'
+[0.184s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/lib/pkgconfig/ros_gz_example_description.pc'
+[0.185s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/lib/python3.10/site-packages'
+[0.185s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/bin'
+[0.185s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.ps1'
+[0.185s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.dsv'
+[0.186s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.sh'
+[0.186s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.bash'
+[0.186s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.zsh'
+[0.187s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/colcon-core/packages/ros_gz_example_description)
+[0.187s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(ros_gz_example_description)
+[0.187s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description' for CMake module files
+[0.189s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description' for CMake config files
+[0.190s] Level 1:colcon.colcon_core.shell:create_environment_hook('ros_gz_example_description', 'cmake_prefix_path')
+[0.190s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/hook/cmake_prefix_path.ps1'
+[0.190s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/hook/cmake_prefix_path.dsv'
+[0.190s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/hook/cmake_prefix_path.sh'
+[0.191s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/bin'
+[0.191s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/lib/pkgconfig/ros_gz_example_description.pc'
+[0.191s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/lib/python3.10/site-packages'
+[0.192s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/bin'
+[0.192s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.ps1'
+[0.192s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.dsv'
+[0.192s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.sh'
+[0.193s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.bash'
+[0.193s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/package.zsh'
+[0.193s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/colcon-core/packages/ros_gz_example_description)
+[0.194s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo' with build type 'ament_cmake'
+[0.194s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo'
+[0.194s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.194s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.201s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo': AMENT_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:/opt/ros/humble GZ_SIM_RESOURCE_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/models /usr/bin/cmake /home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo
+[0.293s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo' returned '1': AMENT_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:/opt/ros/humble GZ_SIM_RESOURCE_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/models /usr/bin/cmake /home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo
+[0.296s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(ros_gz_example_gazebo)
+[0.296s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo' for CMake module files
+[0.297s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo' for CMake config files
+[0.298s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/bin'
+[0.298s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/lib/pkgconfig/ros_gz_example_gazebo.pc'
+[0.298s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/lib/python3.10/site-packages'
+[0.299s] Level 1:colcon.colcon_core.environment:checking '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/bin'
+[0.299s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/share/ros_gz_example_gazebo/package.ps1'
+[0.299s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/share/ros_gz_example_gazebo/package.dsv'
+[0.300s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/share/ros_gz_example_gazebo/package.sh'
+[0.300s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/share/ros_gz_example_gazebo/package.bash'
+[0.300s] INFO:colcon.colcon_core.shell:Creating package script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/share/ros_gz_example_gazebo/package.zsh'
+[0.300s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo/share/colcon-core/packages/ros_gz_example_gazebo)
+[0.312s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[0.312s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[0.312s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '1'
+[0.312s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[0.315s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.notify_send': Could not find 'notify-send'
+[0.315s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[0.315s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[0.315s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[0.316s] DEBUG:colcon.colcon_notification.desktop_notification.notify2:Failed to initialize notify2: org.freedesktop.DBus.Error.Spawn.ExecFailed: /usr/bin/dbus-launch terminated abnormally without any error message
+[0.316s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[0.316s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/local_setup.ps1'
+[0.317s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/trickfire/gazebo-simulations/Robot-sim-template/install/_local_setup_util_ps1.py'
+[0.317s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/setup.ps1'
+[0.318s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/local_setup.sh'
+[0.318s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/trickfire/gazebo-simulations/Robot-sim-template/install/_local_setup_util_sh.py'
+[0.319s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/setup.sh'
+[0.319s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/local_setup.bash'
+[0.320s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/setup.bash'
+[0.327s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/local_setup.zsh'
+[0.327s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/trickfire/gazebo-simulations/Robot-sim-template/install/setup.zsh'

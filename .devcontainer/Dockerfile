@@ -93,7 +93,9 @@ RUN apt-get update && apt-get install -y \
     python3-rosdep \
     # colcon build tools for ROS workspaces
     python3-colcon-common-extensions \
-    \
+    ros-humble-ros-gz-sim \
+    ros-humble-ros-ign-bridge \
+
     # ---------------- HARDWARE / NETWORK ----------------
     # USB utilities
     usbutils \
@@ -115,6 +117,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     wget \
     zstd \
+    vim\
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -188,8 +191,18 @@ RUN useradd trickfire \
 # Copy custom bash configuration for the user
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 
-# Allow the user to run sudo commands without a password
-# (useful inside devcontainers)
+#---------------------------------------------------------------------------------------------
+#SIMULATION SETUP
+#---------------------------------------------------------------------------------------------
+COPY Robot-sim-template/ /home/trickfire/gazebo-simulations/src/
+
+RUN apt-get update && apt-get install -y \
+  libgz-cmake3-dev \
+  libgz-plugin2-dev \
+  libgz-common5-dev \
+  libgz-sim7-dev
+
+
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 # Fix permissions for ROS + Python tooling

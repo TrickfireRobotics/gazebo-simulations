@@ -1,0 +1,8 @@
+source;share/ros_gz_example_application/hook/cmake_prefix_path.ps1
+source;share/ros_gz_example_application/hook/cmake_prefix_path.dsv
+source;share/ros_gz_example_application/hook/cmake_prefix_path.sh
+source;share/ros_gz_example_application/local_setup.bash
+source;share/ros_gz_example_application/local_setup.dsv
+source;share/ros_gz_example_application/local_setup.ps1
+source;share/ros_gz_example_application/local_setup.sh
+source;share/ros_gz_example_application/local_setup.zsh
