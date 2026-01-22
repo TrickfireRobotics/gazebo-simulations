@@ -28,8 +28,8 @@
                 "ms-vscode.cpptools",
                 "twxs.cmake",
                 "yzhang.markdown-all-in-one",
-                "redhat.vscode-xml",
-                "Ranch-Hand-Robotics.rde-pack"
+                "Ranch-Hand-Robotics.rde-pack",
+                "DotJoshJohnson.xml"
             ]
         }
     }
