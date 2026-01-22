@@ -1,5 +1,13 @@
-# macOS
+### macOS ###
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon
 ._*
-*-alias
-images
+
+### VSCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/extensions.json
