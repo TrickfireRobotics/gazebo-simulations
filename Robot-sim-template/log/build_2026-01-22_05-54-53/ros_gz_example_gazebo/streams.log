@@ -1,0 +1,43 @@
+[0.005s] Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo': AMENT_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:/opt/ros/humble GZ_SIM_RESOURCE_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/models /usr/bin/cmake /home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo
+[0.012s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.071s] -- Found ros_gz_example_description: 0.0.0 (/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/cmake)
+[0.075s] -- Looking for gz-plugin2 -- found version 2.0.4
+[0.077s] -- Searching for dependencies of gz-plugin2
+[0.077s] -- Looking for gz-utils2 -- found version 2.2.1
+[0.077s] -- Searching for dependencies of gz-utils2
+[0.077s] -- Searching for <gz-utils2> component [cli]
+[0.077s] -- Looking for gz-utils2-cli -- found version 2.2.1
+[0.077s] -- Searching for dependencies of gz-utils2-cli
+[0.078s] -- Searching for <gz-plugin2> component [register]
+[0.078s] -- Looking for gz-plugin2-register -- found version 2.0.4
+[0.078s] -- Searching for dependencies of gz-plugin2-register
+[0.078s] -- Looking for gz-common5 -- found version 5.7.1
+[0.078s] -- Searching for dependencies of gz-common5
+[0.078s] -- Looking for gz-utils2 -- found version 2.2.1
+[0.078s] -- Looking for dlfcn.h - found
+[0.078s] -- Looking for libdl - found
+[0.081s] -- Checking for module 'uuid'
+[0.085s] --   Found uuid, version 2.37.2
+[0.093s] -- Searching for <gz-common5> component [profiler]
+[0.094s] -- Looking for gz-common5-profiler -- found version 5.7.1
+[0.094s] -- Searching for dependencies of gz-common5-profiler
+[0.101s] [31mCMake Error at CMakeLists.txt:26 (find_package):
+[0.102s]   By not providing "Findgz-sim7.cmake" in CMAKE_MODULE_PATH this project has
+[0.102s]   asked CMake to find a package configuration file provided by "gz-sim7", but
+[0.102s]   CMake did not find one.
+[0.102s] 
+[0.104s]   Could not find a package configuration file provided by "gz-sim7" with any
+[0.104s]   of the following names:
+[0.104s] 
+[0.105s]     gz-sim7Config.cmake
+[0.105s]     gz-sim7-config.cmake
+[0.106s] 
+[0.106s]   Add the installation prefix of "gz-sim7" to CMAKE_PREFIX_PATH or set
+[0.106s]   "gz-sim7_DIR" to a directory containing one of the above files.  If
+[0.106s]   "gz-sim7" provides a separate development package or SDK, be sure it has
+[0.106s]   been installed.
+[0.106s] 
+[0.106s] [0m
+[0.106s] -- Configuring incomplete, errors occurred!
+[0.107s] See also "/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo/CMakeFiles/CMakeOutput.log".
+[0.107s] Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo' returned '1': AMENT_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:/opt/ros/humble GZ_SIM_RESOURCE_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/models /usr/bin/cmake /home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo

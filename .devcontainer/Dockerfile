@@ -93,7 +93,9 @@ RUN apt-get update && apt-get install -y \
     python3-rosdep \
     # colcon build tools for ROS workspaces
     python3-colcon-common-extensions \
-    \
+    ros-humble-ros-gz-sim \
+    ros-humble-ros-ign-bridge \
+
     # ---------------- HARDWARE / NETWORK ----------------
     # USB utilities
     usbutils \
@@ -115,6 +117,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     wget \
     zstd \
+    vim\
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -160,15 +163,12 @@ RUN apt-get update && apt-get install -y ignition-fortress
 # Expose ports for:
 #   - noVNC (browser-based desktop)
 #   - VNC client connections
+# In case you need to change these, also change the env vars below to match
 EXPOSE 6080 5900
 
-# Environment variables used by X11, VNC, and helper scripts
-ENV DISPLAY=:0
+# Set ports as env vars to be used by the x server script
 ENV VNC_PORT=5900
 ENV NOVNC_PORT=6080
-ENV SCREEN_WIDTH=1280
-ENV SCREEN_HEIGHT=720
-ENV SCREEN_DEPTH=24
 
 # Custom Xorg configuration for the dummy display
 COPY .devcontainer/xorg.conf /etc/X11/xorg.conf
@@ -188,8 +188,18 @@ RUN useradd trickfire \
 # Copy custom bash configuration for the user
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 
-# Allow the user to run sudo commands without a password
-# (useful inside devcontainers)
+#---------------------------------------------------------------------------------------------
+#SIMULATION SETUP
+#---------------------------------------------------------------------------------------------
+COPY Robot-sim-template/ /home/trickfire/gazebo-simulations/src/
+
+RUN apt-get update && apt-get install -y \
+  libgz-cmake3-dev \
+  libgz-plugin2-dev \
+  libgz-common5-dev \
+  libgz-sim7-dev
+
+
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 # Fix permissions for ROS + Python tooling

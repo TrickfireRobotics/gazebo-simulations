@@ -1,0 +1,23 @@
+[0.005s] Invoking command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo': AMENT_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:/opt/ros/humble GZ_SIM_RESOURCE_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/models /usr/bin/cmake /home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo
+[0.012s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.059s] -- Found ros_gz_example_description: 0.0.0 (/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/cmake)
+[0.073s] [31mCMake Error at CMakeLists.txt:14 (find_package):
+[0.073s]   By not providing "Findgz-plugin2.cmake" in CMAKE_MODULE_PATH this project
+[0.073s]   has asked CMake to find a package configuration file provided by
+[0.073s]   "gz-plugin2", but CMake did not find one.
+[0.075s] 
+[0.075s]   Could not find a package configuration file provided by "gz-plugin2" with
+[0.075s]   any of the following names:
+[0.076s] 
+[0.076s]     gz-plugin2Config.cmake
+[0.077s]     gz-plugin2-config.cmake
+[0.077s] 
+[0.077s]   Add the installation prefix of "gz-plugin2" to CMAKE_PREFIX_PATH or set
+[0.077s]   "gz-plugin2_DIR" to a directory containing one of the above files.  If
+[0.077s]   "gz-plugin2" provides a separate development package or SDK, be sure it has
+[0.077s]   been installed.
+[0.077s] 
+[0.077s] [0m
+[0.077s] -- Configuring incomplete, errors occurred!
+[0.078s] See also "/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo/CMakeFiles/CMakeOutput.log".
+[0.078s] Invoked command in '/home/trickfire/gazebo-simulations/Robot-sim-template/build/ros_gz_example_gazebo' returned '1': AMENT_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description:/opt/ros/humble GZ_SIM_RESOURCE_PATH=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_description/share/ros_gz_example_description/models /usr/bin/cmake /home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/home/trickfire/gazebo-simulations/Robot-sim-template/install/ros_gz_example_gazebo
