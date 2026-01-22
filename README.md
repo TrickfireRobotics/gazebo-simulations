@@ -21,4 +21,4 @@ ign gazebo empty.sdf
 
 ### Windows with WSL
 
-WSL should forward windows from Docker out of the box, meaning you can skip the `start_x_server.sh` script part. Just run Gazebo and a window should pop out. The script will not work, because WSL binds display `:0`. You can find more info on it [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) in case you want to.
+WSL should forward windows from Docker out of the box, meaning you can skip the 5th and 6th step. Just run Gazebo and a Gazebo window should appear. The `start_x_server.sh` script will not work, because WSL binds display `:0`, also it essentially does the same thing WSL does on its own. You can find more info on it [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) in case you want to.
