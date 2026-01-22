@@ -1,8 +1,8 @@
 # Gazebo Simulations
 
-> This repository contains Gazebo simulations for the drivebase, arm, and autonomous.
+This repository contains Gazebo simulations for the drivebase, arm, and autonomous.
 
-### How to run Gazebo
+## How to run Gazebo
 
 > [!NOTE]
 > If you have Windows with WSL installed, first look [here](#windows-with-wsl)
