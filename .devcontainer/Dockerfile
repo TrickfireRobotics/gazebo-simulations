@@ -160,15 +160,12 @@ RUN apt-get update && apt-get install -y ignition-fortress
 # Expose ports for:
 #   - noVNC (browser-based desktop)
 #   - VNC client connections
+# In case you need to change these, also change the env vars below to match
 EXPOSE 6080 5900
 
-# Environment variables used by X11, VNC, and helper scripts
-ENV DISPLAY=:0
+# Set ports as env vars to be used by the x server script
 ENV VNC_PORT=5900
 ENV NOVNC_PORT=6080
-ENV SCREEN_WIDTH=1280
-ENV SCREEN_HEIGHT=720
-ENV SCREEN_DEPTH=24
 
 # Custom Xorg configuration for the dummy display
 COPY .devcontainer/xorg.conf /etc/X11/xorg.conf
