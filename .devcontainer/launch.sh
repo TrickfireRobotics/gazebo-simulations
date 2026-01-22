@@ -11,15 +11,14 @@ OS="$(uname)"
 if [[ "$OS" == "Darwin" ]]; then
 
   cat >> "$ENV_FILE" <<EOF
-DISPLAY_FOR_TRICKFIRE_GZ_SIM=:0
+DISPLAY=:0
 EOF
 
 else
 
   if [[ -n "${DISPLAY:-}" ]]; then
     cat >> "$ENV_FILE" <<EOF
-DISPLAY_FOR_TRICKFIRE_GZ_SIM=$DISPLAY
+DISPLAY=$DISPLAY
 EOF
   fi
 fi
-
