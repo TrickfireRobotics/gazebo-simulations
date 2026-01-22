@@ -21,4 +21,4 @@ ign gazebo empty.sdf
 
 ### Systems with X11
 
-On systems that provide X11 (like Linux and WSL), GUI forwarding is typically built-in. You can usually skip steps 5 and 6 and just run Gazebo — a Gazebo window should appear automatically. The start_x_server.sh script is not needed in these cases, since these systems already handle the display binding (for example, WSL binds to display :0). For more details, you can check [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+On systems that provide X11 (like Linux and WSL), GUI forwarding is typically built-in. You can usually skip steps 5 and 6 and just run Gazebo — a Gazebo window should appear automatically. The `start_x_server.sh` script is not needed in these cases, since these systems already handle the display binding (for example, WSL binds to display :0). For more details, you can check [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
