@@ -89,6 +89,9 @@ RUN apt-get update && apt-get install -y \
     # ---------------- ROS 2 TOOLS ----------------
     # ROS bridge for websocket communication
     ros-humble-rosbridge-server \
+    # Gazebo-Ros-brige
+    ros-humble-ros-ign-bridge \
+    ros-humble-ros-gz-sim \
     # rosdep installs system dependencies for ROS packages
     python3-rosdep \
     # colcon build tools for ROS workspaces
