@@ -117,3 +117,4 @@ if ! shopt -oq posix; then
 fi
 
 source /opt/ros/"${ROS_DISTRO}"/setup.bash
+source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
