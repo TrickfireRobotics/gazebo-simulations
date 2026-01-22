@@ -20,7 +20,6 @@ set -o pipefail
 # --------------------------------------------------------------------------------------------
 # These are all the values the commands below use
 
-DISPLAY=:0
 SCREEN_WIDTH=1280
 SCREEN_HEIGHT=720
 SCREEN_DEPTH=24
