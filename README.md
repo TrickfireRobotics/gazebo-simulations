@@ -7,76 +7,23 @@
 
 ---
 
-### How to run Gazebo on MacOS
+### How to run Gazebo
 
-Open the `devcontainer` inside VsCode, and attach to it either from the VsCode terminal or by running the `attach.sh` script in any terminal.
+> [!NOTE]
+> If you have Windows with WSL installed, first look [here](#windows-with-wsl)
 
-Turn on the X11 server. All of the necessary commands have been put into the `start_x_server.sh` script. This setup the desktop environment that any GUI app ran inside of the container can use.
-
-Run Gazebo using the following command:
+1. Clone this repo
+2. Open the repo inside VsCode, and attach to it either from the VsCode terminal or by running the `attach.sh` script in any terminal. Make sure you have `ms-vscode-remote.remote-containers` extension installed.
+3. Run the `start_x_server.sh` script. This sets up the desktop environment that any GUI app ran inside of the container can use.
+4. Open up [http://localhost:6080/vnc.html](http://localhost:6080/vnc.html) and click on the connect button.
+5. You can test if it works with running Gazebo with an empty world using the command below. you should see a Gazebo window on the website above.
 
 ```bash
 ign gazebo empty.sdf
 ```
 
-Open up [http://localhost:6080/vnc.html](http://localhost:6080/vnc.html) and click on the connect button. You should see Gazebo.
-
 ---
 
-### Windows (WSL)
-Make sure you have docker desktop installed.
+### Windows with WSL
 
-Install [x410 - x server for windows](https://apps.microsoft.com/detail/9pm8lp83g3l3?hl=en-US&gl=KE)
-  
-Open the `x410` app. Nothing will show up, but it should be running in the background.
-
-Once in the devcontainer, in the terminal run:
-
-```bash
-export DISPLAY=host.docker.internal:0.0
-```
-
-If you get LibGL errors, run this in the terminal as well:
-
-```bash
-export LIBGL_ALWAYS_INDIRECT=1
-```
-
-#### Cloning the repository:
- 
-1.	In a WSL terminal, clone the repository:
-
-```bash
-export DISPLAY=host.docker.internal:0.0
-```
-
-If you get LibGL errors, run this in the terminal as well:
-
-```bash
-export LIBGL_ALWAYS_INDIRECT=1
-```
-
-#### Cloning the repository:
-
-1. In a WSL terminal, clone the repository:
-
-```bash
-git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
-```
-
-2. Ensure Docker Desktop is running.
-
-3. Open the repo in VSCode through WSL:
-
-- Press Ctrl+Shift+P
-- Run Open Folder in WSL
-- Select the cloned repository
-
-4.	Reopen the project in the devcontainer:
-
-- Ctrl+Shift+P
-- Run Reopen in Container
-
-5.	Wait for the container to build. This can take ~35 minutes depending on hardware.
-
-6.	Once inside the devcontainer, open a terminal in VSCode and run:
+WSL should forward the image automatically, meaning you can skip the x-server script part. Just run Gazebo and a window should pop out. The script will not work, because WSL binds display `:0`. You can find more info on it [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) in case you want to.
