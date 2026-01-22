@@ -5,7 +5,7 @@
 ## How to run Gazebo
 
 > [!NOTE]
-> If you have Windows with WSL installed, first look [here](#windows-with-wsl)
+> If you have a device with X11 set up like Windows with WSL installed or Linux, first look [here](#systems-with-x11)
 
 1. Clone this repo
 2. Make sure you have the `ms-vscode-remote.remote-containers` VsCode extension installed.
@@ -19,6 +19,6 @@
 ign gazebo empty.sdf
 ```
 
-### Windows with WSL
+### Systems with X11
 
-WSL should forward windows from Docker out of the box, meaning you can skip the 5th and 6th step. Just run Gazebo and a Gazebo window should appear. The `start_x_server.sh` script will not work, because WSL binds display `:0`, also it essentially does the same thing WSL does on its own. You can find more info on it [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) in case you want to.
+On systems that provide X11 (like Linux and WSL), GUI forwarding is typically built-in. You can usually skip steps 5 and 6 and just run Gazebo — a Gazebo window should appear automatically. The start_x_server.sh script is not needed in these cases, since these systems already handle the display binding (for example, WSL binds to display :0). For more details, you can check [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
