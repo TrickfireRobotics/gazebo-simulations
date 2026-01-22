@@ -1,6 +1,6 @@
 # Gazebo Simulations
 
-This repository contains Gazebo simulations for the drivebase, arm, and autonomous.
+> This repository contains Gazebo simulations for the drivebase, arm, and autonomous.
 
 ## How to run Gazebo
 
@@ -17,8 +17,6 @@ This repository contains Gazebo simulations for the drivebase, arm, and autonomo
 ```bash
 ign gazebo empty.sdf
 ```
-
----
 
 ### Windows with WSL
 
