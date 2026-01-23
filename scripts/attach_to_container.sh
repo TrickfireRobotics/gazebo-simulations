@@ -23,7 +23,6 @@ set -euo pipefail
 CONTAINER_NAME="vsc-gazebo-simulations"
 USER_NAME="trickfire"
 
-
 # Find vscode devcontainer -------------------------------------------------------------------
 
 CONTAINER_ID=$(
@@ -45,8 +44,9 @@ fi
 echo ""
 echo "Attaching to .devcontainer $CONTAINER_ID ..."
 echo "--------------------------------"
+WORKSPACE_FOLDER="$(basename "$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)")"
 docker exec -it -u "$USER_NAME" \
     -e TERM=xterm-256color \
     -e XAUTHORITY="${XAUTHORITY:-}" \
     "$CONTAINER_ID" \
-    bash -il -c '[ -d /home/trickfire/gazebo-simulations ] && cd /home/trickfire/gazebo-simulations; exec bash -il'
+    bash -il -c "[ -d /home/trickfire/${WORKSPACE_FOLDER} ] && cd /home/trickfire/${WORKSPACE_FOLDER}; exec bash -il"
