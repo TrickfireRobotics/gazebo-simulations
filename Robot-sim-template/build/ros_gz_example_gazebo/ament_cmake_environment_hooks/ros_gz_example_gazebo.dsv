@@ -1,2 +1,0 @@
-prepend-non-duplicate;GZ_SIM_RESOURCE_PATH;share/ros_gz_example_gazebo/worlds
-prepend-non-duplicate;GZ_SIM_SYSTEM_PLUGIN_PATH;lib/ros_gz_example_gazebo/

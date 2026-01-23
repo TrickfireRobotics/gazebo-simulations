@@ -1,7 +1,26 @@
 #!/bin/bash
 
-cd /home/trickfire/gazebo-simulations/Robot-sim-template
+# --------------------------------------------------------------------------------------------
+# build-ros2-sim.sh
+# --------------------------------------------------------------------------------------------
+# Builds the ROS 2 Gazebo simulation workspace, sets up the environment,
+# registers custom Gazebo models, and launches the ROS2 robot simulation.
+# --------------------------------------------------------------------------------------------
+
+# Checkout Sim template folder
+cd /home/trickfire/gazebo-simulations/Robot-sim-template || exit 1
+
+# Build all of the folders Within our Folder
 colcon build --cmake-args -DBUILD_TESTING=ON
-chmod a+x install/setup.sh
-#Attempt to launch
-ros2 launch ros_gz_example_bringup diff_drive.launch.py
+
+# Give setup script executable perms
+chmod a+x install/setup.bash
+
+# Source our newly build dependencies
+source install/setup.bash
+
+# Source models
+export IGN_GAZEBO_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH:$(pwd)/install/models_and_worlds/share/models_and_worlds/models
+
+# Launch simulations
+ros2 launch Launch_files diff_drive.launch.py

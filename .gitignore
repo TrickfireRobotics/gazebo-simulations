@@ -1,9 +1,9 @@
 ### macOS ###
 .DS_Store
-.AppleDouble
 .LSOverride
 Icon
 ._*
+*-alias
 
 ### VSCode ###
 .vscode/*
@@ -14,3 +14,11 @@ Icon
 
 ### Devcontainer ###
 .devcontainer/launch.env
+
+### Python ###
+.mypy_cache
+
+### ROS2 ###
+Robot-sim-template/install
+Robot-sim-template/build
+Robot-sim-template/log

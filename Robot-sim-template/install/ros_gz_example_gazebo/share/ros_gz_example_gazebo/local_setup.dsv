@@ -1,4 +1,0 @@
-source;share/ros_gz_example_gazebo/environment/ament_prefix_path.sh
-source;share/ros_gz_example_gazebo/environment/path.sh
-source;share/ros_gz_example_gazebo/environment/ros_gz_example_gazebo.sh
-source;share/ros_gz_example_gazebo/environment/ros_gz_example_gazebo.dsv
