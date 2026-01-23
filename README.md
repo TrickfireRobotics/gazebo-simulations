@@ -27,3 +27,14 @@ ign gazebo empty.sdf
 ### Windows with WSL
 
 WSL should forward the image automatically, meaning you can skip the x-server script part. Just run Gazebo and a window should pop out. The script will not work, because WSL binds display `:0`. You can find more info on it [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps) in case you want to.
+
+### How to run simulation
+
+Once you launch the docker container run the bash script
+'''bash
+build-ros2-sim.sh
+'''
+Then in the X11 server 2 windows should appear, One will contain the model we are currently using for testing, a default mini rover
+And a rvis2 window which is used to visualize PUB-SUB communication within ROS
+
+### Read me in Robot-sim-template folder to go over the functionality of the simulation system

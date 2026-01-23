@@ -3,3 +3,6 @@
 ._*
 *-alias
 images
+log*
+*.swp
+*.env

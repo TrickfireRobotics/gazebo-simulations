@@ -200,7 +200,9 @@ RUN apt-get update && apt-get install -y \
   libgz-cmake3-dev \
   libgz-plugin2-dev \
   libgz-common5-dev \
-  libgz-sim7-dev
+  libgz-sim7-dev \
+  ros-humble-rviz2
+
 
 
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
