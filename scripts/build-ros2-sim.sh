@@ -8,7 +8,7 @@
 # --------------------------------------------------------------------------------------------
 
 # Checkout Sim template folder
-cd /home/trickfire/gazebo-simulations/Robot-sim-template || exit 1
+cd /home/trickfire/gazebo-simulations/robot-sim || exit 1
 
 # Build all of the folders Within our Folder
 colcon build --cmake-args -DBUILD_TESTING=ON
