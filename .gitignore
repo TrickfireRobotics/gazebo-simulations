@@ -1,15 +1,9 @@
 ### macOS ###
 .DS_Store
-.AppleDouble
 .LSOverride
 Icon
 ._*
-<<<<<<< HEAD
 *-alias
-images
-log*
-*.swp
-*.env
 
 ### VSCode ###
 .vscode/*
@@ -23,3 +17,8 @@ log*
 
 ### Python ###
 .mypy_cache
+
+### ROS2 ###
+Robot-sim-template/install
+Robot-sim-template/build
+Robot-sim-template/log
