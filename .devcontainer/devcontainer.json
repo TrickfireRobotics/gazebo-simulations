@@ -29,7 +29,8 @@
                 "ms-vscode.cpptools",
                 "twxs.cmake",
                 "yzhang.markdown-all-in-one",
-                "Ranch-Hand-Robotics.rde-ros-2"
+                "Ranch-Hand-Robotics.rde-ros-2",
+                "ms-vscode.cpptools-extension-pack"
             ]
         }
     }
