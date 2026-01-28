@@ -19,6 +19,6 @@ Icon
 .mypy_cache
 
 ### ROS2 ###
-Robot-sim-template/install
-Robot-sim-template/build
-Robot-sim-template/log
+robot-sim/install
+robot-sim/build
+robot-sim/log
