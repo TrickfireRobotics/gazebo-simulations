@@ -95,7 +95,7 @@ RUN apt-get update && apt-get install -y \
     python3-colcon-common-extensions \
     ros-humble-ros-gz-sim \
     ros-humble-ros-ign-bridge \
-
+    \
     # ---------------- HARDWARE / NETWORK ----------------
     # USB utilities
     usbutils \
@@ -191,14 +191,15 @@ COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 #---------------------------------------------------------------------------------------------
 #SIMULATION SETUP
 #---------------------------------------------------------------------------------------------
-COPY Robot-sim-template/ /home/trickfire/gazebo-simulations/src/
+
+COPY robot-sim/ /home/trickfire/gazebo-simulations/src/
 
 RUN apt-get update && apt-get install -y \
-  libgz-cmake3-dev \
-  libgz-plugin2-dev \
-  libgz-common5-dev \
-  libgz-sim7-dev \
-  ros-humble-rviz2
+    libgz-cmake3-dev \
+    libgz-plugin2-dev \
+    libgz-common5-dev \
+    libgz-sim7-dev \
+    ros-humble-rviz2
 
 
 
