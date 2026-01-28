@@ -1,5 +1,16 @@
 {
+    // FILE ASSOCIATIONS
+    "files.associations": {
+        "model.config": "xml"
+    },
+
+    // ROS2
     "ROS2.distro": "humble",
+
+    // CMAKE
+    "cmake.ignoreCMakeListsMissing": true,
+
+    // PYTHON
     "python.autoComplete.extraPaths": [
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
@@ -7,6 +18,5 @@
     "python.analysis.extraPaths": [
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
-    ],
-    "cmake.ignoreCMakeListsMissing": true
+    ]
 }
