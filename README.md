@@ -31,11 +31,10 @@ On systems that provide X11 (like Linux and WSL), GUI forwarding is typically bu
 
 ## How to run simulation
 
-Once you launch the docker container run this bash script:
+Once you launch the docker and set up your x-server environment container run this bash script:
 
 ```bash
 ./build-ros2-sim.sh
 ```
 
-Then in the X11 server 2 windows should appear, One will contain the model we are currently using for testing, a default mini rover
-And a rvis2 window which is used to visualize PUB-SUB communication within ROS. For more info check out the [simulation README](./robot-sim/README.md).
+Then 2 windows should appear, one will contain the model we are currently using for testing, a default mini rover, and the second a rvis2 window which is used to visualize PUB-SUB communication within ROS. For more info check out the [simulation README](./robot-sim/README.md).
