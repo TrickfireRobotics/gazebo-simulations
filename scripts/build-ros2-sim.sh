@@ -23,4 +23,4 @@ source install/setup.bash
 export IGN_GAZEBO_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH:$(pwd)/install/models_and_worlds/share/models_and_worlds/models
 
 # Launch simulations
-ros2 launch Launch_files diff_drive.launch.py
+ros2 launch Launch_files arm.launch.py
