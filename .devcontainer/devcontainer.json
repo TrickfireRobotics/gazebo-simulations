@@ -6,6 +6,7 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
     "initializeCommand": ".devcontainer/launch.sh",
+    "forwardPorts": [6080,5900],
     "runArgs": [
         "--privileged",
         "--cap-add=SYS_PTRACE",
