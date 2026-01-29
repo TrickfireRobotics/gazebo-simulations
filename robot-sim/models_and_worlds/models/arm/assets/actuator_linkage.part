@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "6be98b28b0437d0fb28b3949",
+    "documentMicroversion": "2eb4c7c59ec00f9eab82cc9e",
+    "documentVersion": "47670cb72ae63b29dceeac25",
+    "elementId": "fcbe03a72cbb9dc2c61c623b",
+    "fullConfiguration": "default",
+    "id": "MEZmhomv5VPvoSDXb",
+    "isStandardContent": false,
+    "name": "Actuator Linkage <1>",
+    "partId": "JHD",
+    "suppressed": false,
+    "type": "Part"
+}
