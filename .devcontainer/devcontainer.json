@@ -33,7 +33,8 @@
                 "Ranch-Hand-Robotics.rde-ros-2",
                 "ms-vscode.cpptools-extension-pack",
                 "smilerobotics.urdf",
-                "morningfrog.urdf-visualizer"
+                "morningfrog.urdf-visualizer",
+                "misiekhardcore.stl-previewer"
             ]
         }
     }
