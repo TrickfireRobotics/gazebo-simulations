@@ -199,7 +199,8 @@ RUN apt-get update && apt-get install -y \
     libgz-plugin2-dev \
     libgz-common5-dev \
     libgz-sim7-dev \
-    ros-humble-rviz2
+    ros-humble-rviz2 \
+    ros-humble-xacro
 
 
 
