@@ -1141,8 +1141,8 @@
   <!-- Joint from bicep_actuator to shoulder_assembly -->
   <joint name="shoulder_1" type="revolute">
     <origin xyz="-0.025675 0.000500014 0.09335" rpy="-1.5708 2.77556e-16 -1.5708"/>
-    <parent link="bicep_actuator"/>
-    <child link="shoulder_assembly"/>
+    <parent link="shoulder_assembly"/>
+    <child link="bicep_actuator"/>
     <axis xyz="0 0 1"/>
     <limit effort="10" velocity="10" lower="-3.141592653589793" upper="3.141592653589793"/>
   </joint>
@@ -2090,44 +2090,5 @@
     <axis xyz="0 0 1"/>
     <limit effort="10" velocity="10" lower="-3.141592653589793" upper="3.141592653589793"/>
   </joint>
-  <!-- Link elbow_linkage -->
-  <link name="elbow_linkage">
-    <inertial>
-      <origin xyz="-0.00075 0.04 0.01" rpy="0 0 0"/>
-      <mass value="0.0164299"/>
-      <inertia ixx="1.2151e-05" ixy="1.83077e-07" ixz="-3.92694e-21" iyy="2.3903e-06" iyz="-9.16935e-20" izz="1.0171e-05"/>
-    </inertial>
-    <!-- Part actuator_linkage -->
-    <visual>
-      <origin xyz="-0.006 0 -0.003" rpy="-1.5708 -1.55699e-31 -7.63595e-18"/>
-      <geometry>
-        <mesh filename="assets/actuator_linkage.stl"/>
-      </geometry>
-      <material name="actuator_linkage_material">
-        <color rgba="0.713725 0.760784 0.8 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="-0.006 0 -0.003" rpy="-1.5708 -1.55699e-31 -7.63595e-18"/>
-      <geometry>
-        <mesh filename="assets/actuator_linkage.stl"/>
-      </geometry>
-    </collision>
-    <!-- Part actuator_linkage_2 -->
-    <visual>
-      <origin xyz="-0.006 1.88738e-15 0.02" rpy="-1.5708 5.33022e-17 7.77313e-16"/>
-      <geometry>
-        <mesh filename="assets/actuator_linkage.stl"/>
-      </geometry>
-      <material name="actuator_linkage_2_material">
-        <color rgba="0.713725 0.760784 0.8 1"/>
-      </material>
-    </visual>
-    <collision>
-      <origin xyz="-0.006 1.88738e-15 0.02" rpy="-1.5708 5.33022e-17 7.77313e-16"/>
-      <geometry>
-        <mesh filename="assets/actuator_linkage.stl"/>
-      </geometry>
-    </collision>
-  </link>
+  
 </robot>
