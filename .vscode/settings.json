@@ -1,5 +1,6 @@
 {
-    // FILE ASSOCIATIONS
+    // VSCODE
+    "remote.autoForwardPorts": false,
     "files.associations": {
         "model.config": "xml"
     },
