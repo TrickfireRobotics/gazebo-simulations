@@ -1,0 +1,14 @@
+{
+    "configuration": "default",
+    "documentId": "9a85efcb91e7c2182717367c",
+    "documentMicroversion": "bc98f7a237a4f90abc1e60fa",
+    "documentVersion": "e6b3782e8f6d91140a132f27",
+    "elementId": "a5722b1c6a0211dca384c0b1",
+    "fullConfiguration": "default",
+    "id": "MYaBFHRQOoYnAfxeT",
+    "isStandardContent": false,
+    "name": "200mm Linear Actuator Base <1>",
+    "partId": "JHD",
+    "suppressed": false,
+    "type": "Part"
+}
