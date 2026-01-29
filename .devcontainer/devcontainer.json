@@ -31,7 +31,9 @@
                 "twxs.cmake",
                 "yzhang.markdown-all-in-one",
                 "Ranch-Hand-Robotics.rde-ros-2",
-                "ms-vscode.cpptools-extension-pack"
+                "ms-vscode.cpptools-extension-pack",
+                "smilerobotics.urdf",
+                "morningfrog.urdf-visualizer"
             ]
         }
     }
