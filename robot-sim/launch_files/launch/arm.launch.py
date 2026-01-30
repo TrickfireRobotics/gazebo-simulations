@@ -20,7 +20,7 @@ def generate_launch_description():
     # Build the absolute path to the URDF file, then read its contents
     # so it can be passed directly to Gazebo and robot_state_publisher
     urdf_file = os.path.join(pkg_models_and_worlds, "models", "arm", "arm.urdf")
-    with open(urdf_file, "r") as infp:
+    with open(urdf_file, "r", encoding="UTF-8") as infp:
         robot_desc = infp.read()
 
     # Launch Gazebo Sim (ros_gz_sim)
