@@ -3,11 +3,11 @@
 <package format="3">
   <name>launch_files</name>
   <version>0.0.0</version>
-  <description>Contains launch files for the ros_gz_example project</description>
-  <maintainer email="michael@openrobotics.org">Michael Carroll</maintainer>
-  <license>Apache 2.0</license>
-  <author>Michael Carroll</author>
-  <author>Dharini Dutia</author>
+  <description>Launch files for the Trickfire robot simulation</description>
+  <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
+  <license>TODO</license>
+  <author>Calin Prutean</author>
+  <author>Matej Stastny</author>
 
   <depend>joint_state_publisher_gui</depend>
 
@@ -24,4 +24,3 @@
     <build_type>ament_cmake</build_type>
   </export>
 </package>
-
