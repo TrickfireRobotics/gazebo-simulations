@@ -3,6 +3,8 @@ Launch script for the arm.urdf model
 """
 
 import os
+from pathlib import Path
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
@@ -10,29 +12,35 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
 
+def log(log_msg):
+    """Log function for this launch file"""
+    print("\033[0;35m", "[LAUNCH] ", log_msg, "\x1b[0m")
+
+
 def generate_launch_description():
     """ROS launch method, must have this name"""
 
-    # Locate the shared directory of the package that contains
-    # models, URDFs, and world files
+    # Locate the shared directory of the package that contains models, URDFs, and world files
     pkg_models_and_worlds = get_package_share_directory("models_and_worlds")
 
-    # Build the absolute path to the URDF file, then read its contents
-    # so it can be passed directly to Gazebo and robot_state_publisher
+    # Build the path to the model URDF file
     urdf_file = os.path.join(pkg_models_and_worlds, "models", "arm", "arm.urdf")
+    log("Model file: " + urdf_file)
     with open(urdf_file, "r", encoding="UTF-8") as infp:
         robot_desc = infp.read()
 
-    # Launch Gazebo Sim (ros_gz_sim)
-    # This includes the Gazebo simulator launch file and starts an
-    # empty world using gz_args
+    # Build the path to the world file the arm will be in
+    world_file = os.path.join(pkg_models_and_worlds, "worlds", "arm_world.sdf")
+    log("World file: " + world_file)
+
+    # Gazebo simulation settings
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
                 get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py"
             )
         ),
-        launch_arguments={"gz_args": "-r empty.sdf"}.items(),
+        launch_arguments={"gz_args": " ".join(["-r", world_file])}.items(),
     )
 
     # Uses the ros_gz_sim 'create' node to send the URDF string to
@@ -55,9 +63,7 @@ def generate_launch_description():
         output="screen",
     )
 
-    # Publish robot transforms (TF) using robot_state_publisher
-    # This allows tools like RViz to visualize the robot and its joint
-    # states based on the URDF model
+    # Publish robot transforms using robot_state_publisher
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -67,6 +73,5 @@ def generate_launch_description():
     )
 
     # Return the final launch description
-    # Order matters!! Gazebo starts first, then the robot is spawned,
-    # then TF publishing begins
+    # Will be executed in order (order matters)
     return LaunchDescription([gz_sim, spawn_robot, robot_state_publisher])
