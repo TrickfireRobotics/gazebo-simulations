@@ -34,7 +34,8 @@
                 "ms-vscode.cpptools-extension-pack",
                 "smilerobotics.urdf",
                 "morningfrog.urdf-visualizer",
-                "misiekhardcore.stl-previewer"
+                "misiekhardcore.stl-previewer",
+                "DotJoshJohnson.xml"
             ]
         }
     }
