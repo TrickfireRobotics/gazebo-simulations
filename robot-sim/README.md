@@ -1,22 +1,18 @@
-## System breakdown
+# ROS workspace breakdown
 
-This project folder is soley responsible for the system and what files are within it. This project is based off ROS2 Gazebo template project. Link below. Documentation is also provided for this project template however to make it more readable I renamed the folders to make a little more sense.
+> [!NOTE]
+> This workspace was based on an official Gazebo ROS workspace template. You can find the template [here](https://github.com/gazebosim/ros_gz_project_template). You can find the documentation and guide for the template [here](https://gazebosim.org/docs/latest/ros_gz_project_template_guide/).
 
-[Template Repo](https://github.com/gazebosim/ros_gz_project_template)
+## How it works
 
-[Documentation](https://gazebosim.org/docs/latest/ros_gz_project_template_guide/)
+Every directory containing the `package.xml` file in this workspace is a package for ROS. The `xml` file hold information about the package, and it's dependencies. It also has a `CMakeList.txt` that contains the installation steps on how to install that package for ROS during the `colcon build` process.
 
-### How it works
+### List of packages
 
-Each of the folders in this project directory are based on a different folder from the original project
-
-`Gazebo_code`: Originally `ros_gz_example_gazebo` for gazebo specific configurations and code
-
-` Launch_files`: Originally `ros_gz_example_bringup` for launch files corresponding to each model we are trying to include
-
-`Models_and_worlds`: Originally `ros_gz_example_description` which contains the config files and sdf files to configure the models we want to launch.
-
-`Ros_configs`: Originally `ros_gz_example_application` which holds ros2 specific code and configurations for custom plugins or general Ros2 code
+- `gazebo_code`: Originally `ros_gz_example_gazebo` for gazebo specific configurations and code
+- `launch_files`: Originally `ros_gz_example_bringup` for ROS Python launch files
+- `models_and_worlds`: Originally `ros_gz_example_description` for `stl` 3D source models, `urdf` files and `sdf` model/world files
+- `ros_configs`: Originally `ros_gz_example_application` which holds ROS specific code and configurations for custom plugins or general ROS2 code
 
 ## Issues and important build details
 
