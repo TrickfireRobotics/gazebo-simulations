@@ -3,7 +3,6 @@ Launch script for the arm.urdf model
 """
 
 import os
-from pathlib import Path
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -14,7 +13,7 @@ from launch_ros.actions import Node
 
 def log(log_msg):
     """Log function for this launch file"""
-    print("\033[0;35m", "[LAUNCH] ", log_msg, "\x1b[0m")
+    print("\033[0;35m", "[INFO] [launch]: ", log_msg, "\x1b[0m", sep="")
 
 
 def generate_launch_description():
