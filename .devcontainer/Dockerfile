@@ -204,7 +204,8 @@ RUN apt-get update && apt-get install -y \
     libgz-common5-dev \
     libgz-sim7-dev \
     ros-humble-rviz2 \
-    ros-humble-xacro
+    ros-humble-xacro \
+    ros-humble-joint-state-publisher-gui
 
 
 
