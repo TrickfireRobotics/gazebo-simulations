@@ -34,11 +34,11 @@ target_include_directories(
   BasicSystem PRIVATE include
 )
 
-# Following 'target_link_libraries' directive specifies to use the 
+# Following 'target_link_libraries' directive specifies to use the
 # gz-sim library when linking the 'BasicSystem' target.
 # The 'PRIVATE' keyword stipulates that the gz-sim library will not
 # automatically be included if the 'BasicSystem' target were to
-# be linked to anoter target. 
+# be linked to anoter target.
 # ${GZ_SIM_VER} is substituted by the value that is was set to above.
 target_link_libraries(BasicSystem PRIVATE
   ignition-gazebo${GZ_SIM_VER}::ignition-gazebo${GZ_SIM_VER})
@@ -76,6 +76,12 @@ install(
   DESTINATION share/${PROJECT_NAME}/worlds
 )
 
+
+# Install the gui folder containing gazebo GUI configs
+install(
+  DIRECTORY gui/
+  DESTINATION share/${PROJECT_NAME}/gui
+)
 
 # Following directives are used when testing.
 if(BUILD_TESTING)
