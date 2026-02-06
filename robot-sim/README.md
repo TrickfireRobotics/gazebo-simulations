@@ -16,6 +16,9 @@ Every directory containing the `package.xml` file in this workspace is a package
 
 ## Issues and important build details
 
-While I was working on this there were a few things I noticed that were important to keep in mind as you work on this.
+> [!TIP]
+> If you get an error that you don't know what caused it, delete the ROS build files and rebuild the project. There is a script to do this automatically: `./scripts/delete_ros_build_files.sh`. It usually fixes the issue.
+
+While I was working on this there were a few things I noticed that were important to keep in mind as you work on this:
 
 When you build the project or add packages, make sure to update the `package.xml` and `CMakeLists.txt` In each of the respective folders. Each package needs these in their code to be included in the build. These signal to the colcon build system that a package has been added or modified. Additionally in the XML make sure to properly include the dependencies so colcon can properly build the packages in their required order.
