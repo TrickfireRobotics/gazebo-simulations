@@ -96,6 +96,10 @@ RUN apt-get update && apt-get install -y \
     ros-humble-ros-gz-sim \
     ros-humble-ros-ign-bridge \
     \
+    # ---------------- GAZEBO PLUGINS ----------------
+    # GUI plugin
+    libgz-gui6 \
+    \
     # ---------------- HARDWARE / NETWORK ----------------
     # USB utilities
     usbutils \
