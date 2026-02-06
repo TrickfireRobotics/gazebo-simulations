@@ -1,5 +1,5 @@
 """
-Launch script for the arm.urdf model
+Launch script for the robot arm simulation
 """
 
 import os
@@ -19,8 +19,11 @@ def log(log_msg):
 def generate_launch_description():
     """ROS launch method, must have this name"""
 
-    # Locate the shared directory of the package that contains models, URDFs, and world files
+    # Locate directory of the package containing world and model files
     pkg_models_and_worlds = get_package_share_directory("models_and_worlds")
+
+    # Locate directory of the package containing the Gazebo GUI config
+    pkg_gz_code = get_package_share_directory("gazebo_code")
 
     # Build the path to the model URDF file
     urdf_file = os.path.join(pkg_models_and_worlds, "models", "arm", "arm.urdf")
@@ -32,6 +35,10 @@ def generate_launch_description():
     world_file = os.path.join(pkg_models_and_worlds, "worlds", "arm_world.sdf")
     log("World file: " + world_file)
 
+    # Build the path to the Gazebo GUI config
+    gz_gui_config_file = os.path.join(pkg_gz_code, "gui", "gui.config")
+    log("GUI config file: " + gz_gui_config_file)
+
     # Gazebo simulation settings
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -39,7 +46,9 @@ def generate_launch_description():
                 get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py"
             )
         ),
-        launch_arguments={"gz_args": " ".join(["-r", world_file])}.items(),
+        launch_arguments={
+            "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config_file])
+        }.items(),
     )
 
     # Uses the ros_gz_sim 'create' node to send the URDF string to

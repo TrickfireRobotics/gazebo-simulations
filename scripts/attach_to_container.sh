@@ -41,9 +41,6 @@ fi
 
 # Attach to .devcontainer --------------------------------------------------------------------
 
-echo ""
-echo "Attaching to .devcontainer $CONTAINER_ID ..."
-echo "--------------------------------"
 WORKSPACE_FOLDER="$(basename "$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)")"
 docker exec -it -u "$USER_NAME" \
     -e TERM=xterm-256color \
