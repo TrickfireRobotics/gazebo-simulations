@@ -1,4 +1,22 @@
 {
+    // FORMATTING
+    "[dockerfile]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers"
+    },
+    "[xml]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "DotJoshJohnson.xml"
+    },
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.defaultColorDecorators": "never",
+        "editor.formatOnType": true,
+        "editor.wordBasedSuggestions": "off"
+    },
+
     // VSCODE
     "remote.autoForwardPorts": false,
     "files.associations": {
@@ -19,5 +37,5 @@
     "python.analysis.extraPaths": [
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
-    ]
+    ],
 }

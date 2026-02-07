@@ -96,10 +96,6 @@ RUN apt-get update && apt-get install -y \
     ros-humble-ros-gz-sim \
     ros-humble-ros-ign-bridge \
     \
-    # ---------------- GAZEBO PLUGINS ----------------
-    # GUI plugin
-    libgz-gui6 \
-    \
     # ---------------- HARDWARE / NETWORK ----------------
     # USB utilities
     usbutils \
@@ -119,9 +115,10 @@ RUN apt-get update && apt-get install -y \
     # ---------------- MISC / UTILITIES ----------------
     lsb-release \
     gnupg \
+    btop \
     wget \
     zstd \
-    vim\
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -159,6 +156,17 @@ RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/p
 # Install Gazebo Ignition Fortress (simulation environment)
 RUN apt-get update && apt-get install -y ignition-fortress
 
+# Install Gazebo plugins
+RUN apt-get update && apt-get install -y \
+    libgz-cmake3-dev \
+    libgz-gui6 \
+    libgz-plugin2-dev \
+    libgz-common5-dev \
+    libgz-sim7-dev \
+    ros-humble-rviz2 \
+    ros-humble-xacro \
+    ros-humble-joint-state-publisher-gui \
+    && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------------------------------------------------------------
 # DISPLAY / VNC CONFIGURATION
@@ -192,22 +200,8 @@ RUN useradd trickfire \
 # Copy custom bash configuration for the user
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 
-#---------------------------------------------------------------------------------------------
-#SIMULATION SETUP
-#---------------------------------------------------------------------------------------------
-
+# Copy robot workspace into correct location in container
 COPY robot-sim/ /home/trickfire/gazebo-simulations/src/
-
-RUN apt-get update && apt-get install -y \
-    libgz-cmake3-dev \
-    libgz-plugin2-dev \
-    libgz-common5-dev \
-    libgz-sim7-dev \
-    ros-humble-rviz2 \
-    ros-humble-xacro \
-    ros-humble-joint-state-publisher-gui
-
-
 
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
