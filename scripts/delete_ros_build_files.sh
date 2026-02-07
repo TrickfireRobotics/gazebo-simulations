@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# --------------------------------------------------------------------------------------------
+# delete_ros_build_files.sh
+# --------------------------------------------------------------------------------------------
+# Deletes the files that ROS build, to prevent unexplainable issues.
+# --------------------------------------------------------------------------------------------
+
 cd /home/trickfire/gazebo-simulations/robot-sim || exit 1
 echo "Deleting ROS build files..."
 rm -r \
