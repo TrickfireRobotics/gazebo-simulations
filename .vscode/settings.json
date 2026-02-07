@@ -2,7 +2,7 @@
     // FORMATTING
     "[dockerfile]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-vscode-remote.remote-containers"
+        "editor.defaultFormatter": "ms-azuretools.vscode-containers"
     },
     "[xml]": {
         "editor.formatOnSave": true,
