@@ -9,6 +9,13 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+
+pkg_project_bringup = get_package_share_directory("launch_files")
 
 
 def log(log_msg):
@@ -80,6 +87,26 @@ def generate_launch_description():
         parameters=[{"robot_description": robot_desc}],
     )
 
+
+    joint_state_publisher_gui = Node(
+        package='joint_state_publisher_gui',
+        executable='joint_state_publisher_gui',
+        name='joint_state_publisher_gui',
+        arguments=[
+           urdf_file 
+        ],
+        output=['screen']
+    )
+
+
+
+
+
+
+
+
+
+
     # Return the final launch description
     # Will be executed in order (order matters)
-    return LaunchDescription([gz_sim, spawn_robot, robot_state_publisher])
+    return LaunchDescription([gz_sim, spawn_robot, robot_state_publisher, joint_state_publisher_gui])
