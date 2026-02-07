@@ -4,6 +4,7 @@
 # delete_ros_build_files.sh
 # --------------------------------------------------------------------------------------------
 # Deletes the files that ROS build, to prevent unexplainable issues.
+# NOTE: This script is ran as the 'postCreateCommand' for this devcontainer
 # --------------------------------------------------------------------------------------------
 
 cd /home/trickfire/gazebo-simulations/robot-sim || exit 1
