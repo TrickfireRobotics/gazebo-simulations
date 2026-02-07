@@ -3,13 +3,7 @@
     <!-- SDF FILE DOCUMENTATION: https://gazebosim.org/docs/fortress/sdf_worlds/ -->
     <world name="arm-world">
 
-        <!-- PHYSICS -->
-        <physics name="1ms" type="ignored">
-            <max_step_size>0.001</max_step_size>
-            <real_time_factor>1.0</real_time_factor>
-        </physics>
-
-        <!-- PLUGINS -->
+        <!-- CORE PLUGINS -->
         <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics">
         </plugin>
         <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands">
@@ -18,6 +12,12 @@
         </plugin>
         <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact">
         </plugin>
+
+        <!-- PHYSICS -->
+        <physics name="1ms" type="ignored">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
 
         <!-- LIGHTS -->
         <light type="directional" name="sun">
