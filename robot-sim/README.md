@@ -22,3 +22,21 @@ Every directory containing the `package.xml` file in this workspace is a package
 While I was working on this there were a few things I noticed that were important to keep in mind as you work on this:
 
 When you build the project or add packages, make sure to update the `package.xml` and `CMakeLists.txt` In each of the respective folders. Each package needs these in their code to be included in the build. These signal to the colcon build system that a package has been added or modified. Additionally in the XML make sure to properly include the dependencies so colcon can properly build the packages in their required order.
+
+---
+
+## Aditional information
+
+### How to set/read camera info using CLI commands
+
+To set camera position use this format of command:
+
+```bash
+gz service -s /gui/move_to/pose --reqtype gz.msgs.GUICamera --reptype gz.msgs.Boolean --timeout 2000 --req "pose: {position: {x: 0.0, y: -2.0, z: 2.0} orientation: {x: -0.2706, y: 0.2706, z: 0.6533, w: 0.6533}}"
+```
+
+To read camera position use this topic listener:
+
+```bash
+gz topic -e -t /gui/camera/pose
+```
