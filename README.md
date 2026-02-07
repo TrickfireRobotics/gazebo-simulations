@@ -1,11 +1,11 @@
 # Gazebo Simulations
 
-> This repository contains Gazebo simulations for the drivebase, arm, and autonomous.
+This repository contains [Gazebo Fortress](https://gazebosim.org/docs/fortress/install/) simulations for Trickfire’s robot subsystems, including the drivebase, arm, and autonomous systems. The project uses [ROS 2 Humble](https://docs.ros.org/en/humble/index.html) for robot code and runs entirely inside a Docker container, including the codebase and Gazebo GUI.
 
 ## How to run Gazebo
 
 > [!NOTE]
-> If you have a device with X11 set up like Windows with WSL installed or Linux, first look [here](#systems-with-x11)
+> If you have a device with X11 set up like Windows with WSL installed or Linux, first look [here](#systems-with-x11). If you do not mind installing an app, you can look [here](#vnc-viewer), although it is optional.
 
 1. Clone this repo
 2. Make sure you have the `ms-vscode-remote.remote-containers` VsCode extension installed.
@@ -19,17 +19,36 @@
 ign gazebo empty.sdf
 ```
 
+## How to run simulation
+
+Once you launch the `devcontainer`, set up your display environment and verified Gazebo runs, you're ready to start the simulation. There is a script that will build the ROS files and launch the arm simulation (it is the only one we have right now) using our launch file. You can call it using this command:
+
+```bash
+./scripts/build_ros2_sim.sh
+```
+
+After the script logs `[create-2] [INFO] ... [ros_gz_sim]: OK creation of entity.` the simulation launched. You can go to your Gazebo window and you should see the arm model.
+
+>[!TIP]
+>For more information and troubleshooting tips go look at the [simulation README](./robot-sim/README.md).
+
+---
+
+## Additional information
+
 ### Systems with X11
 
 On systems that provide X11 (like Linux and WSL), GUI forwarding is typically built-in. You can usually skip steps 5 and 6 and just run Gazebo — a Gazebo window should appear automatically. The `start_x_server.sh` script is not needed in these cases, since these systems already handle the display binding (for example, WSL binds to display :0). For more details about WSL gui-apps, you can check [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
+### VNC Viewer
 
-## How to run simulation
+> [!NOTE]
+> If you're using a system with `X11` provided, this does nothing better than what you already have. For people using the `noVNC` in the browser this is optional, but provides more functionality.
 
-Once you launch the docker and set up your x-server environment container run this bash script:
+If you don't mind installing an app, there is a better way to open up Gazebo on Mac, that allows passing through key combos like `alt-tab` and simillar. You can install the app [from here](https://www.realvnc.com/en/connect/download/viewer/) or using Homebrew like this: `brew install --cask vnc-viewer` To make the app work skip the 6th and 7th step in the directions and instead open this app. Create a new connection by doing `CTRL+N` or `CMD+N` depending on OS, and to adress paste this:
 
-```bash
-./build-ros2-sim.sh
+```ip
+localhost:5900
 ```
 
-Then 2 windows should appear, one will contain the model we are currently using for testing, a default mini rover, and the second a rvis2 window which is used to visualize PUB-SUB communication within ROS. For more info check out the [simulation README](./robot-sim/README.md).
+You're going to get a popup informing you that the connection is not secure. You do not have to worry about this as it is run locally.

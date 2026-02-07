@@ -2,6 +2,15 @@
 <!-- Generated using onshape-to-robot -->
 <!-- Onshape https://cad.onshape.com/documents/9b05a4dfb79241a5b295b397/w/d00f3086da43b93d9c689413/e/4de2423405201a00f735c419 -->
 <robot name="arm">
+    <!-- Root base link -->
+    <link name="base_link"/>
+
+    <joint name="base_to_shoulder" type="fixed">
+        <parent link="base_link"/>
+        <child link="shoulder_assembly"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
     <!-- Link shoulder_assembly -->
     <link name="shoulder_assembly">
         <inertial>
