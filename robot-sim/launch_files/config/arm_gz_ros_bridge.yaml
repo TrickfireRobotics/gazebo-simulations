@@ -1,0 +1,5 @@
+- ros_topic_name: "/joint_states"
+  gz_topic_name: "/world/arm-world/model/my_arm/joint_cmd"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "gz.msgs.JointCmd"
+  direction: ROS_TO_GZ

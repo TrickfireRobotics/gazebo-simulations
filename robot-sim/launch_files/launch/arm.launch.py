@@ -30,7 +30,7 @@ def generate_launch_description():
     # Gazebo GUI config
     pkg_gz_code = get_package_share_directory("gazebo_code")
     # RVIZ and bridge configs
-    pkg_project_bringup = get_package_share_directory("launch_files")
+    pkg_launch_files = get_package_share_directory("launch_files")
 
     # ----------------------------------------------
     # Build paths to required files
@@ -51,8 +51,11 @@ def generate_launch_description():
     log("Gazebo GUI config file: " + gz_gui_config_file)
 
     # Build the path to RVIZ config
-    rviz_config_file = os.path.join(pkg_project_bringup, "config", "arm.rviz")
+    rviz_config_file = os.path.join(pkg_launch_files, "config", "arm.rviz")
     log("RVIZ config file: " + rviz_config_file)
+
+    bridge_file = os.path.join(pkg_launch_files, "config", "arm_gz_ros_bridge.yaml")
+    log("Bridge YAML definition file: " + bridge_file)
 
     # ----------------------------------------------
     # Gazebo launch arguments
@@ -129,9 +132,7 @@ def generate_launch_description():
         executable="parameter_bridge",
         parameters=[
             {
-                "config_file": os.path.join(
-                    pkg_project_bringup, "config", "ros_gz_example_bridge.yaml"
-                ),
+                "config_file": bridge_file,
                 "qos_overrides./tf_static.publisher.durability": "transient_local",
             }
         ],
@@ -146,7 +147,7 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 "rviz", default_value="true", description="Open RViz."
             ),
-            bridge,
+            # bridge,
             spawn_robot,
             robot_state_publisher,
             joint_state_publisher_gui,

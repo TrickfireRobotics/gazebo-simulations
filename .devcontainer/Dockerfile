@@ -200,6 +200,9 @@ RUN useradd trickfire \
 # Copy custom bash configuration for the user
 COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 
+# Copy custom bash aliases for the user
+COPY .devcontainer/gz-sim.bash_aliases /home/trickfire/.bash_aliases
+
 # Copy robot workspace into correct location in container
 COPY robot-sim/ /home/trickfire/gazebo-simulations/src/
 
