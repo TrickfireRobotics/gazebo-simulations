@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
     <!-- SDF FILE DOCUMENTATION: https://gazebosim.org/docs/fortress/sdf_worlds/ -->
-    <world name="arm-world">
+    <world name="arm_world">
 
         <!-- CORE PLUGINS -->
         <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics">
