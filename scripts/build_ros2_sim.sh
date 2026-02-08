@@ -7,6 +7,11 @@
 # registers custom Gazebo models, and launches the ROS2 robot simulation.
 # --------------------------------------------------------------------------------------------
 
+cd /home/trickfire/gazebo-simulations/scripts/log/
+logFile="log-$(date +'%Y-%m-%d_%H-%M').log"
+
+exec > >(tee -a "$logFile") 2>&1
+
 cd /home/trickfire/gazebo-simulations/robot-sim || exit 1
 
 # Build our robot files using the ROS build tool
