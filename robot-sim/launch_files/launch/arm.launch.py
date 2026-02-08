@@ -54,6 +54,7 @@ def generate_launch_description():
     rviz_config_file = os.path.join(pkg_launch_files, "config", "arm.rviz")
     log("RVIZ config file: " + rviz_config_file)
 
+    # Build the path to the YAML bridge mappings
     bridge_file = os.path.join(pkg_launch_files, "config", "arm_gz_ros_bridge.yaml")
     log("Bridge YAML definition file: " + bridge_file)
 
@@ -73,7 +74,7 @@ def generate_launch_description():
     )
 
     # ----------------------------------------------
-    # Action nodes
+    # Gazebo spawn model
     # ----------------------------------------------
 
     # Uses the ros_gz_sim 'create' node to send the URDF string to
@@ -83,7 +84,7 @@ def generate_launch_description():
         executable="create",
         arguments=[
             "-name",
-            "my_arm",
+            "arm",
             "-string",
             robot_desc,
             "-x",
@@ -96,7 +97,11 @@ def generate_launch_description():
         output="screen",
     )
 
-    # Publish robot transforms using robot_state_publisher
+    # ----------------------------------------------
+    # Robot state publisher
+    # ----------------------------------------------
+    # Publishes robot transforms
+
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -105,16 +110,10 @@ def generate_launch_description():
         parameters=[{"robot_description": robot_desc}],
     )
 
-    # GUI for tweaking joint values
-    joint_state_publisher_gui = Node(
-        package="joint_state_publisher_gui",
-        executable="joint_state_publisher_gui",
-        name="joint_state_publisher_gui",
-        arguments=[urdf_file],
-        output=["screen"],
-    )
-
+    # ----------------------------------------------
     # RVIZ
+    # ----------------------------------------------
+
     rviz = Node(
         package="rviz2",
         executable="rviz2",
@@ -126,19 +125,23 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("rviz")),
     )
 
-    # Bridge ROS topics and Gazebo messages
+    # ----------------------------------------------
+    # ROS GZ BRIDGE
+    # ----------------------------------------------
+    # Bridges ROS topics and Gazebo messages
+
     bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
         parameters=[
             {
                 "config_file": bridge_file,
-                "qos_overrides./tf_static.publisher.durability": "transient_local",
             }
         ],
         output="screen",
     )
 
+    # ----------------------------------------------
     # Return the final launch description
     # Will be executed in order (order matters)
     return LaunchDescription(
@@ -147,10 +150,9 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 "rviz", default_value="true", description="Open RViz."
             ),
-            # bridge,
+            bridge,
             spawn_robot,
             robot_state_publisher,
-            joint_state_publisher_gui,
             rviz,
         ]
     )

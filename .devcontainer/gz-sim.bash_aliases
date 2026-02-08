@@ -14,4 +14,4 @@ alias gtl="ign topic -l"
 
 # Listen to topics (e for echo)
 alias rte="ros2 topic echo "
-alias gte="ign topic -l -t "
+alias gte="ign topic -e -t "

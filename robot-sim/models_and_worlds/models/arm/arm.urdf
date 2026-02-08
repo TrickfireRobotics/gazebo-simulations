@@ -2226,4 +2226,13 @@
         <limit effort="10" velocity="10" lower="-3.141592653589793" upper="3.141592653589793"/>
     </joint>
 
+    <!-- FOR GAZEBO TO ROS BRIDGE -->
+    <gazebo>
+        <plugin filename="ignition-gazebo-joint-state-publisher-system" name="ignition::gazebo::systems::JointStatePublisher">
+            <joint_name>shoulder_1</joint_name>
+            <joint_name>elbow_1</joint_name>
+            <joint_name>wrist_1</joint_name>
+            <joint_name>wrist_2</joint_name>
+        </plugin>
+    </gazebo>
 </robot>
