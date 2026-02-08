@@ -158,6 +158,9 @@ RUN apt-get update && apt-get install -y ignition-fortress
 
 # Install Gazebo plugins
 RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository universe \
+    && apt-get update && apt-get install -y \
     libgz-cmake3-dev \
     libgz-gui6 \
     libgz-plugin2-dev \
@@ -166,6 +169,7 @@ RUN apt-get update && apt-get install -y \
     ros-humble-rviz2 \
     ros-humble-xacro \
     ros-humble-joint-state-publisher-gui \
+    ros-humble-gz-ros2-control \
     && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------------------------------------------------------------
