@@ -6,6 +6,7 @@
 # Builds the ROS 2 Gazebo simulation workspace, sets up the environment,
 # registers custom Gazebo models, and launches the ROS2 robot simulation.
 # --------------------------------------------------------------------------------------------
+
 cd /home/trickfire/gazebo-simulations/scripts/log/
 logFile="log-$(date +'%Y-%m-%d_%H-%M').log"
 
