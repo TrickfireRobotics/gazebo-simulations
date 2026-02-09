@@ -3,16 +3,22 @@
 > [!NOTE]
 > This workspace was based on an official Gazebo ROS workspace template. You can find the template [here](https://github.com/gazebosim/ros_gz_project_template). You can find the documentation and guide for the template [here](https://gazebosim.org/docs/latest/ros_gz_project_template_guide/).
 
-## How it works
+## Package structure
 
 Every directory containing the `package.xml` file in this workspace is a package for ROS. The `xml` file hold information about the package, and it's dependencies. It also has a `CMakeList.txt` that contains the installation steps on how to install that package for ROS during the `colcon build` process.
 
-### List of packages
+Here is the list of current packages, and their original names as they were named in the template (if any):
 
 - `gazebo_code`: Originally `ros_gz_example_gazebo` for gazebo specific configurations and code
 - `launch_files`: Originally `ros_gz_example_bringup` for ROS Python launch files
 - `models_and_worlds`: Originally `ros_gz_example_description` for `stl` 3D source models, `urdf` files and `sdf` model/world files
 - `ros_configs`: Originally `ros_gz_example_application` which holds ROS specific code and configurations for custom plugins or general ROS2 code
+
+## Flowchart
+
+Here is a small flowchart to show how this simulation functions. This one is specific to the robot arm simulation as it is the only model we are simulating at the moment:
+
+![Arm system flowchart](../assets/arm-flowchart.excalidraw.png)
 
 ## Issues and important build details
 
@@ -22,7 +28,7 @@ When you build the project or add packages, make sure to update the `package.xml
 
 ---
 
-## Aditional information
+## Aditional information & development notes
 
 ### How to set/read camera info using CLI commands
 
