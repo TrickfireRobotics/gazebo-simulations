@@ -68,4 +68,4 @@ echo "  $IGN_GAZEBO_RESOURCE_PATH"
 
 # Launch simulation
 echo "Launching ROS 2 simulation..."
-ros2 launch Launch_files arm.launch.py
+ros2 launch launch_files arm.launch.py
