@@ -6,8 +6,13 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    RegisterEventHandler,
+)
 from launch.conditions import IfCondition
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -57,6 +62,11 @@ def generate_launch_description():
     # Build the path to the YAML bridge mappings
     bridge_file = os.path.join(pkg_launch_files, "config", "arm_gz_ros_bridge.yaml")
     log("Bridge YAML definition file: " + bridge_file)
+
+    robot_controllers_file = os.path.join(
+        pkg_launch_files, "config", "arm_controller.yaml"
+    )
+    log("Robot controllers definition file: " + robot_controllers_file)
 
     # ----------------------------------------------
     # Gazebo launch arguments
@@ -111,6 +121,28 @@ def generate_launch_description():
     )
 
     # ----------------------------------------------
+    # Joint controllers
+    # ----------------------------------------------
+    # Controlls the arm joints
+
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster",
+        ],
+    )
+    joint_trajectory_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_trajectory_controller",
+            "--param-file",
+            robot_controllers_file,
+        ],
+    )
+
+    # ----------------------------------------------
     # RVIZ
     # ----------------------------------------------
 
@@ -147,12 +179,24 @@ def generate_launch_description():
     return LaunchDescription(
         [
             gz_sim,
+            spawn_robot,
+            robot_state_publisher,
             DeclareLaunchArgument(
                 "rviz", default_value="true", description="Open RViz."
             ),
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=spawn_robot,
+                    on_exit=[joint_state_broadcaster_spawner],
+                )
+            ),
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=joint_state_broadcaster_spawner,
+                    on_exit=[joint_trajectory_controller_spawner],
+                )
+            ),
             bridge,
-            spawn_robot,
-            robot_state_publisher,
             rviz,
         ]
     )
