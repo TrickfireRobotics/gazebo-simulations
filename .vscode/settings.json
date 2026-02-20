@@ -39,6 +39,7 @@
         "**/.hg": true,
         "**/.svn": true,
         "**/.mypy_cache": true,
+        "**/__pycache__": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
 
