@@ -50,7 +50,8 @@
                 // --- Formatters ---
                 "yzhang.markdown-all-in-one",
                 "DotJoshJohnson.xml",
-                "tamasfe.even-better-toml"
+                "tamasfe.even-better-toml",
+                "github.vscode-github-actions"
             ]
         }
     }
