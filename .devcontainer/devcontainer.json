@@ -1,48 +1,57 @@
 // DOCUMENTATION: https://containers.dev/implementors/json_reference/
 {
-  "context": "../",
-  "dockerFile": "Dockerfile",
-  "containerUser": "trickfire",
-  "remoteUser": "trickfire",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
-  "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
-  "initializeCommand": ".devcontainer/launch.sh",
-  "postCreateCommand": "scripts/delete_ros_build_files.sh",
-  "forwardPorts": [6080, 5900],
-  "runArgs": [
-    "--privileged",
-    "--cap-add=SYS_PTRACE",
-    "--device=/dev",
-    "--security-opt",
-    "seccomp=unconfined",
-    "--env-file",
-    ".devcontainer/launch.env",
-    "-e",
-    "QT_X11_NO_MITSHM=1",
-    "-v",
-    "/tmp/.X11-unix:/tmp/.X11-unix"
-  ],
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-azuretools.vscode-docker",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "ms-python.pylint",
-        "ms-python.mypy-type-checker",
-        "ms-python.isort",
-        "ms-python.black-formatter",
-        "ms-vscode.cmake-tools",
-        "ms-vscode.cpptools",
-        "twxs.cmake",
-        "yzhang.markdown-all-in-one",
-        "Ranch-Hand-Robotics.rde-ros-2",
-        "ms-vscode.cpptools-extension-pack",
-        "smilerobotics.urdf",
-        "morningfrog.urdf-visualizer",
-        "misiekhardcore.stl-previewer",
-        "DotJoshJohnson.xml"
-      ]
+    "context": "../",
+    "dockerFile": "Dockerfile",
+    "containerUser": "trickfire",
+    "remoteUser": "trickfire",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
+    "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
+    "initializeCommand": ".devcontainer/launch.sh",
+    "postCreateCommand": "scripts/clean_build.sh",
+    "forwardPorts": [
+        6080,
+        5900
+    ],
+    "runArgs": [
+        "--privileged",
+        "--cap-add=SYS_PTRACE",
+        "--device=/dev",
+        "--security-opt",
+        "seccomp=unconfined",
+        "--env-file",
+        ".devcontainer/launch.env",
+        "-e",
+        "QT_X11_NO_MITSHM=1",
+        "-v",
+        "/tmp/.X11-unix:/tmp/.X11-unix"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // --- Python ---
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+                "ms-python.pylint",
+                "ms-python.mypy-type-checker",
+                "ms-python.isort",
+                // --- C and C++ ---
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                // --- Robotics / ROS / URDF / meshes ---
+                "Ranch-Hand-Robotics.rde-ros-2",
+                "smilerobotics.urdf",
+                "morningfrog.urdf-visualizer",
+                "misiekhardcore.stl-previewer",
+                // --- Container ---
+                "ms-azuretools.vscode-docker",
+                // --- Formatters ---
+                "yzhang.markdown-all-in-one",
+                "DotJoshJohnson.xml",
+                "tamasfe.even-better-toml"
+            ]
+        }
     }
-  }
 }

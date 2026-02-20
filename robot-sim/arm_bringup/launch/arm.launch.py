@@ -9,11 +9,7 @@ from pathlib import Path
 import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    IncludeLaunchDescription,
-    RegisterEventHandler,
-)
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -65,9 +61,7 @@ def generate_launch_description():
 
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py"
-            )
+            os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
         ),
         launch_arguments={
             "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config])
@@ -168,9 +162,7 @@ def generate_launch_description():
             gz_sim,
             spawn_robot,
             robot_state_publisher,
-            DeclareLaunchArgument(
-                "rviz", default_value="true", description="Open RViz."
-            ),
+            DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),
             RegisterEventHandler(
                 event_handler=OnProcessExit(
                     target_action=spawn_robot,
