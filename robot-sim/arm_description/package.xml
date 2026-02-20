@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>ros_configs</name>
+    <name>arm_description</name>
     <version>0.0.0</version>
-    <description>ROS code for the Trickfire robot simulation</description>
+    <description>Arm simulation models and descriptions</description>
     <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
     <license>TODO</license>
     <author>Kaitlin Nguyen</author>
