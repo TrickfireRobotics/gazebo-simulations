@@ -30,7 +30,7 @@ Once you launch the `devcontainer`, set up your display environment and verified
 After the script logs `[create-2] [INFO] ... [ros_gz_sim]: OK creation of entity.` the simulation launched. You can go to your Gazebo window and you should see the arm model.
 
 >[!TIP]
->For more information and troubleshooting tips go look at the [simulation README](./robot-sim/README.md).
+>For more information and troubleshooting tips go look at the [simulation README](./docs/ros-workspace.md).
 
 ---
 
