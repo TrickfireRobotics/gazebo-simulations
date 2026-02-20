@@ -22,6 +22,17 @@
     "files.associations": {
         "model.config": "xml"
     },
+    "files.exclude": {
+        ".vscode/browse.vc.db": true,
+        ".vscode/browse.vc.db-shm": true,
+        ".vscode/browse.vc.db-wal": true,
+        "**/.mypy_cache": true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    },
 
     // ROS2
     "ROS2.distro": "humble",
