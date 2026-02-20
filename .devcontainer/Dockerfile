@@ -138,6 +138,8 @@ RUN pip3 install pyusb opencv-python
 # Update pydocstyle to avoid deprecation warnings during testing
 RUN pip3 install --upgrade pydocstyle
 
+# Install python linter
+RUN pip3 install ruff
 
 # --------------------------------------------------------------------------------------------
 # GAZEBO / SIMULATION SETUP
