@@ -3,7 +3,10 @@ Launch script for the robot arm simulation
 """
 
 import os
+import sys
+from pathlib import Path
 
+import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (
@@ -19,54 +22,42 @@ from launch_ros.actions import Node
 
 
 def log(log_msg):
-    """Log function for this launch file"""
-    print("\033[0;35m", "[INFO] [launch]: ", log_msg, "\x1b[0m", sep="")
+    """Basic log"""
+    print("\033[0;32m", "[INFO] [launch]: ", log_msg, "\x1b[0m", sep="")
+
+
+def err(log_msg):
+    """Error log"""
+    print("\033[0;31m", "[ERROR] [launch]: ", log_msg, "\x1b[0m", sep="")
+    sys.exit(1)
+
+
+def get_asset(package, *parts):
+    """Getter for assets"""
+    pkg_dir = get_package_share_directory(package)
+    path = os.path.join(pkg_dir, *parts)
+    if not Path(path).exists():
+        err(f"File {path} does not exist!")
+    return path
 
 
 def generate_launch_description():
     """ROS launch method, must have this name"""
 
-    # ----------------------------------------------
-    # Locate project package directories
-    # ----------------------------------------------
-
-    # World and model files
-    pkg_models_and_worlds = get_package_share_directory("models_and_worlds")
-    # Gazebo GUI config
-    pkg_gz_code = get_package_share_directory("gazebo_code")
-    # RVIZ and bridge configs
-    pkg_launch_files = get_package_share_directory("launch_files")
+    controller_config = get_asset("arm_bringup", "config", "arm.controller.yaml")
+    world_file = get_asset("sim_worlds", "worlds", "empty.world.sdf")
+    rviz_config = get_asset("arm_bringup", "config", "arm.rviz")
+    urdf_file = get_asset("arm_description", "urdf", "arm.urdf")
+    gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
 
     # ----------------------------------------------
-    # Build paths to required files
+    # xacro generate URDF
     # ----------------------------------------------
 
-    # Build the path to the model URDF file
-    urdf_file = os.path.join(pkg_models_and_worlds, "models", "arm", "arm.urdf")
-    log("URDF model file: " + urdf_file)
-    with open(urdf_file, "r", encoding="UTF-8") as infp:
-        robot_desc = infp.read()
-
-    # Build the path to Gazebo world file
-    world_file = os.path.join(pkg_models_and_worlds, "worlds", "arm_world.sdf")
-    log("Gazebo world file: " + world_file)
-
-    # Build the path to Gazebo GUI config
-    gz_gui_config_file = os.path.join(pkg_gz_code, "gui", "gui.config")
-    log("Gazebo GUI config file: " + gz_gui_config_file)
-
-    # Build the path to RVIZ config
-    rviz_config_file = os.path.join(pkg_launch_files, "config", "arm.rviz")
-    log("RVIZ config file: " + rviz_config_file)
-
-    # Build the path to the YAML bridge mappings
-    bridge_file = os.path.join(pkg_launch_files, "config", "arm_gz_ros_bridge.yaml")
-    log("Bridge YAML definition file: " + bridge_file)
-
-    robot_controllers_file = os.path.join(
-        pkg_launch_files, "config", "arm_controller.yaml"
-    )
-    log("Robot controllers definition file: " + robot_controllers_file)
+    robot_desc = xacro.process_file(
+        urdf_file,
+        mappings={"controller_config": controller_config},
+    ).toxml()
 
     # ----------------------------------------------
     # Gazebo launch arguments
@@ -79,7 +70,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config_file])
+            "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config])
         }.items(),
     )
 
@@ -138,7 +129,7 @@ def generate_launch_description():
         arguments=[
             "joint_trajectory_controller",
             "--param-file",
-            robot_controllers_file,
+            controller_config,
         ],
     )
 
@@ -152,7 +143,7 @@ def generate_launch_description():
         name="rviz2",
         arguments=[
             "-d",
-            rviz_config_file,
+            rviz_config,
         ],
         condition=IfCondition(LaunchConfiguration("rviz")),
     )
@@ -165,11 +156,7 @@ def generate_launch_description():
     bridge = Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",
-        parameters=[
-            {
-                "config_file": bridge_file,
-            }
-        ],
+        arguments=["/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"],
         output="screen",
     )
 
