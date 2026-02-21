@@ -7,20 +7,20 @@
         "editor.defaultFormatter": "ms-azuretools.vscode-containers",
         "editor.formatOnSave": true
     },
-
     "[xml]": {
         "editor.defaultFormatter": "DotJoshJohnson.xml",
         "editor.formatOnSave": true
     },
-
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnSave": true,
         "editor.formatOnType": true,
         "editor.wordBasedSuggestions": "off",
         "editor.defaultColorDecorators": "never",
-        "diffEditor.ignoreTrimWhitespace": false
+        "diffEditor.ignoreTrimWhitespace": false,
     },
+    "json.format.keepLines": true,
+    "json.format.enable": true,
 
 
     // ================================
@@ -29,19 +29,25 @@
 
     // To prevent vscode creating 20 random forwarded ports
     "remote.autoForwardPorts": false,
-
+    "editor.rulers": [
+        100
+    ],
     "files.associations": {
         "model.config": "xml"
     },
-
     "files.exclude": {
+
+        // General
         "**/.git": true,
         "**/.hg": true,
         "**/.svn": true,
-        "**/.mypy_cache": true,
-        "**/__pycache__": true,
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
+
+        // Python
+        "**/.ruff_cache": true,
+        "**/.mypy_cache": true,
+        "**/__pycache__": true,
 
         // Robot Dev extension stuff
         ".vscode/browse.vc.db": true,
@@ -72,9 +78,8 @@
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
     ],
-
     "python.autoComplete.extraPaths": [
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages"
-    ]
+    ],
 }
