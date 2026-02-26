@@ -89,7 +89,7 @@ fi
 #
 
 mkdir -p "$LOG_DIR"
-exec > >(tee -a "$LOG_PATH") 2>&1
+exec > >(tee >(sed -r 's/\x1B\[[0-9;]*[mK]//g' >> "$LOG_PATH")) 2>&1
 
 echo "--------------------------------------------------------------"
 echo "Robot:     $ROBOT_NAME"
