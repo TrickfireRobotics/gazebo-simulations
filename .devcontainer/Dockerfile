@@ -95,6 +95,7 @@ RUN apt-get update && apt-get install -y \
     python3-colcon-common-extensions \
     ros-humble-ros-gz-sim \
     ros-humble-ros-ign-bridge \
+    ros-humble-ros2-controllers \
     \
     # ---------------- HARDWARE / NETWORK ----------------
     # USB utilities
