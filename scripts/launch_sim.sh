@@ -2,36 +2,48 @@
 set -e
 
 # --------------------------------------------------------------------------------------------
-# Universal ROS2 Gazebo build + launch script
-# Usage: ./launch_sim.sh <robot_name> [--build-only] [--no-build]
+# Universal ROS2 Gazebo/Genesis build + launch script
+# Usage: ./launch_sim.sh <robot_name> [--sim gazebo|genesis] [--build-only] [--no-build]
 #
 # Expects packages named:
 #   <robot_name>_description  →  URDF, meshes
 #   <robot_name>_bringup      →  launch files, configs
-#   sim_worlds                →  shared world files and models
+#   sim_worlds                →  shared world files and models (Gazebo only)
 #
-# Example: ./launch_sim.sh arm
+# Example: ./launch_sim.sh arm --sim gazebo
 # --------------------------------------------------------------------------------------------
 
 ROBOT_NAME=""
+SIM="gazebo"
 BUILD=true
 LAUNCH=true
 
-for arg in "$@"; do
-    case "$arg" in
-        --build-only) LAUNCH=false ;;
-        --no-build)   BUILD=false ;;
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --build-only) LAUNCH=false; shift ;;
+        --no-build)   BUILD=false; shift ;;
+        --sim)
+            if [[ -z "$2" || "$2" == --* ]]; then
+                echo "[Error] --sim requires an argument: gazebo or genesis"
+                exit 1
+            fi
+            SIM="$2"; shift 2 ;;
         --help)
-            echo "Usage: $0 <robot_name> [--build-only] [--no-build]"
+            echo "Usage: $0 <robot_name> [--sim gazebo|genesis] [--build-only] [--no-build]"
             exit 0
             ;;
-        -*) echo "[Error] Unknown option: $arg"; exit 1 ;;
-        *)  ROBOT_NAME="$arg" ;;
+        -*) echo "[Error] Unknown option: $1"; exit 1 ;;
+        *)  ROBOT_NAME="$1"; shift ;;
     esac
 done
 
 if [ -z "$ROBOT_NAME" ]; then
-    echo "Usage: $0 <robot_name> [--build-only] [--no-build]"
+    echo "Usage: $0 <robot_name> [--sim gazebo|genesis] [--build-only] [--no-build]"
+    exit 1
+fi
+
+if [[ "$SIM" != "gazebo" && "$SIM" != "genesis" ]]; then
+    echo "[Error] Unknown simulator '$SIM'. Expected: gazebo or genesis"
     exit 1
 fi
 
@@ -44,7 +56,7 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKSPACE_DIR="$PROJECT_DIR/robot-sim"
 
 LOG_DIR="$WORKSPACE_DIR/log"
-LOG_PATH="$LOG_DIR/${ROBOT_NAME}-$(date +'%Y-%m-%d_%H-%M').log"
+LOG_PATH="$LOG_DIR/${ROBOT_NAME}-${SIM}-$(date +'%Y-%m-%d_%H-%M').log"
 
 cd "$WORKSPACE_DIR"
 
@@ -67,7 +79,8 @@ if [ ! -d "$DESCRIPTION_PKG" ]; then
     exit 1
 fi
 
-LAUNCH_FILE_SRC="$BRINGUP_PKG/launch/${ROBOT_NAME}.launch.py"
+LAUNCH_FILE_NAME="${SIM}.launch.py"
+LAUNCH_FILE_SRC="$BRINGUP_PKG/launch/$LAUNCH_FILE_NAME"
 if [ ! -f "$LAUNCH_FILE_SRC" ]; then
     echo "[Error] Launch file not found: $LAUNCH_FILE_SRC"
     exit 1
@@ -80,6 +93,7 @@ exec > >(tee -a "$LOG_PATH") 2>&1
 
 echo "--------------------------------------------------------------"
 echo "Robot:     $ROBOT_NAME"
+echo "Simulator: $SIM"
 echo "Workspace: $WORKSPACE_DIR"
 echo "Log:       $LOG_PATH"
 echo "--------------------------------------------------------------"
@@ -92,9 +106,16 @@ if [ "$BUILD" = true ]; then
     echo ""
     echo "[INFO] Building ROS2 workspace..."
 
-    colcon build \
-        --packages-up-to "$BRINGUP_PKG" "$DESCRIPTION_PKG" sim_worlds \
-        --cmake-args -DBUILD_TESTING=OFF
+    if [ "$SIM" = "gazebo" ]; then
+        colcon build \
+            --packages-up-to "$BRINGUP_PKG" "$DESCRIPTION_PKG" sim_worlds \
+            --cmake-args -DBUILD_TESTING=OFF
+    else
+        # Genesis doesn't use sim_worlds
+        colcon build \
+            --packages-up-to "$BRINGUP_PKG" "$DESCRIPTION_PKG" \
+            --cmake-args -DBUILD_TESTING=OFF
+    fi
 
     if [ ! -f install/setup.bash ]; then
         echo "[Error] install/setup.bash not found — build may have failed"
@@ -113,17 +134,22 @@ echo "[INFO] Sourcing ROS2 environment..."
 source install/setup.bash
 
 # --------------------------------------------------------------------------------------------
-# REGISTER MODELS
+# SIMULATOR-SPECIFIC ENVIRONMENT
 # --------------------------------------------------------------------------------------------
 
-SIM_WORLDS_SHARE="$WORKSPACE_DIR/install/sim_worlds/share/sim_worlds"
-
-if [ -d "$SIM_WORLDS_SHARE/worlds" ]; then
-    export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$SIM_WORLDS_SHARE"
-    echo "[INFO] GZ_SIM_RESOURCE_PATH set to: $GZ_SIM_RESOURCE_PATH"
-else
-    echo "[Warn] sim_worlds share directory not found — world files may not load"
-    echo "       Expected: $SIM_WORLDS_SHARE/worlds"
+if [ "$SIM" = "gazebo" ]; then
+    SIM_WORLDS_SHARE="$WORKSPACE_DIR/install/sim_worlds/share/sim_worlds"
+    if [ -d "$SIM_WORLDS_SHARE/worlds" ]; then
+        export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$SIM_WORLDS_SHARE"
+        echo "[INFO] GZ_SIM_RESOURCE_PATH set to: $GZ_SIM_RESOURCE_PATH"
+    else
+        echo "[Warn] sim_worlds share directory not found — world files may not load"
+        echo "       Expected: $SIM_WORLDS_SHARE/worlds"
+    fi
+elif [ "$SIM" = "genesis" ]; then
+    # Placeholder: add any Genesis-specific env vars here, e.g.:
+    # export GENESIS_ASSET_PATH="..."
+    echo "[INFO] Genesis environment ready"
 fi
 
 # --------------------------------------------------------------------------------------------
@@ -132,7 +158,7 @@ fi
 
 if [ "$LAUNCH" = true ]; then
     echo ""
-    echo "[INFO] Launching simulation for robot: $ROBOT_NAME"
+    echo "[INFO] Launching $SIM simulation for robot: $ROBOT_NAME"
     echo "------------------------------------------------------------"
-    ros2 launch "$BRINGUP_PKG" "${ROBOT_NAME}.launch.py"
+    ros2 launch "$BRINGUP_PKG" "$LAUNCH_FILE_NAME"
 fi
