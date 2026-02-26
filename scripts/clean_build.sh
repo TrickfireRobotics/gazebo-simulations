@@ -6,8 +6,4 @@
 
 cd /home/trickfire/gazebo-simulations/robot-sim || exit 1
 echo "Deleting ROS build files..."
-rm -r \
-    log/ \
-    build/ \
-    install/
-echo "Done!"
+(rm -r log/ build/ install/ 2> /dev/null && echo "Done!") || echo "Files aleady cleaned!"
