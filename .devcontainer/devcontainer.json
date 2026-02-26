@@ -34,7 +34,6 @@
                 "charliermarsh.ruff",
                 "ms-python.pylint",
                 "ms-python.mypy-type-checker",
-                "ms-python.isort",
                 // --- C and C++ ---
                 "ms-vscode.cpptools",
                 "ms-vscode.cpptools-extension-pack",
