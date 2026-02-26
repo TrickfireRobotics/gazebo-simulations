@@ -16,13 +16,31 @@ set -o pipefail
 #   - Running GUI apps (Gazebo) in a Docker container
 
 # --------------------------------------------------------------------------------------------
+# SCREEN CONFIGURATION
+# --------------------------------------------------------------------------------------------
+# Parse resolution from xorg.conf
+
+XORG_CONF="/etc/X11/xorg.conf"
+
+SCREEN_MODE=$(grep -oP '(?<=Modes ")[^"]+' "$XORG_CONF" | head -1)
+if [ -z "$SCREEN_MODE" ]; then
+    echo "[ERROR] Could not parse Modes from $XORG_CONF"
+    exit 1
+fi
+
+SCREEN_WIDTH=$(echo "$SCREEN_MODE"  | cut -dx -f1)
+SCREEN_HEIGHT=$(echo "$SCREEN_MODE" | cut -dx -f2)
+SCREEN_DEPTH=$(grep -oP '(?<=DefaultDepth )\d+' "$XORG_CONF" | head -1)
+
+if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; then
+    echo "[ERROR] Could not parse resolution from $XORG_CONF"
+    exit 1
+fi
+
+# --------------------------------------------------------------------------------------------
 # VARIABLES
 # --------------------------------------------------------------------------------------------
 # These are all the values the commands below use
-
-SCREEN_WIDTH=1280
-SCREEN_HEIGHT=720
-SCREEN_DEPTH=24
 
 # These are defined in the .devcontainer Dockerfile
 # or in the .devcontainer/launch.env file
@@ -64,7 +82,7 @@ run() {
     else
         "$@" >>"$LOG_FILE" 2>&1 || {
             echo
-            echo "❌ Command failed: $*"
+            echo "[ERROR] Command failed: $*"
             echo "────────── OUTPUT START ──────────"
             cat "$LOG_FILE"
             echo "─────────── OUTPUT END ───────────"
