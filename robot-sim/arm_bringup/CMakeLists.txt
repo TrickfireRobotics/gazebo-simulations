@@ -5,6 +5,13 @@ find_package(ament_cmake REQUIRED)
 find_package(arm_description REQUIRED)
 
 install(
+  PROGRAMS
+    genesis/genesis_sim.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME genesis_sim
+)
+
+install(
   DIRECTORY
     launch/
   DESTINATION share/${PROJECT_NAME}/launch
