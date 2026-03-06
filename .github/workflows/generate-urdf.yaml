@@ -26,7 +26,7 @@ jobs:
 
       - name: Run Onshape → URDF
         env:
-          ONSHAPE_API: https://trickfire.onshape.com
+          ONSHAPE_API: https://cad.onshape.com
           ONSHAPE_ACCESS_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
           ONSHAPE_SECRET_KEY: ${{ secrets.ONSHAPE_SECRET_KEY }}
         run: |
