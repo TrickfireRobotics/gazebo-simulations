@@ -32,6 +32,17 @@ After the script logs `[create-2] [INFO] ... [ros_gz_sim]: OK creation of entity
 >[!TIP]
 >For more information and troubleshooting tips go look at the [simulation README](./docs/ros-workspace.md).
 
+## Generating packages from OnShape
+
+To create a new robot simulation from an OnShape model, use the `genbot` CLI. It downloads the URDF and meshes from OnShape and scaffolds the `<robot>_description` and `<robot>_bringup` ROS2 packages automatically.
+
+```bash
+genbot/genbot.py <robot_name> "<onshape_url>"
+```
+
+>[!TIP]
+>See the [genbot documentation](./docs/genbot.md) for setup, usage, and options.
+
 ---
 
 ## Additional information
