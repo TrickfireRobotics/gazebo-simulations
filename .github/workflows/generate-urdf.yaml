@@ -1,0 +1,42 @@
+name: Generate URDF from Onshape
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [temporary]
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    env:
+      ONSHAPE_ACCESS_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
+      ONSHAPE_SECRET_KEY: ${{ secrets.ONSHAPE_SECRET_KEY }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install onshape-to-robot
+
+      - name: Run Onshape → URDF
+        run: |
+          onshape-to-robot .
+
+      - name: Commit generated URDF
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add *.urdf
+          git commit -m "Auto-generate URDF from Onshape" || echo "No changes"
+          git push
