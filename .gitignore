@@ -23,3 +23,6 @@ __pychache__
 robot-sim/install
 robot-sim/build
 robot-sim/log
+
+### genbot ###
+genbot/.env
