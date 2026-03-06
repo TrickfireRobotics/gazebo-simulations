@@ -9,10 +9,6 @@ jobs:
   generate:
     runs-on: ubuntu-latest
 
-    env:
-      ONSHAPE_ACCESS_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
-      ONSHAPE_SECRET_KEY: ${{ secrets.ONSHAPE_SECRET_KEY }}
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -29,6 +25,10 @@ jobs:
           pip install onshape-to-robot
 
       - name: Run Onshape → URDF
+        env:
+          ONSHAPE_API: https://cad.onshape.com
+          ONSHAPE_ACCESS_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
+          ONSHAPE_SECRET_KEY: ${{ secrets.ONSHAPE_SECRET_KEY }}
         run: |
           onshape-to-robot .
 
