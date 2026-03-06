@@ -1,0 +1,12 @@
+{
+    "documentId": "9484efa46470a323e0c40836",
+    "workspaceId": "a7f2c8adf1d66c9b9936740e",
+    "elementId": "0ad99658b1c69817f8a3b2f8",
+    "assemblyName": "Assembly 1",
+
+    "outputFormat": "urdf",
+    "outputDirectory": "raw-urdf",
+
+    "drawFrames": false,
+    "useFixedLinks": false
+}
