@@ -1,5 +1,5 @@
 """
-Launch script for the robot arm simulation
+Launch script for the Gazebo arm simulation
 """
 
 import os
@@ -21,9 +21,11 @@ def generate_launch_description():
 
     controller_config = get_asset("arm_bringup", "config", "arm.controller.yaml")
     world_file = get_asset("sim_worlds", "worlds", "empty.world.sdf")
-    rviz_config = get_asset("arm_bringup", "config", "arm.rviz")
+    # UNCOMMENT WHEN RVIZ CONFIG SETUP
+    # rviz_config = get_asset("arm_bringup", "config", "arm.rviz")
     urdf_file = get_asset("arm_description", "urdf", "arm.urdf")
-    gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
+    # UNCOMMENT WHEN GAZEBO CONFIG SETUP
+    # gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
 
     # ----------------------------------------------
     # xacro generate URDF
@@ -43,7 +45,15 @@ def generate_launch_description():
             os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
         ),
         launch_arguments={
-            "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config])
+            "gz_args": " ".join(
+                [
+                    "-r",
+                    world_file,
+                    # UNCOMMENT WHEN GAZEBO CONFIG SETUP
+                    # "--gui-config",
+                    #  gz_gui_config
+                ]
+            )
         }.items(),
     )
 
@@ -51,8 +61,6 @@ def generate_launch_description():
     # Gazebo spawn model
     # ----------------------------------------------
 
-    # Uses the ros_gz_sim 'create' node to send the URDF string to
-    # Gazebo’s spawn service and place the robot at a given pose
     spawn_robot = Node(
         package="ros_gz_sim",
         executable="create",
@@ -74,7 +82,6 @@ def generate_launch_description():
     # ----------------------------------------------
     # Robot state publisher
     # ----------------------------------------------
-    # Publishes robot transforms
 
     robot_state_publisher = Node(
         package="robot_state_publisher",
@@ -87,7 +94,6 @@ def generate_launch_description():
     # ----------------------------------------------
     # Joint controllers
     # ----------------------------------------------
-    # Controls the arm joints
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
@@ -114,17 +120,16 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        arguments=[
-            "-d",
-            rviz_config,
-        ],
+        # arguments=[ # UNCOMMENT WHEN RVIZ CONFIG SETUP
+        #     "-d",
+        #     rviz_config,
+        # ],
         condition=IfCondition(LaunchConfiguration("rviz")),
     )
 
     # ----------------------------------------------
     # ROS GZ BRIDGE
     # ----------------------------------------------
-    # Bridges ROS topics and Gazebo messages
 
     bridge = Node(
         package="ros_gz_bridge",
@@ -133,9 +138,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    # ----------------------------------------------
-    # Return the final launch description
-    # Will be executed in order (order matters)
     return LaunchDescription(
         [
             gz_sim,

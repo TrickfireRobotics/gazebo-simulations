@@ -6,9 +6,6 @@
     <description>Launch files for the arm simulation</description>
     <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
     <license>TODO</license>
-    <author>Kaitlin Nguyen</author>
-    <author>Calin Prutean</author>
-    <author>Matej Stastny</author>
 
     <depend>arm_description</depend>
     <exec_depend>sim_common</exec_depend>

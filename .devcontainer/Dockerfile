@@ -143,7 +143,7 @@ RUN pip3 install --upgrade pydocstyle
 RUN pip3 install ruff
 
 # Install genbot dependencies
-# Upgrade pip first — onshape-to-robot uses uv as its build backend which
+# Upgrade pip first - onshape-to-robot uses uv as its build backend which
 # requires a recent pip to bootstrap correctly.
 RUN pip3 install --upgrade pip setuptools && pip3 install onshape-to-robot
 

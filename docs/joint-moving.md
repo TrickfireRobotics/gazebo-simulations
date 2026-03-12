@@ -15,8 +15,8 @@ ros2 run sim_common move_joints --ros-args \
 
 | Parameter   | Required | Default                                         | Description                          |
 | ----------- | -------- | ----------------------------------------------- | ------------------------------------ |
-| `joints`    | Yes      | —                                               | List of joint names to move          |
-| `positions` | Yes      | —                                               | Target positions (radians) per joint |
+| `joints`    | Yes      | -                                               | List of joint names to move          |
+| `positions` | Yes      | -                                               | Target positions (radians) per joint |
 | `duration`  | No       | `2.0`                                           | Time to reach the target (seconds)   |
 | `topic`     | No       | `/joint_trajectory_controller/joint_trajectory` | Trajectory topic to publish on       |
 

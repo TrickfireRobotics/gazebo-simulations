@@ -49,7 +49,7 @@ LOG_PATH="$LOG_DIR/${ROBOT_NAME}-gazebo-$(date +'%Y-%m-%d_%H-%M').log"
 cd "$WORKSPACE_DIR"
 
 # --------------------------------------------------------------------------------------------
-# VALIDATE — check expected packages exist before bothering to build
+# VALIDATE - check expected packages exist before bothering to build
 # --------------------------------------------------------------------------------------------
 
 BRINGUP_PKG="${ROBOT_NAME}_bringup"
@@ -99,7 +99,7 @@ if [ "$BUILD" = true ]; then
         --cmake-args -DBUILD_TESTING=OFF
 
     if [ ! -f install/setup.bash ]; then
-        echo "[Error] install/setup.bash not found — build may have failed"
+        echo "[Error] install/setup.bash not found - build may have failed"
         exit 1
     fi
 
@@ -123,7 +123,7 @@ if [ -d "$SIM_WORLDS_SHARE/worlds" ]; then
     export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$SIM_WORLDS_SHARE"
     echo "[INFO] GZ_SIM_RESOURCE_PATH set to: $GZ_SIM_RESOURCE_PATH"
 else
-    echo "[Warn] sim_worlds share directory not found — world files may not load"
+    echo "[Warn] sim_worlds share directory not found - world files may not load"
     echo "       Expected: $SIM_WORLDS_SHARE/worlds"
 fi
 

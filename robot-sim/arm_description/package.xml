@@ -3,12 +3,9 @@
 <package format="3">
     <name>arm_description</name>
     <version>0.0.0</version>
-    <description>Arm simulation models and descriptions</description>
+    <description>arm simulation models and descriptions</description>
     <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
     <license>TODO</license>
-    <author>Kaitlin Nguyen</author>
-    <author>Calin Prutean</author>
-    <author>Matej Stastny</author>
 
     <buildtool_depend>ament_cmake</buildtool_depend>
 
