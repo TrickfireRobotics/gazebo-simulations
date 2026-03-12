@@ -1,6 +1,6 @@
 # genbot - OnShape model to ROS2 package generator
 
-`genbot` is a CLI tool that downloads a robot URDF from OnShape via [`onshape-to-robot`](https://github.com/Rhoban/onshape-to-robot) and creates a complete pair of ROS2 packages (`<robot>_description` and `<robot>_bringup`) that are a baseline for the simulation.
+`genbot` is a CLI tool that downloads a robot URDF from OnShape via [`onshape-to-robot`](https://github.com/Rhoban/onshape-to-robot) and creates or updates ROS2 packages (`<robot>_description` and `<robot>_bringup`) for simulation.
 
 ## Setup
 
@@ -25,20 +25,42 @@ https://cad.onshape.com/documents/<docId>/w/<workspaceId>/e/<elementId>
 
 ## Usage
 
+### Create a new robot
+
 ```bash
-genbot/genbot.py <robot_name> "<onshape_url>"
+genbot/genbot.py create <robot_name> "<onshape_url>"
 ```
 
 **Example:**
 
 ```bash
-genbot/genbot.py arm "https://cad.onshape.com/documents/abc123/w/def456/e/ghi789"
+genbot/genbot.py create arm "https://cad.onshape.com/documents/abc123/w/def456/e/ghi789"
 ```
 
 This will:
 1. Download the URDF and meshes from OnShape into a temp directory
-2. Parse all `revolute` joints from the URDF
-3. Generate `robot-sim/arm_description/` and `robot-sim/arm_bringup/` with all files populated
+2. Post-process the URDF (add xacro namespace, rewrite mesh paths, extract joints)
+3. Generate `robot-sim/<robot>_description/` with geometry URDF + control xacro
+4. Generate `robot-sim/<robot>_bringup/` with launch files and controller config
+5. Register the robot in `robots.json`
+
+### Update an existing robot
+
+```bash
+genbot/genbot.py update <robot_name>
+```
+
+**Example:**
+
+```bash
+genbot/genbot.py update arm
+```
+
+This will:
+1. Look up the OnShape coordinates from `robots.json`
+2. Download the latest URDF and meshes
+3. Replace only `<robot>_description/urdf/<robot>.urdf` and `<robot>_description/meshes/`
+4. Leave `_bringup` and the control xacro untouched
 
 ### Options
 
@@ -50,18 +72,22 @@ This will:
 `--skip-download` is useful for re-generating the ROS2 packages without re-downloading from OnShape:
 
 ```bash
-genbot/genbot.py arm "..." --skip-download /tmp/genbot_xyz123
+genbot/genbot.py create arm "..." --skip-download /tmp/genbot_xyz123
+genbot/genbot.py update arm --skip-download /tmp/genbot_xyz123
 ```
 
 ## Generated output
+
+### Create mode
 
 ```
 robot-sim/
   <robot>_description/
     CMakeLists.txt
     package.xml
-    urdf/<robot>.urdf
-    meshes/               ← copied from onshape-to-robot output
+    urdf/<robot>.urdf                    ← geometry URDF with xacro includes
+    urdf/<robot>_control.urdf.xacro      ← ros2_control + gazebo plugin block
+    meshes/                              ← copied from onshape-to-robot output
   <robot>_bringup/
     CMakeLists.txt
     package.xml
@@ -71,15 +97,32 @@ robot-sim/
     genesis/genesis_sim.py
 ```
 
-The controller YAML is pre-populated with all `revolute` joints found in the URDF. If none are found, a comment placeholder is inserted for manual editing.
+### Update mode
+
+Only these files are replaced:
+- `<robot>_description/urdf/<robot>.urdf`
+- `<robot>_description/meshes/*`
+
+## Robot Registry — `robots.json`
+
+The file `robots.json` at the repo root maps robot names to their OnShape document coordinates. It is written automatically by `create` mode and read by `update` mode.
+
+## Shared Utilities — `sim_common`
+
+The `robot-sim/sim_common/` package provides shared launch utilities (`log`, `err`, `get_asset`) used by all `_bringup` packages, avoiding code duplication across launch files.
 
 ## Building and launching
 
-After generation, launch the simulation:
+After generation, build and launch the simulation:
 
 ```bash
+cd robot-sim && colcon build --packages-select sim_common <robot>_description <robot>_bringup
 ./scripts/launch_sim.sh <robot>
 ```
+
+## GitHub Actions
+
+The workflow `.github/workflows/generate-urdf.yaml` supports both `create` and `update` modes via `workflow_dispatch`. It runs genbot and opens a PR with the changes.
 
 ## Templates
 

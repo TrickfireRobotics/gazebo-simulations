@@ -3,8 +3,6 @@ Launch script for the Gazebo __ROBOT__ simulation
 """
 
 import os
-import sys
-from pathlib import Path
 
 import xacro
 from ament_index_python.packages import get_package_share_directory
@@ -15,26 +13,7 @@ from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-
-
-def log(log_msg):
-    """Basic log"""
-    print("\033[0;32m", "[INFO] [launch]: ", log_msg, "\x1b[0m", sep="")
-
-
-def err(log_msg):
-    """Error log"""
-    print("\033[0;31m", "[ERROR] [launch]: ", log_msg, "\x1b[0m", sep="")
-    sys.exit(1)
-
-
-def get_asset(package, *parts):
-    """Getter for assets"""
-    pkg_dir = get_package_share_directory(package)
-    path = os.path.join(pkg_dir, *parts)
-    if not Path(path).exists():
-        err(f"File {path} does not exist!")
-    return path
+from sim_common.launch_utils import log, err, get_asset
 
 
 def generate_launch_description():

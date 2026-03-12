@@ -6,9 +6,9 @@ import os
 
 import genesis as gs
 import rclpy
-from ament_index_python import get_package_share_directory
 from rclpy.node import Node
 import xacro
+from sim_common.launch_utils import get_asset
 
 
 class GenesisSim(Node):
@@ -27,10 +27,11 @@ class GenesisSim(Node):
 
         self.scene.add_entity(gs.morphs.Plane())
 
-        mesh_dir = get_package_share_directory("arm_description")
+        from ament_index_python import get_package_share_directory
 
-        urdf_dir = os.path.join(get_package_share_directory("arm_description"), "urdf")
-        urdf_file = os.path.join(urdf_dir, "arm.urdf")
+        mesh_dir = get_package_share_directory("arm_description")
+        urdf_file = get_asset("arm_description", "urdf", "arm.urdf")
+        urdf_dir = os.path.dirname(urdf_file)
 
         robot_desc = xacro.process_file(urdf_file).toxml()
         robot_desc = robot_desc.replace("package://arm_description/", f"{mesh_dir}/")

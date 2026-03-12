@@ -1,9 +1,23 @@
-name: Generate URDF from Onshape
+name: Generate/Update Robot from OnShape
 
 on:
   workflow_dispatch:
-  push:
-    branches: [temporary]
+    inputs:
+      mode:
+        description: 'Operation mode'
+        required: true
+        type: choice
+        options:
+          - create
+          - update
+      robot_name:
+        description: 'Robot name (arm, rover etc.)'
+        required: true
+        type: string
+      onshape_url:
+        description: 'OnShape URL (required for create, ignored for update)'
+        required: false
+        type: string
 
 jobs:
   generate:
@@ -22,21 +36,41 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install onshape-to-robot
+          pip install onshape-to-robot python-dotenv
 
-      - name: Run Onshape → URDF
+      - name: Validate inputs
+        run: |
+          if [ "${{ inputs.mode }}" = "create" ] && [ -z "${{ inputs.onshape_url }}" ]; then
+            echo "ERROR: OnShape URL is required for 'create' mode"
+            exit 1
+          fi
+          if [ "${{ inputs.mode }}" = "update" ]; then
+            if ! python3 -c "import json; data=json.load(open('robots.json')); assert '${{ inputs.robot_name }}' in data"; then
+              echo "ERROR: Robot '${{ inputs.robot_name }}' not found in robots.json"
+              exit 1
+            fi
+          fi
+
+      - name: Run genbot
         env:
-          ONSHAPE_API: https://cad.onshape.com
-          ONSHAPE_ACCESS_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
-          ONSHAPE_SECRET_KEY: ${{ secrets.ONSHAPE_SECRET_KEY }}
+          ONSHAPE_API_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
+          ONSHAPE_API_SECRET: ${{ secrets.ONSHAPE_SECRET_KEY }}
         run: |
-          onshape-to-robot .
+          if [ "${{ inputs.mode }}" = "create" ]; then
+            python genbot/genbot.py create "${{ inputs.robot_name }}" "${{ inputs.onshape_url }}"
+          else
+            python genbot/genbot.py update "${{ inputs.robot_name }}"
+          fi
 
-      - name: Commit generated URDF
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: genbot/${{ inputs.mode }}-${{ inputs.robot_name }}
+          commit-message: "[genbot] ${{ inputs.mode }} ${{ inputs.robot_name }}"
+          title: "[genbot] ${{ inputs.mode }} ${{ inputs.robot_name }}"
+          body: |
+            Automated PR from genbot workflow.
 
-          git add *.urdf
-          git commit -m "Auto-generate URDF from Onshape" || echo "No changes"
-          git push
+            **Mode:** `${{ inputs.mode }}`
+            **Robot:** `${{ inputs.robot_name }}`

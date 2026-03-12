@@ -3,6 +3,7 @@ project(arm_bringup)
 
 find_package(ament_cmake REQUIRED)
 find_package(arm_description REQUIRED)
+find_package(sim_common REQUIRED)
 
 install(
   PROGRAMS
