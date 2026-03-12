@@ -12,6 +12,11 @@ setup(
         ("share/ament_index/resource_index/packages", ["resource/" + PACKAGE_NAME]),
         ("share/" + PACKAGE_NAME, ["package.xml"]),
     ],
+    entry_points={
+        "console_scripts": [
+            "move_joints = sim_common.move_joints:main",
+        ],
+    },
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="Trickfire Robotics",
