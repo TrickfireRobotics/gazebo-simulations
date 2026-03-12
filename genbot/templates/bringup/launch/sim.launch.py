@@ -21,9 +21,11 @@ def generate_launch_description():
 
     controller_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.controller.yaml")
     world_file = get_asset("sim_worlds", "worlds", "empty.world.sdf")
-    rviz_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.rviz")
+    # UNCOMMENT WHEN RVIZ CONFIG SETUP
+    # rviz_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.rviz")
     urdf_file = get_asset("__ROBOT___description", "urdf", "__ROBOT__.urdf")
-    gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
+    # UNCOMMENT WHEN GAZEBO CONFIG SETUP
+    # gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
 
     # ----------------------------------------------
     # xacro generate URDF
@@ -43,7 +45,15 @@ def generate_launch_description():
             os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
         ),
         launch_arguments={
-            "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config])
+            "gz_args": " ".join(
+                [
+                    "-r",
+                    world_file,
+                    # UNCOMMENT WHEN GAZEBO CONFIG SETUP
+                    # "--gui-config",
+                    #  gz_gui_config
+                ]
+            )
         }.items(),
     )
 
@@ -110,10 +120,10 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        arguments=[
-            "-d",
-            rviz_config,
-        ],
+        # arguments=[ # UNCOMMENT WHEN RVIZ CONFIG SETUP
+        #     "-d",
+        #     rviz_config,
+        # ],
         condition=IfCondition(LaunchConfiguration("rviz")),
     )
 
