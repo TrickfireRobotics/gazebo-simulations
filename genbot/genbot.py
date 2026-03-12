@@ -123,12 +123,13 @@ def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workd
         "documentId": doc_id,
         "workspaceId": ws_id,
         "elementId": el_id,
+        "output_format": "urdf",
     }
     (workdir / "config.json").write_text(json.dumps(config, indent=2))
 
     env = os.environ.copy()
-    env["ONSHAPE_API_KEY"] = creds["key"]
-    env["ONSHAPE_API_SECRET"] = creds["secret"]
+    env["ONSHAPE_ACCESS_KEY"] = creds["key"]
+    env["ONSHAPE_SECRET_KEY"] = creds["secret"]
 
     subprocess.run(
         ["onshape-to-robot", "."],
@@ -320,7 +321,7 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
     if joints:
         joints_yaml = "".join(f"      - {name}\n" for name, _, _ in joints)
     else:
-        joints_yaml = "      # no revolute joints found — fill in manually\n"
+        joints_yaml = "      # no revolute joints found - fill in manually\n"
 
     write_template(
         tmpl / "config" / "controller.yaml",
@@ -411,7 +412,7 @@ def cmd_create(args) -> None:
         joint_names = [name for name, _, _ in joints]
         info(f"Found {len(joints)} revolute joint(s): {', '.join(joint_names)}")
     else:
-        info("No revolute joints found — controller YAML will have a placeholder.")
+        info("No revolute joints found - controller YAML will have a placeholder.")
 
     info("Generating description package...")
     generate_description_pkg(robot, geometry_urdf, control_xacro, meshes_src, out_dir)
