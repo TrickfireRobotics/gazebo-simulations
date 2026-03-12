@@ -29,6 +29,11 @@ def info(msg: str) -> None:
     print(f"[genbot] {msg}")
 
 
+def warn(msg: str) -> None:
+    """Warn log"""
+    print(f"[genbot] WARN: {msg}")
+
+
 def err(msg: str) -> NoReturn:
     """Error log, sys exits with 1"""
     print(f"[genbot] ERROR: {msg}", file=sys.stderr)
@@ -124,6 +129,7 @@ def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workd
         "workspaceId": ws_id,
         "elementId": el_id,
         "output_format": "urdf",
+        "add_dummy_base_link": True,
     }
     (workdir / "config.json").write_text(json.dumps(config, indent=2))
 
@@ -164,9 +170,9 @@ def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
 
 
 def _rewrite_mesh_paths(urdf_text: str) -> str:
-    """Replace filename="meshes/foo.stl" with filename="${mesh_path}/foo.stl" """
+    """Replace filename="assets/foo.stl" with filename="${mesh_path}/foo.stl" """
     return re.sub(
-        r'filename="meshes/([^"]+)"',
+        r'filename="package://assets/([^"]+)"',
         r'filename="${mesh_path}/\1"',
         urdf_text,
     )
@@ -335,7 +341,9 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
     info(f"Created {pkg_dir.relative_to(out_dir.parent)}")
 
 
-def update_description_pkg(robot: str, geometry_urdf: str, meshes_src: Path, out_dir: Path) -> None:
+def update_description_pkg(
+    robot: str, geometry_urdf: str, generated_meshes_src: Path, out_dir: Path
+) -> None:
     """Update only the URDF and meshes in an existing <robot>_description package"""
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
@@ -344,15 +352,14 @@ def update_description_pkg(robot: str, geometry_urdf: str, meshes_src: Path, out
     if not pkg_dir.exists():
         err(f"Package {pkg_dir} does not exist. Use 'create' mode first.")
 
-    # Replace URDF (but NOT the control xacro)
     (urdf_dir / f"{robot}.urdf").write_text(geometry_urdf)
 
     # Replace meshes
-    if meshes_src.exists():
+    if generated_meshes_src.exists():
         if meshes_dir.exists():
             shutil.rmtree(meshes_dir)
         meshes_dir.mkdir(parents=True, exist_ok=True)
-        for item in meshes_src.iterdir():
+        for item in generated_meshes_src.iterdir():
             dest = meshes_dir / item.name
             if item.is_dir():
                 shutil.copytree(item, dest, dirs_exist_ok=True)
@@ -397,13 +404,18 @@ def cmd_create(args) -> None:
     workdir = download(doc_id, ws_id, el_id)
 
     urdf_path = workdir / "robot.urdf"
-    meshes_src = workdir / "meshes"
+    meshes_src = workdir / "assets"
 
     if not urdf_path.exists():
         err(
             f"Expected {urdf_path} but it was not found.\n"
             "  Check onshape-to-robot output above for errors."
         )
+
+    if not meshes_src.exists():
+        warn(f"Meshes directory {meshes_src} was not created")
+    elif not any(meshes_src.iterdir()):
+        warn(f"Meshes directory {meshes_src} is empty")
 
     info("Post-processing URDF...")
     geometry_urdf, control_xacro, joints = postprocess(urdf_path, robot)
@@ -460,20 +472,25 @@ def cmd_update(args) -> None:
 
     workdir = download(doc_id, ws_id, el_id)
 
-    urdf_path = workdir / "robot.urdf"
-    meshes_src = workdir / "meshes"
+    exported_urdf_path = workdir / "robot.urdf"
+    exported_meshes_src = workdir / "assets"
 
-    if not urdf_path.exists():
+    if not exported_urdf_path.exists():
         err(
-            f"Expected {urdf_path} but it was not found.\n"
+            f"Expected {exported_urdf_path} but it was not found.\n"
             "  Check onshape-to-robot output above for errors."
         )
 
+    if not exported_meshes_src.exists():
+        warn(f"Meshes directory {exported_meshes_src} was not created")
+    elif not any(exported_meshes_src.iterdir()):
+        warn(f"Meshes directory {exported_meshes_src} is empty")
+
     info("Post-processing URDF...")
-    geometry_urdf, _, _ = postprocess(urdf_path, robot)
+    geometry_urdf, _, _ = postprocess(exported_urdf_path, robot)
 
     info("Updating description package...")
-    update_description_pkg(robot, geometry_urdf, meshes_src, out_dir)
+    update_description_pkg(robot, geometry_urdf, exported_meshes_src, out_dir)
 
     info("Done!")
     info(f"Updated {robot}_description/urdf and meshes only.")

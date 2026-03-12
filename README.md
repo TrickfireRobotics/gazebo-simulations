@@ -30,8 +30,8 @@ Once you launch the `devcontainer`, set up your display environment and verified
 The script accepts the robot name as an argument (currently only `arm` is available). It builds the required packages (`<robot>_description`, `<robot>_bringup`, `sim_common`, `sim_worlds`), sources the workspace, and launches the Gazebo simulation with RViz.
 
 Options:
-- `--build-only` — Build the packages without launching the simulation
-- `--no-build` — Skip the build step and launch directly (if already built)
+- `--build-only` - Build the packages without launching the simulation
+- `--no-build` - Skip the build step and launch directly (if already built)
 
 > [!TIP]
 > For more information and troubleshooting tips go look at the [ROS workspace docs](./docs/ros-workspace.md).
@@ -63,7 +63,7 @@ To create or update a robot simulation from an OnShape model, use the **Generate
 
 ### Systems with X11
 
-On systems that provide X11 (like Linux and WSL), GUI forwarding is typically built-in. You can usually skip steps 5 and 6 and just run Gazebo — a Gazebo window should appear automatically. The `start_x_server.sh` script is not needed in these cases, since these systems already handle the display binding (for example, WSL binds to display :0). For more details about WSL gui-apps, you can check [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
+On systems that provide X11 (like Linux and WSL), GUI forwarding is typically built-in. You can usually skip steps 5 and 6 and just run Gazebo - a Gazebo window should appear automatically. The `start_x_server.sh` script is not needed in these cases, since these systems already handle the display binding (for example, WSL binds to display :0). For more details about WSL gui-apps, you can check [here](https://learn.microsoft.com/en-us/windows/wsl/tutorials/gui-apps).
 
 ### VNC Viewer
 

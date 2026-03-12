@@ -49,14 +49,14 @@ OnShape CAD Model
 
 ### Update mode pipeline
 
-Used when the OnShape CAD model has changed and you want to pull in new geometry. Reads the OnShape URL from `robots.json` — no need to re-enter it. Only replaces the geometry URDF and meshes. The control xacro, bringup package, and any manual edits are preserved.
+Used when the OnShape CAD model has changed and you want to pull in new geometry. Reads the OnShape URL from `robots.json` - no need to re-enter it. Only replaces the geometry URDF and meshes. The control xacro, bringup package, and any manual edits are preserved.
 
 ```
 robots.json (stored OnShape coordinates)
     |
     v
 1. DOWNLOAD (onshape-to-robot)
-    |  Same as create — downloads fresh URDF + meshes
+    |  Same as create - downloads fresh URDF + meshes
     |
     v
 2. POST-PROCESS (genbot.py)
