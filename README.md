@@ -1,6 +1,6 @@
 # Gazebo Simulations
 
-This repository contains [Gazebo Fortress](https://gazebosim.org/docs/fortress/install/) simulations for Trickfire’s robot subsystems, including the drivebase, arm, and autonomous systems. The project uses [ROS 2 Humble](https://docs.ros.org/en/humble/index.html) for robot code and runs entirely inside a Docker container, including the codebase and Gazebo GUI.
+This repository contains [Gazebo Fortress](https://gazebosim.org/docs/fortress/install/) simulations for Trickfire's robot subsystems, including the drivebase, arm, and autonomous systems. The project uses [ROS 2 Humble](https://docs.ros.org/en/humble/index.html) for robot code and runs entirely inside a Docker container, including the codebase and Gazebo GUI.
 
 ## How to run Gazebo
 
@@ -10,8 +10,8 @@ This repository contains [Gazebo Fortress](https://gazebosim.org/docs/fortress/i
 1. Clone this repo
 2. Make sure you have the `ms-vscode-remote.remote-containers` VsCode extension installed.
 3. Open the repo inside VsCode. You should see a pop-up asking you if you want to reopen the project in container, do that. The first time doing this can take up to 10 mins depending on how good of a computer you have. If you do not see this pop-up run the `Dev Containers: Rebuild and reopen in container` VsCode command. If it doesn't exist you do not have the extension mentioned above.
-4. Attach to the container shell either by opening the VsCode terminal thats already attached or by running the `attach_to_container.sh` script in any host terminal.
-5. Run the `start_x_server.sh` script. This sets up the desktop environment that any GUI app ran inside of the container can use.
+4. Attach to the container shell either by opening the VsCode terminal thats already attached or by running the `scripts/attach_to_container.sh` script in any host terminal.
+5. Run the `scripts/start_x_server.sh` script. This sets up the desktop environment that any GUI app ran inside of the container can use.
 6. Open up [http://localhost:6080/vnc.html](http://localhost:6080/vnc.html) and click on the connect button.
 7. You can test if it works with running Gazebo with an empty world using the command below. you should see a Gazebo window on the website above.
 
@@ -21,23 +21,41 @@ ign gazebo empty.sdf
 
 ## How to run simulation
 
-Once you launch the `devcontainer`, set up your display environment and verified Gazebo runs, you're ready to start the simulation. There is a script that will build the ROS files and launch the arm simulation (it is the only one we have right now) using our launch file. You can call it using this command:
+Once you launch the `devcontainer`, set up your display environment and verified Gazebo runs, you're ready to start the simulation. The `launch_sim.sh` script builds the ROS2 packages and launches the simulation for a given robot:
 
 ```bash
-./scripts/build_ros2_sim.sh
+./scripts/launch_sim.sh arm
 ```
 
-After the script logs `[create-2] [INFO] ... [ros_gz_sim]: OK creation of entity.` the simulation launched. You can go to your Gazebo window and you should see the arm model.
+The script accepts the robot name as an argument (currently only `arm` is available). It builds the required packages (`<robot>_description`, `<robot>_bringup`, `sim_common`, `sim_worlds`), sources the workspace, and launches the Gazebo simulation with RViz.
 
->[!TIP]
->For more information and troubleshooting tips go look at the [simulation README](./docs/ros-workspace.md).
+Options:
+- `--build-only` — Build the packages without launching the simulation
+- `--no-build` — Skip the build step and launch directly (if already built)
+
+> [!TIP]
+> For more information and troubleshooting tips go look at the [ROS workspace docs](./docs/ros-workspace.md).
+
+## Moving robot joints
+
+Once the simulation is running, you can send joint trajectory commands using the `move_joints` node:
+
+```bash
+ros2 run sim_common move_joints --ros-args \
+    -p joints:="['shoulder_1', 'elbow_1', 'wrist_1', 'wrist_2']" \
+    -p positions:="[0.5, 0.5, 0.2, 0.0]" \
+    -p duration:=2.0
+```
+
+> [!TIP]
+> See the [joint moving docs](./docs/joint-moving.md) for all parameters and examples.
 
 ## Generating packages from OnShape
 
 To create or update a robot simulation from an OnShape model, use the **Generate/Update Robot from OnShape** GitHub Actions workflow. Go to **Actions** > **Generate/Update Robot from OnShape**, click **Run workflow**, and fill in the robot name and OnShape URL. The workflow downloads the URDF and meshes, scaffolds the ROS2 packages, and opens a PR automatically.
 
->[!TIP]
->See the [genbot documentation](./docs/genbot.md) for details on the pipeline, generated output, and required repository secrets.
+> [!TIP]
+> See the [genbot documentation](./docs/genbot.md) for details on the pipeline, generated output, and required repository secrets.
 
 ---
 

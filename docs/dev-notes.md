@@ -8,3 +8,17 @@ apt-get install -y software-properties-common
 add-apt-repository -y universe
 apt-get update
 ```
+
+# How to set/read camera info using CLI commands
+
+To set camera position use this format of command:
+
+```bash
+gz service -s /gui/move_to/pose --reqtype gz.msgs.GUICamera --reptype gz.msgs.Boolean --timeout 2000 --req "pose: {position: {x: 0.0, y: -2.0, z: 2.0} orientation: {x: -0.2706, y: 0.2706, z: 0.6533, w: 0.6533}}"
+```
+
+To read camera position use this topic listener:
+
+```bash
+gz topic -e -t /gui/camera/pose
+```
