@@ -7,7 +7,6 @@
       },
       "includePath": [
         "/opt/ros/humble/include/**",
-        "/home/trickfire/gazebo-simulations/Robot-sim-template/ros_gz_example_gazebo/include/**",
         "/usr/include/**"
       ],
       "name": "ros2",

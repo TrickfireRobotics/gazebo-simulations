@@ -74,7 +74,9 @@ if [[ ${#ENV_VARS_ARRAY[@]} -gt 0 ]]; then
 
     log_info "Environment file $LAUNCH_ENV_FILE configured successfully with the following variables:"
     echo "--------------------------------------------------"
-    echo "$var=${ENV_VARS_ARRAY[$var]}"
+    for var in "${!ENV_VARS_ARRAY[@]}"; do
+        echo "$var=${ENV_VARS_ARRAY[$var]}"
+    done
     echo "--------------------------------------------------"
 else
     log_warn "No environment variables were set"
