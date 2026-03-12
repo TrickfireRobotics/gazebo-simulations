@@ -4,31 +4,75 @@
 
 ## Overview
 
-The pipeline works in three stages:
+### Create mode pipeline
 
-1. **Download** - `onshape-to-robot` exports the CAD model as a URDF with mesh files
-2. **Post-process** - genbot transforms the raw URDF into a simulation-ready format (xacro namespaces, dynamic mesh paths, ros2_control blocks, Gazebo plugins)
-3. **Generate** - genbot scaffolds two ROS2 packages (`<robot>_description` and `<robot>_bringup`) with all the files needed to build and launch a Gazebo simulation
+Used when adding a new robot for the first time. Requires an OnShape URL. Generates both `_description` and `_bringup` packages and registers the robot in `robots.json`.
 
 ```
 OnShape CAD Model
     |
     v
-onshape-to-robot          (downloads URDF + meshes)
+1. DOWNLOAD (onshape-to-robot)
+    |  Connects to OnShape API with credentials
+    |  Downloads URDF (robot.urdf) + mesh files (meshes/*.stl)
+    |  Output: raw URDF with relative mesh paths
     |
     v
-urdf_postprocess.py        (transforms URDF for Gazebo)
-    |-- adds xacro namespace and properties
-    |-- rewrites mesh paths to use package:// URIs
-    |-- extracts revolute joints
-    |-- generates ros2_control xacro with Gazebo plugin
-    |-- injects control include into geometry URDF
+2. POST-PROCESS (genbot.py)
+    |  a) Add xmlns:xacro namespace to <robot> tag
+    |  b) Inject xacro properties: mesh_path, controller_config arg
+    |  c) Rewrite mesh paths: meshes/foo.stl -> ${mesh_path}/foo.stl
+    |  d) Parse URDF to extract all revolute joints + their limits
+    |  e) Generate <robot>_control.urdf.xacro:
+    |     - ros2_control hardware interface (gz_ros2_control/GazeboSimSystem)
+    |     - Per-joint position command + state interfaces
+    |     - Gazebo plugin block (libgz_ros2_control-system.so, 60 Hz)
+    |  f) Inject <xacro:include> for control xacro into geometry URDF
     |
     v
-genbot.py                  (scaffolds ROS2 packages)
-    |-- <robot>_description/   (URDF, meshes, control xacro)
-    |-- <robot>_bringup/       (launch files, controller config)
-    |-- robots.json            (registers robot for future updates)
+3. SCAFFOLD (genbot.py)
+    |  Renders templates with __ROBOT__ placeholder replaced
+    |
+    |-- <robot>_description/
+    |     urdf/<robot>.urdf                  (post-processed geometry)
+    |     urdf/<robot>_control.urdf.xacro    (generated control block)
+    |     meshes/                            (copied from download)
+    |     CMakeLists.txt, package.xml        (from templates)
+    |
+    |-- <robot>_bringup/
+    |     launch/sim.launch.py            (from template)
+    |     config/<robot>.controller.yaml     (from template, joints filled in)
+    |     CMakeLists.txt, package.xml        (from templates)
+    |
+    |-- robots.json                          (registers OnShape coordinates)
+```
+
+### Update mode pipeline
+
+Used when the OnShape CAD model has changed and you want to pull in new geometry. Reads the OnShape URL from `robots.json` — no need to re-enter it. Only replaces the geometry URDF and meshes. The control xacro, bringup package, and any manual edits are preserved.
+
+```
+robots.json (stored OnShape coordinates)
+    |
+    v
+1. DOWNLOAD (onshape-to-robot)
+    |  Same as create — downloads fresh URDF + meshes
+    |
+    v
+2. POST-PROCESS (genbot.py)
+    |  Same transforms as create (steps a-c, f)
+    |  Control xacro is NOT regenerated
+    |
+    v
+3. REPLACE (genbot.py)
+    |  Only these files are overwritten:
+    |-- <robot>_description/urdf/<robot>.urdf    (new geometry)
+    |-- <robot>_description/meshes/*             (new meshes, old deleted)
+    |
+    |  These are NOT touched:
+    |   <robot>_description/urdf/<robot>_control.urdf.xacro
+    |   <robot>_bringup/ (entire package)
+    |   robots.json
 ```
 
 ## Usage (GitHub Actions)
@@ -66,33 +110,6 @@ The PR can then be reviewed and merged like any other code change.
 | `ONSHAPE_ACCESS_KEY` | OnShape API key    |
 | `ONSHAPE_SECRET_KEY` | OnShape API secret |
 
-You can get API keys from [OnShape Developer Portal](https://dev-portal.onshape.com/keys).
-
-## Generated output
-
-### Create mode
-
-```
-robot-sim/
-  <robot>_description/
-    CMakeLists.txt
-    package.xml
-    urdf/<robot>.urdf                    <-- geometry URDF with xacro includes
-    urdf/<robot>_control.urdf.xacro      <-- ros2_control + gazebo plugin block
-    meshes/                              <-- copied from onshape-to-robot output
-  <robot>_bringup/
-    CMakeLists.txt
-    package.xml
-    config/<robot>.controller.yaml
-    launch/gazebo.launch.py
-```
-
-### Update mode
-
-Only these files are replaced:
-- `<robot>_description/urdf/<robot>.urdf`
-- `<robot>_description/meshes/*`
-
 ## Two-layer URDF architecture
 
 genbot splits the URDF into two files to keep geometry and control concerns separate:
@@ -104,7 +121,7 @@ At build time, xacro merges both files into a single robot description.
 
 ## URDF post-processing
 
-The `urdf_postprocess.py` module transforms the raw URDF from `onshape-to-robot` into a format ready for Gazebo simulation. The processing steps are:
+The URDF post-processing step in `genbot.py` transforms the raw URDF from `onshape-to-robot` into a format ready for Gazebo simulation. The processing steps are:
 
 1. **Xacro namespace** - adds `xmlns:xacro` to the `<robot>` tag
 2. **Xacro properties** - injects a `mesh_path` property (`package://<robot>_description/meshes`) and a `controller_config` arg
@@ -127,7 +144,7 @@ The file `robots.json` at the repo root maps robot names to their OnShape docume
     "documentId": "...",
     "workspaceId": "...",
     "elementId": "...",
-    "onshapeUrl": "https://cad.onshape.com/documents/..."
+    "onshapeUrl": "https://trickfire.onshape.com/documents/..."
   }
 }
 ```
@@ -159,7 +176,7 @@ genbot/templates/
     CMakeLists.txt
     package.xml
     config/controller.yaml
-    launch/gazebo.launch.py
+    launch/sim.launch.py
 ```
 
 After editing templates, newly created robots will use the updated templates. Existing robots are not affected unless you delete and re-create them.
