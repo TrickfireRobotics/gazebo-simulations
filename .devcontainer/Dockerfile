@@ -216,7 +216,6 @@ COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
 COPY .devcontainer/gz-sim.bash_aliases /home/trickfire/.bash_aliases
 
 # Copy robot workspace into correct location in container
-COPY robot-sim/ /home/trickfire/gazebo-simulations/src/
 
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
