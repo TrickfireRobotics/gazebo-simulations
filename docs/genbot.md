@@ -1,6 +1,6 @@
 # genbot - OnShape to ROS2 Simulation Pipeline
 
-`genbot` is a CLI tool that takes a robot CAD model from [OnShape](https://www.onshape.com/), downloads its URDF via [`onshape-to-robot`](https://github.com/Rhoban/onshape-to-robot), post-processes it for Gazebo simulation, and generates ready-to-build ROS2 packages. It can also be triggered from GitHub Actions to automate the entire flow.
+`genbot` is a GitHub Actions tool that takes a robot CAD model from [OnShape](https://www.onshape.com/), downloads its URDF via [`onshape-to-robot`](https://github.com/Rhoban/onshape-to-robot), post-processes it for Gazebo simulation, and generates ready-to-build ROS2 packages. It runs via the `generate-urdf` workflow and opens a PR with the results.
 
 ## Overview
 
@@ -29,88 +29,44 @@ genbot.py                  (scaffolds ROS2 packages)
     |-- <robot>_description/   (URDF, meshes, control xacro)
     |-- <robot>_bringup/       (launch files, controller config)
     |-- robots.json            (registers robot for future updates)
-    |
-    v
-colcon build + ros2 launch (build and run simulation)
 ```
 
-## Setup
+## Usage (GitHub Actions)
 
-### 1. Credentials
+1. Go to **Actions** > **Generate/Update Robot from OnShape**
+2. Click **Run workflow**
+3. Fill in the inputs:
 
-Copy the example env file and fill in your OnShape API keys:
+| Input         | Description                                                    |
+| ------------- | -------------------------------------------------------------- |
+| `mode`        | `create` or `update`                                           |
+| `robot_name`  | Robot identifier (e.g. `arm`, `rover`)                         |
+| `onshape_url` | Full OnShape URL (required for `create`, ignored for `update`) |
 
-```bash
-cp genbot/templates/.env.example genbot/.env
-```
-
-> [!NOTE]
-> `genbot/.env` is gitignored and will never be committed.
-
-You can get API keys from [OnShape Developer Portal](https://dev-portal.onshape.com/keys).
-
-### 2. Get the OnShape URL
-
-Open the OnShape document you want to export, copy the full URL from the browser. It should look like:
+The OnShape URL should look like:
 
 ```
 https://cad.onshape.com/documents/<docId>/w/<workspaceId>/e/<elementId>
 ```
 
-## Usage
+### What the workflow does
 
-### Create a new robot
+1. Checks out the repo
+2. Installs Python 3.11 and `onshape-to-robot`
+3. Validates inputs (URL required for create, robot must exist in `robots.json` for update)
+4. Runs genbot with OnShape credentials from repository secrets
+5. Opens a PR on branch `genbot/<mode>-<robot_name>` with the generated/updated files
 
-```bash
-genbot/genbot.py create <robot_name> "<onshape_url>"
-```
+The PR can then be reviewed and merged like any other code change.
 
-**Example:**
+### Required repository secrets
 
-```bash
-genbot/genbot.py create arm "https://cad.onshape.com/documents/abc123/w/def456/e/ghi789"
-```
+| Secret               | Description        |
+| -------------------- | ------------------ |
+| `ONSHAPE_ACCESS_KEY` | OnShape API key    |
+| `ONSHAPE_SECRET_KEY` | OnShape API secret |
 
-This will:
-1. Download the URDF and meshes from OnShape into a temp directory
-2. Post-process the URDF (add xacro namespace, rewrite mesh paths, extract joints)
-3. Generate `robot-sim/<robot>_description/` with geometry URDF + control xacro
-4. Generate `robot-sim/<robot>_bringup/` with launch file and controller config
-5. Register the robot in `robots.json`
-
-### Update an existing robot
-
-```bash
-genbot/genbot.py update <robot_name>
-```
-
-**Example:**
-
-```bash
-genbot/genbot.py update arm
-```
-
-This will:
-1. Look up the OnShape coordinates from `robots.json`
-2. Download the latest URDF and meshes
-3. Replace only `<robot>_description/urdf/<robot>.urdf` and `<robot>_description/meshes/`
-4. Leave `_bringup` and the control xacro untouched
-
-This is useful when the CAD model changes but you don't want to regenerate controller configs or launch files you may have customized.
-
-### Options
-
-| Flag                      | Description                                                                       |
-| ------------------------- | --------------------------------------------------------------------------------- |
-| `--output-dir PATH`       | Write packages to a different directory (default: `robot-sim/`)                   |
-| `--skip-download WORKDIR` | Skip the OnShape download and use an existing `onshape-to-robot` output directory |
-
-`--skip-download` is useful for re-generating the ROS2 packages without re-downloading from OnShape:
-
-```bash
-genbot/genbot.py create arm "..." --skip-download /tmp/genbot_xyz123
-genbot/genbot.py update arm --skip-download /tmp/genbot_xyz123
-```
+You can get API keys from [OnShape Developer Portal](https://dev-portal.onshape.com/keys).
 
 ## Generated output
 
@@ -137,7 +93,7 @@ Only these files are replaced:
 - `<robot>_description/urdf/<robot>.urdf`
 - `<robot>_description/meshes/*`
 
-### Two-layer URDF architecture
+## Two-layer URDF architecture
 
 genbot splits the URDF into two files to keep geometry and control concerns separate:
 
@@ -190,76 +146,12 @@ The `robot-sim/sim_common/` package provides shared launch utilities used by all
 
 This avoids duplicating path resolution and logging logic across launch files.
 
-## Building and launching
-
-After generation, build and launch the simulation:
-
-```bash
-cd robot-sim && colcon build --packages-select sim_common <robot>_description <robot>_bringup
-./scripts/launch_sim.sh <robot>
-```
-
-The `launch_sim.sh` script handles the full workflow:
-1. Validates that `<robot>_bringup` and `<robot>_description` packages exist
-2. Builds the workspace with `colcon build` (includes `sim_worlds` for Gazebo world files)
-3. Sources `install/setup.bash`
-4. Sets `GZ_SIM_RESOURCE_PATH` so Gazebo can find world files
-5. Launches `ros2 launch <robot>_bringup gazebo.launch.py`
-
-Options: `--build-only` (skip launch), `--no-build` (skip build).
-
-### What the launch file does
-
-The generated `gazebo.launch.py` orchestrates the full simulation startup:
-
-1. Processes the URDF through xacro (merges geometry + control)
-2. Launches Gazebo with the world from `sim_worlds`
-3. Spawns the robot entity in Gazebo
-4. Starts `robot_state_publisher` for TF transforms
-5. Spawns `joint_state_broadcaster` and `joint_trajectory_controller`
-6. Bridges `/clock` between ROS and Gazebo
-7. Optionally launches RViz (controlled by `rviz` launch arg, default: true)
-
-## GitHub Actions - CI integration
-
-The workflow `.github/workflows/generate-urdf.yaml` lets you run genbot directly from GitHub without a local setup.
-
-### How to use it
-
-1. Go to **Actions** > **Generate/Update Robot from OnShape**
-2. Click **Run workflow**
-3. Fill in the inputs:
-
-| Input         | Description                                                    |
-| ------------- | -------------------------------------------------------------- |
-| `mode`        | `create` or `update`                                           |
-| `robot_name`  | Robot identifier (e.g. `arm`, `rover`)                         |
-| `onshape_url` | Full OnShape URL (required for `create`, ignored for `update`) |
-
-### What the workflow does
-
-1. Checks out the repo
-2. Installs Python 3.11, `onshape-to-robot`, and `python-dotenv`
-3. Validates inputs (URL required for create, robot must exist in `robots.json` for update)
-4. Runs genbot with OnShape credentials from repository secrets (`ONSHAPE_ACCESS_KEY`, `ONSHAPE_SECRET_KEY`)
-5. Opens a PR on branch `genbot/<mode>-<robot_name>` with the generated/updated files
-
-The PR can then be reviewed and merged like any other code change.
-
-### Required repository secrets
-
-| Secret               | Description        |
-| -------------------- | ------------------ |
-| `ONSHAPE_ACCESS_KEY` | OnShape API key    |
-| `ONSHAPE_SECRET_KEY` | OnShape API secret |
-
 ## Templates
 
 All generated file content lives in `genbot/templates/`. The placeholder `__ROBOT__` is substituted with the robot name at generation time. If you want to change the structure of generated packages (e.g. add a new launch file or change the controller config), edit the templates directly.
 
 ```
 genbot/templates/
-  .env.example
   description/
     CMakeLists.txt
     package.xml

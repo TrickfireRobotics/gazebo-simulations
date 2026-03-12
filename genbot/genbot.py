@@ -13,45 +13,27 @@ import tempfile
 from pathlib import Path
 from typing import NoReturn
 
-from dotenv import load_dotenv
-
 from urdf_postprocess import postprocess
 
 TEMPLATES = Path(__file__).parent / "templates"
 REPO_ROOT = Path(__file__).parent.parent
 ROBOTS_JSON = REPO_ROOT / "robots.json"
 
+
 # ---------------------------------------------------------------------------
-# Colour helpers
+# Logging
 # ---------------------------------------------------------------------------
-
-
-def _green(msg: str) -> str:
-    return f"\033[0;32m{msg}\033[0m"
-
-
-def _red(msg: str) -> str:
-    return f"\033[0;31m{msg}\033[0m"
-
-
-def _cyan(msg: str) -> str:
-    return f"\033[0;36m{msg}\033[0m"
 
 
 def info(msg: str) -> None:
     """Info log"""
-    print(_green(f"[genbot] {msg}"))
+    print(f"[genbot] {msg}")
 
 
 def err(msg: str) -> NoReturn:
     """Error log, sys exits with 1"""
-    print(_red(f"[genbot] ERROR: {msg}"), file=sys.stderr)
+    print(f"[genbot] ERROR: {msg}", file=sys.stderr)
     sys.exit(1)
-
-
-def step(msg: str) -> None:
-    """Substep log"""
-    print(_cyan(f"\n==> {msg}"))
 
 
 # ---------------------------------------------------------------------------
@@ -78,20 +60,15 @@ def write_template(src: Path, dest: Path, robot: str, **extras) -> None:
 # ---------------------------------------------------------------------------
 
 
-def load_credentials() -> dict:
-    """Load ONSHAPE_API_KEY / ONSHAPE_API_SECRET from genbot/.env"""
-    env_file = Path(__file__).parent / ".env"
-    if env_file.exists():
-        load_dotenv(dotenv_path=env_file)
-
+def get_credentials() -> dict:
+    """Read ONSHAPE_API_KEY / ONSHAPE_API_SECRET from environment variables."""
     key = os.environ.get("ONSHAPE_API_KEY")
     secret = os.environ.get("ONSHAPE_API_SECRET")
 
     if not key or not secret:
         err(
             "OnShape credentials not found.\n"
-            "  Copy genbot/templates/.env.example → genbot/.env and fill in your keys, or\n"
-            "  set ONSHAPE_API_KEY and ONSHAPE_API_SECRET environment variables."
+            "  Set ONSHAPE_API_KEY and ONSHAPE_API_SECRET environment variables."
         )
 
     return {"key": key, "secret": secret}
@@ -265,16 +242,11 @@ def update_description_pkg(robot: str, geometry_urdf: str, meshes_src: Path, out
 # ---------------------------------------------------------------------------
 
 
-def download_or_skip(args, doc_id: str, ws_id: str, el_id: str) -> Path:
-    """Either skip download using existing workdir or run onshape-to-robot."""
-    if args.skip_download:
-        workdir = Path(args.skip_download)
-        info(f"Skipping download; using existing workdir: {workdir}")
-        return workdir
-
-    creds = load_credentials()
+def download(doc_id: str, ws_id: str, el_id: str) -> Path:
+    """Run onshape-to-robot and return the working directory."""
+    creds = get_credentials()
     workdir = Path(tempfile.mkdtemp(prefix="genbot_"))
-    step("Running onshape-to-robot (this may take a while)...")
+    info("Running onshape-to-robot (this may take a while)...")
     run_onshape_to_robot(doc_id, ws_id, el_id, creds, workdir)
     return workdir
 
@@ -289,7 +261,7 @@ def cmd_create(args) -> None:
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
-    step(f"Creating packages for robot: {robot}")
+    info(f"Creating packages for robot: {robot}")
 
     if not args.onshape_url:
         err("OnShape URL is required for 'create' mode.")
@@ -297,7 +269,7 @@ def cmd_create(args) -> None:
     doc_id, ws_id, el_id = parse_onshape_url(args.onshape_url)
     info(f"documentId={doc_id}  workspaceId={ws_id}  elementId={el_id}")
 
-    workdir = download_or_skip(args, doc_id, ws_id, el_id)
+    workdir = download(doc_id, ws_id, el_id)
 
     urdf_path = workdir / "robot.urdf"
     meshes_src = workdir / "meshes"
@@ -308,7 +280,7 @@ def cmd_create(args) -> None:
             "  Check onshape-to-robot output above for errors."
         )
 
-    step("Post-processing URDF...")
+    info("Post-processing URDF...")
     geometry_urdf, control_xacro, joints = postprocess(urdf_path, robot)
 
     if joints:
@@ -317,10 +289,10 @@ def cmd_create(args) -> None:
     else:
         info("No revolute joints found — controller YAML will have a placeholder.")
 
-    step("Generating description package...")
+    info("Generating description package...")
     generate_description_pkg(robot, geometry_urdf, control_xacro, meshes_src, out_dir)
 
-    step("Generating bringup package...")
+    info("Generating bringup package...")
     generate_bringup_pkg(robot, joints, out_dir)
 
     # Register in robots.json
@@ -334,15 +306,10 @@ def cmd_create(args) -> None:
     save_robots_json(registry)
     info(f"Registered '{robot}' in robots.json")
 
-    step("Done!")
+    info("Done!")
     info(f"Packages written to: {out_dir}")
     info(f"  {robot}_description/")
     info(f"  {robot}_bringup/")
-    print()
-    print("Next steps:")
-    print(
-        f"  cd robot-sim && colcon build --packages-select sim_common {robot}_description {robot}_bringup"
-    )
 
 
 def cmd_update(args) -> None:
@@ -350,7 +317,7 @@ def cmd_update(args) -> None:
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
-    step(f"Updating packages for robot: {robot}")
+    info(f"Updating packages for robot: {robot}")
 
     registry = load_robots_json()
     if robot not in registry:
@@ -366,7 +333,7 @@ def cmd_update(args) -> None:
     el_id = entry["elementId"]
     info(f"documentId={doc_id}  workspaceId={ws_id}  elementId={el_id}")
 
-    workdir = download_or_skip(args, doc_id, ws_id, el_id)
+    workdir = download(doc_id, ws_id, el_id)
 
     urdf_path = workdir / "robot.urdf"
     meshes_src = workdir / "meshes"
@@ -377,13 +344,13 @@ def cmd_update(args) -> None:
             "  Check onshape-to-robot output above for errors."
         )
 
-    step("Post-processing URDF...")
+    info("Post-processing URDF...")
     geometry_urdf, _, _ = postprocess(urdf_path, robot)
 
-    step("Updating description package...")
+    info("Updating description package...")
     update_description_pkg(robot, geometry_urdf, meshes_src, out_dir)
 
-    step("Done!")
+    info("Done!")
     info(f"Updated {robot}_description/urdf and meshes only.")
     info("Bringup package and control xacro were NOT modified.")
 
@@ -409,11 +376,6 @@ def main() -> None:
         default=str(REPO_ROOT / "robot-sim"),
         help="Directory to write packages into (default: robot-sim/)",
     )
-    create_parser.add_argument(
-        "--skip-download",
-        metavar="WORKDIR",
-        help="Skip onshape-to-robot; use existing output in WORKDIR",
-    )
 
     # --- update ---
     update_parser = subparsers.add_parser("update", help="Update existing robot URDF and meshes")
@@ -424,11 +386,6 @@ def main() -> None:
         "--output-dir",
         default=str(REPO_ROOT / "robot-sim"),
         help="Directory containing packages (default: robot-sim/)",
-    )
-    update_parser.add_argument(
-        "--skip-download",
-        metavar="WORKDIR",
-        help="Skip onshape-to-robot; use existing output in WORKDIR",
     )
 
     args = parser.parse_args()
