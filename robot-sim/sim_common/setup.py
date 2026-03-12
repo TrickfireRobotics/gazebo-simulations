@@ -1,14 +1,16 @@
-from setuptools import setup
+"""Setup file for the sim_common package"""
 
-package_name = "sim_common"
+from setuptools import setup  # type: ignore[import-untyped]
+
+PACKAGE_NAME = "sim_common"
 
 setup(
-    name=package_name,
+    name=PACKAGE_NAME,
     version="0.0.0",
-    packages=[package_name],
+    packages=[PACKAGE_NAME],
     data_files=[
-        ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
-        ("share/" + package_name, ["package.xml"]),
+        ("share/ament_index/resource_index/packages", ["resource/" + PACKAGE_NAME]),
+        ("share/" + PACKAGE_NAME, ["package.xml"]),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
