@@ -93,8 +93,6 @@ robot-sim/
     package.xml
     config/<robot>.controller.yaml
     launch/gazebo.launch.py
-    launch/genesis.launch.py
-    genesis/genesis_sim.py
 ```
 
 ### Update mode
@@ -139,6 +137,4 @@ genbot/templates/
     package.xml
     config/controller.yaml
     launch/gazebo.launch.py
-    launch/genesis.launch.py
-    genesis/genesis_sim.py
 ```

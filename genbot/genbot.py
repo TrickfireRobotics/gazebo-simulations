@@ -229,12 +229,6 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
     write_template(
         tmpl / "launch" / "gazebo.launch.py", pkg_dir / "launch" / "gazebo.launch.py", robot
     )
-    write_template(
-        tmpl / "launch" / "genesis.launch.py", pkg_dir / "launch" / "genesis.launch.py", robot
-    )
-    write_template(
-        tmpl / "genesis" / "genesis_sim.py", pkg_dir / "genesis" / "genesis_sim.py", robot
-    )
 
     info(f"Created {pkg_dir.relative_to(out_dir.parent)}")
 

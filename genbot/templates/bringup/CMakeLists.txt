@@ -6,13 +6,6 @@ find_package(__ROBOT___description REQUIRED)
 find_package(sim_common REQUIRED)
 
 install(
-  PROGRAMS
-    genesis/genesis_sim.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME genesis_sim
-)
-
-install(
   DIRECTORY
     launch/
   DESTINATION share/${PROJECT_NAME}/launch

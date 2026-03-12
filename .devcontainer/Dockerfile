@@ -181,19 +181,6 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------------------------------------------------------------
-# GENESIS
-# --------------------------------------------------------------------------------------------
-
-# Python GUI lib
-RUN apt-get update && apt-get install -y python3-tk
-
-# Genesis and PyTorch dep
-RUN pip3 install \
-    genesis-world \
-    torch \
-    torchvision
-
-# --------------------------------------------------------------------------------------------
 # DISPLAY / VNC CONFIGURATION
 # --------------------------------------------------------------------------------------------
 
