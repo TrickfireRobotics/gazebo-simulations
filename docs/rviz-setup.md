@@ -24,7 +24,7 @@ An RViz config (`.rviz` file) stores your visualization setup — which displays
    robot-sim/<your_robot>_bringup/config/<your_robot>.rviz
    ```
 
-5. **Uncomment the RViz lines in the launch file** — Open `<your_robot>_bringup/launch/sim.launch.py` and uncomment the lines marked `# UNCOMMENT WHEN RVIZ CONFIG SETUP` so the launch file loads your config:
+5. **Uncomment the RViz lines in the launch file** — Open `<your_robot>_bringup/launch/<your_robot>.launch.py` and uncomment the lines marked `# UNCOMMENT WHEN RVIZ CONFIG SETUP` so the launch file loads your config:
 
    ```python
    rviz_config = get_asset("<your_robot>_bringup", "config", "<your_robot>.rviz")

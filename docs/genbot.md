@@ -40,7 +40,7 @@ OnShape CAD Model
     |     CMakeLists.txt, package.xml        (from templates)
     |
     |-- <robot>_bringup/
-    |     launch/sim.launch.py            (from template)
+    |     launch/<robot>.launch.py         (from template)
     |     config/<robot>.controller.yaml     (from template, joints filled in)
     |     CMakeLists.txt, package.xml        (from templates)
     |
@@ -176,7 +176,7 @@ genbot/templates/
     CMakeLists.txt
     package.xml
     config/controller.yaml
-    launch/sim.launch.py
+    launch/<robot>.launch.py
 ```
 
 After editing templates, newly created robots will use the updated templates. Existing robots are not affected unless you delete and re-create them.

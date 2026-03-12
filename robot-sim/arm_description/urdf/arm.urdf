@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!-- Generated using onshape-to-robot -->
 <!-- Onshape document_id: 9b05a4dfb79241a5b295b397 / workspace_id: d00f3086da43b93d9c689413 -->
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="genbot_65ntnq3n">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="arm">
     <!-- XACRO -->
     <xacro:property name="mesh_path" value="package://arm_description/meshes"/>
     <xacro:arg name="controller_config" default=""/>

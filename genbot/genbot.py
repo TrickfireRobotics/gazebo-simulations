@@ -13,6 +13,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import NoReturn
+from urllib.parse import urlparse
 
 TEMPLATES = Path(__file__).parent / "templates"
 REPO_ROOT = Path(__file__).parent.parent
@@ -90,14 +91,16 @@ _ONSHAPE_URL_RE = re.compile(
 
 
 def parse_onshape_url(url: str) -> tuple:
-    """Return (documentId, workspaceId, elementId) from an OnShape URL"""
+    """Return (api_url, documentId, workspaceId, elementId) from an OnShape URL"""
     m = _ONSHAPE_URL_RE.search(url)
     if not m:
         err(
             f"Could not parse OnShape URL: {url}\n"
-            "  Expected format: https://cad.onshape.com/documents/<docId>/w/<wsId>/e/<elId>"
+            "  Expected format: https://<host>/documents/<docId>/w/<wsId>/e/<elId>"
         )
-    return m.group(1), m.group(2), m.group(3)
+    parsed = urlparse(url)
+    api_url = f"{parsed.scheme}://{parsed.netloc}"
+    return api_url, m.group(1), m.group(2), m.group(3)
 
 
 # ---------------------------------------------------------------------------
@@ -105,16 +108,16 @@ def parse_onshape_url(url: str) -> tuple:
 # ---------------------------------------------------------------------------
 
 
-def load_robots_json() -> dict:
+def load_robots_json() -> list:
     """Load the robot registry"""
     if not ROBOTS_JSON.exists():
-        return {}
+        return []
     return json.loads(ROBOTS_JSON.read_text())
 
 
-def save_robots_json(data: dict) -> None:
+def save_robots_json(data: list) -> None:
     """Write the robot registry"""
-    ROBOTS_JSON.write_text(json.dumps(data, indent=2) + "\n")
+    ROBOTS_JSON.write_text(json.dumps(data, indent=4) + "\n")
 
 
 # ---------------------------------------------------------------------------
@@ -122,7 +125,9 @@ def save_robots_json(data: dict) -> None:
 # ---------------------------------------------------------------------------
 
 
-def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workdir: Path) -> None:
+def run_onshape_to_robot(
+    doc_id: str, ws_id: str, el_id: str, api_url: str, creds: dict, workdir: Path
+) -> None:
     """Write config.json and invoke onshape-to-robot in workdir"""
     config = {
         "documentId": doc_id,
@@ -136,6 +141,7 @@ def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workd
     env = os.environ.copy()
     env["ONSHAPE_ACCESS_KEY"] = creds["key"]
     env["ONSHAPE_SECRET_KEY"] = creds["secret"]
+    env["ONSHAPE_API"] = api_url
 
     subprocess.run(
         ["onshape-to-robot", "."],
@@ -336,7 +342,9 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
         JOINTS=joints_yaml,
     )
 
-    write_template(tmpl / "launch" / "sim.launch.py", pkg_dir / "launch" / "sim.launch.py", robot)
+    write_template(
+        tmpl / "launch" / "__ROBOT__.launch.py", pkg_dir / "launch" / f"{robot}.launch.py", robot
+    )
 
     info(f"Created {pkg_dir.relative_to(out_dir.parent)}")
 
@@ -374,12 +382,14 @@ def update_description_pkg(
 # ---------------------------------------------------------------------------
 
 
-def download(doc_id: str, ws_id: str, el_id: str) -> Path:
+def download(robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str) -> Path:
     """Run onshape-to-robot and return the working directory"""
     creds = get_credentials()
-    workdir = Path(tempfile.mkdtemp(prefix="genbot_"))
+    tmpdir = Path(tempfile.mkdtemp(prefix="genbot_"))
+    workdir = tmpdir / robot
+    workdir.mkdir()
     info("Running onshape-to-robot (this may take a while)...")
-    run_onshape_to_robot(doc_id, ws_id, el_id, creds, workdir)
+    run_onshape_to_robot(doc_id, ws_id, el_id, api_url, creds, workdir)
     return workdir
 
 
@@ -398,10 +408,10 @@ def cmd_create(args) -> None:
     if not args.onshape_url:
         err("OnShape URL is required for 'create' mode.")
 
-    doc_id, ws_id, el_id = parse_onshape_url(args.onshape_url)
+    api_url, doc_id, ws_id, el_id = parse_onshape_url(args.onshape_url)
     info(f"documentId={doc_id}  workspaceId={ws_id}  elementId={el_id}")
 
-    workdir = download(doc_id, ws_id, el_id)
+    workdir = download(robot, doc_id, ws_id, el_id, api_url)
 
     urdf_path = workdir / "robot.urdf"
     meshes_src = workdir / "assets"
@@ -434,12 +444,8 @@ def cmd_create(args) -> None:
 
     # Register in robots.json
     registry = load_robots_json()
-    registry[robot] = {
-        "documentId": doc_id,
-        "workspaceId": ws_id,
-        "elementId": el_id,
-        "onshapeUrl": args.onshape_url,
-    }
+    registry = [e for e in registry if e["name"] != robot]
+    registry.append({"name": robot, "url": args.onshape_url})
     save_robots_json(registry)
     info(f"Registered '{robot}' in robots.json")
 
@@ -457,20 +463,19 @@ def cmd_update(args) -> None:
     info(f"Updating packages for robot: {robot}")
 
     registry = load_robots_json()
-    if robot not in registry:
+    entry = next((e for e in registry if e["name"] == robot), None)
+    if entry is None:
+        names = ", ".join(e["name"] for e in registry) or "(none)"
         err(
             f"Robot '{robot}' not found in robots.json.\n"
-            f"  Available robots: {', '.join(registry.keys()) or '(none)'}\n"
+            f"  Available robots: {names}\n"
             "  Use 'create' mode to add a new robot."
         )
 
-    entry = registry[robot]
-    doc_id = entry["documentId"]
-    ws_id = entry["workspaceId"]
-    el_id = entry["elementId"]
+    api_url, doc_id, ws_id, el_id = parse_onshape_url(entry["url"])
     info(f"documentId={doc_id}  workspaceId={ws_id}  elementId={el_id}")
 
-    workdir = download(doc_id, ws_id, el_id)
+    workdir = download(robot, doc_id, ws_id, el_id, api_url)
 
     exported_urdf_path = workdir / "robot.urdf"
     exported_meshes_src = workdir / "assets"
