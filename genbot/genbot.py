@@ -340,7 +340,9 @@ def cmd_create(args) -> None:
     info(f"  {robot}_bringup/")
     print()
     print("Next steps:")
-    print(f"  cd robot-sim && colcon build --packages-select sim_common {robot}_description {robot}_bringup")
+    print(
+        f"  cd robot-sim && colcon build --packages-select sim_common {robot}_description {robot}_bringup"
+    )
 
 
 def cmd_update(args) -> None:
@@ -415,7 +417,9 @@ def main() -> None:
 
     # --- update ---
     update_parser = subparsers.add_parser("update", help="Update existing robot URDF and meshes")
-    update_parser.add_argument("robot_name", help="Name of the robot to update (must exist in robots.json)")
+    update_parser.add_argument(
+        "robot_name", help="Name of the robot to update (must exist in robots.json)"
+    )
     update_parser.add_argument(
         "--output-dir",
         default=str(REPO_ROOT / "robot-sim"),
