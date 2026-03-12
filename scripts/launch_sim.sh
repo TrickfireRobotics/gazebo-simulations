@@ -95,7 +95,7 @@ if [ "$BUILD" = true ]; then
     echo "[INFO] Building ROS2 workspace..."
 
     colcon build \
-        --packages-up-to "$BRINGUP_PKG" "$DESCRIPTION_PKG" sim_worlds \
+        --packages-up-to "$BRINGUP_PKG" "$DESCRIPTION_PKG" sim_worlds sim_common \
         --cmake-args -DBUILD_TESTING=OFF
 
     if [ ! -f install/setup.bash ]; then
