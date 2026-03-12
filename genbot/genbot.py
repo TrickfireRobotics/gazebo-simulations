@@ -336,7 +336,7 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
         JOINTS=joints_yaml,
     )
 
-    write_template(tmpl / "launch" / "sim.launch.py", pkg_dir / "launch" / "sim.launch.py", robot)
+    write_template(tmpl / "launch" / "__ROBOT__.launch.py", pkg_dir / "launch" / f"{robot}.launch.py", robot)
 
     info(f"Created {pkg_dir.relative_to(out_dir.parent)}")
 

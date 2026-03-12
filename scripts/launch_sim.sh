@@ -67,7 +67,7 @@ if [ ! -d "$DESCRIPTION_PKG" ]; then
     exit 1
 fi
 
-LAUNCH_FILE_NAME="sim.launch.py"
+LAUNCH_FILE_NAME="${ROBOT_NAME}.launch.py"
 LAUNCH_FILE_SRC="$BRINGUP_PKG/launch/$LAUNCH_FILE_NAME"
 if [ ! -f "$LAUNCH_FILE_SRC" ]; then
     echo "[Error] Launch file not found: $LAUNCH_FILE_SRC"
