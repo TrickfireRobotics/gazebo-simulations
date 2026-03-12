@@ -3,13 +3,7 @@ project(arm_bringup)
 
 find_package(ament_cmake REQUIRED)
 find_package(arm_description REQUIRED)
-
-install(
-  PROGRAMS
-    genesis/genesis_sim.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME genesis_sim
-)
+find_package(sim_common REQUIRED)
 
 install(
   DIRECTORY
