@@ -130,14 +130,12 @@ def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workd
     env["ONSHAPE_API_KEY"] = creds["key"]
     env["ONSHAPE_API_SECRET"] = creds["secret"]
 
-    result = subprocess.run(
+    subprocess.run(
         ["onshape-to-robot", "."],
         cwd=workdir,
         env=env,
         check=True,
     )
-    if result.returncode != 0:
-        err(f"onshape-to-robot exited with code {result.returncode}")
 
 
 # ---------------------------------------------------------------------------
