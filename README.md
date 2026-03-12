@@ -34,14 +34,10 @@ After the script logs `[create-2] [INFO] ... [ros_gz_sim]: OK creation of entity
 
 ## Generating packages from OnShape
 
-To create a new robot simulation from an OnShape model, use the `genbot` CLI. It downloads the URDF and meshes from OnShape and scaffolds the `<robot>_description` and `<robot>_bringup` ROS2 packages automatically.
-
-```bash
-genbot/genbot.py <robot_name> "<onshape_url>"
-```
+To create or update a robot simulation from an OnShape model, use the **Generate/Update Robot from OnShape** GitHub Actions workflow. Go to **Actions** > **Generate/Update Robot from OnShape**, click **Run workflow**, and fill in the robot name and OnShape URL. The workflow downloads the URDF and meshes, scaffolds the ROS2 packages, and opens a PR automatically.
 
 >[!TIP]
->See the [genbot documentation](./docs/genbot.md) for setup, usage, and options.
+>See the [genbot documentation](./docs/genbot.md) for details on the pipeline, generated output, and required repository secrets.
 
 ---
 

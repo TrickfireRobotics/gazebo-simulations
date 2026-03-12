@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install onshape-to-robot python-dotenv
+          pip install onshape-to-robot
 
       - name: Validate inputs
         run: |

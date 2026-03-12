@@ -3,7 +3,7 @@ project(__ROBOT___bringup)
 
 find_package(ament_cmake REQUIRED)
 find_package(__ROBOT___description REQUIRED)
-find_package(sim_common REQUIRED)
+
 
 install(
   DIRECTORY
