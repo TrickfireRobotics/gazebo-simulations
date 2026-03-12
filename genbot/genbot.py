@@ -10,10 +10,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import NoReturn
-
-from urdf_postprocess import postprocess
 
 TEMPLATES = Path(__file__).parent / "templates"
 REPO_ROOT = Path(__file__).parent.parent
@@ -51,6 +50,7 @@ def render(template_path: Path, robot: str, **extras) -> str:
 
 
 def write_template(src: Path, dest: Path, robot: str, **extras) -> None:
+    """Writes a template file"""
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(render(src, robot, **extras))
 
@@ -61,7 +61,7 @@ def write_template(src: Path, dest: Path, robot: str, **extras) -> None:
 
 
 def get_credentials() -> dict:
-    """Read ONSHAPE_API_KEY / ONSHAPE_API_SECRET from environment variables."""
+    """Read ONSHAPE_API_KEY / ONSHAPE_API_SECRET from environment variables"""
     key = os.environ.get("ONSHAPE_API_KEY")
     secret = os.environ.get("ONSHAPE_API_SECRET")
 
@@ -85,7 +85,7 @@ _ONSHAPE_URL_RE = re.compile(
 
 
 def parse_onshape_url(url: str) -> tuple:
-    """Return (documentId, workspaceId, elementId) from an OnShape URL."""
+    """Return (documentId, workspaceId, elementId) from an OnShape URL"""
     m = _ONSHAPE_URL_RE.search(url)
     if not m:
         err(
@@ -101,14 +101,14 @@ def parse_onshape_url(url: str) -> tuple:
 
 
 def load_robots_json() -> dict:
-    """Load the robot registry."""
+    """Load the robot registry"""
     if not ROBOTS_JSON.exists():
         return {}
     return json.loads(ROBOTS_JSON.read_text())
 
 
 def save_robots_json(data: dict) -> None:
-    """Write the robot registry."""
+    """Write the robot registry"""
     ROBOTS_JSON.write_text(json.dumps(data, indent=2) + "\n")
 
 
@@ -118,7 +118,7 @@ def save_robots_json(data: dict) -> None:
 
 
 def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workdir: Path) -> None:
-    """Write config.json and invoke onshape-to-robot in workdir."""
+    """Write config.json and invoke onshape-to-robot in workdir"""
     config = {
         "documentId": doc_id,
         "workspaceId": ws_id,
@@ -141,6 +141,134 @@ def run_onshape_to_robot(doc_id: str, ws_id: str, el_id: str, creds: dict, workd
 
 
 # ---------------------------------------------------------------------------
+# URDF post-processing
+# ---------------------------------------------------------------------------
+
+
+def _ensure_xacro_ns(urdf_text: str) -> str:
+    """Add xmlns:xacro to <robot> tag if missing"""
+    if "xmlns:xacro" in urdf_text:
+        return urdf_text
+    return urdf_text.replace("<robot ", '<robot xmlns:xacro="http://www.ros.org/wiki/xacro" ', 1)
+
+
+def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
+    """Insert xacro property and arg declarations after the <robot> opening tag"""
+    props = (
+        "\n"
+        "    <!-- XACRO -->\n"
+        f'   <xacro:property name="mesh_path" value="package://{robot_name}_description/meshes"/>\n'
+        '    <xacro:arg name="controller_config" default=""/>\n'
+    )
+    pattern = re.compile(r"(<robot\b[^>]*>)")
+    return pattern.sub(r"\1" + props, urdf_text, count=1)
+
+
+def _rewrite_mesh_paths(urdf_text: str) -> str:
+    """Replace filename="meshes/foo.stl" with filename="${mesh_path}/foo.stl" """
+    return re.sub(
+        r'filename="meshes/([^"]+)"',
+        r'filename="${mesh_path}/\1"',
+        urdf_text,
+    )
+
+
+def _extract_revolute_joints(urdf_text: str) -> list:
+    """
+    Parse and return list of (name, lower_limit, upper_limit) for all revolute joints.
+    Uses ElementTree on a cleaned copy (xacro tags stripped).
+    """
+    cleaned = re.sub(r"<xacro:[^>]*/?>", "", urdf_text)
+    cleaned = re.sub(r"</xacro:[^>]*>", "", cleaned)
+    cleaned = re.sub(r'xmlns:xacro="[^"]*"', "", cleaned)
+    cleaned = re.sub(r"\$\{[^}]*\}", "", cleaned)
+
+    root = ET.fromstring(cleaned)
+    joints = []
+    for j in root.findall("joint"):
+        if j.get("type") == "revolute" and j.get("name"):
+            limit = j.find("limit")
+            lower = float(limit.get("lower", "0")) if limit is not None else 0.0
+            upper = float(limit.get("upper", "0")) if limit is not None else 0.0
+            joints.append((j.get("name"), lower, upper))
+    return joints
+
+
+def _generate_control_xacro(robot_name: str, joints: list) -> str:
+    """Return a complete xacro string with ros2_control block + gazebo plugin block"""
+    lines = [
+        '<?xml version="1.0" ?>',
+        f'<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="{robot_name}_control">',
+        "",
+        "    <!-- ros2_control hardware interface -->",
+        '    <ros2_control name="GazeboSimSystem" type="system">',
+        "        <hardware>",
+        "            <plugin>gz_ros2_control/GazeboSimSystem</plugin>",
+        "        </hardware>",
+    ]
+
+    for name, lower, upper in joints:
+        lines += [
+            "",
+            f'        <joint name="{name}">',
+            '            <command_interface name="position">',
+            f'                <param name="min">{lower:.2f}</param>',
+            f'                <param name="max">{upper:.2f}</param>',
+            "            </command_interface>",
+            "",
+            '            <state_interface name="position">',
+            '                <param name="initial_value">1.0</param>',
+            "            </state_interface>",
+            '            <state_interface name="velocity"/>',
+            '            <state_interface name="effort"/>',
+            "        </joint>",
+        ]
+
+    lines += [
+        "    </ros2_control>",
+        "",
+        "    <gazebo>",
+        "        <!-- JOINT CONTROLLER -->",
+        '        <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">',
+        "            <robot_param>robot_description</robot_param>",
+        "            <robot_param_node>robot_state_publisher</robot_param_node>",
+        "            <parameters>$(arg controller_config)</parameters>",
+        "            <update_rate>60</update_rate>",
+        "        </plugin>",
+        "    </gazebo>",
+        "</robot>",
+        "",
+    ]
+
+    return "\n".join(lines)
+
+
+def _inject_control_include(urdf_text: str, robot_name: str) -> str:
+    """Append xacro:include for control xacro before </robot>"""
+    include = (
+        f'    <xacro:include filename="$(find {robot_name}_description)'
+        f'/urdf/{robot_name}_control.urdf.xacro"/>\n'
+    )
+    return urdf_text.replace("</robot>", include + "</robot>")
+
+
+def postprocess(raw_urdf_path: str | Path, robot_name: str) -> tuple:
+    """Read raw URDF, apply all transforms.
+
+    Returns (geometry_urdf_string, control_xacro_string, joint_list).
+    joint_list items are (name, lower_limit, upper_limit).
+    """
+    text = Path(raw_urdf_path).read_text(encoding="utf-8")
+    text = _ensure_xacro_ns(text)
+    text = _inject_xacro_properties(text, robot_name)
+    text = _rewrite_mesh_paths(text)
+    joints = _extract_revolute_joints(text)
+    control_xacro = _generate_control_xacro(robot_name, joints)
+    text = _inject_control_include(text, robot_name)
+    return text, control_xacro, joints
+
+
+# ---------------------------------------------------------------------------
 # Package generators
 # ---------------------------------------------------------------------------
 
@@ -152,7 +280,7 @@ def generate_description_pkg(
     meshes_src: Path,
     out_dir: Path,
 ) -> None:
-    """Create <robot>_description package."""
+    """Create <robot>_description package"""
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
     meshes_dir = pkg_dir / "meshes"
@@ -183,7 +311,7 @@ def generate_description_pkg(
 
 
 def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
-    """Create <robot>_bringup package."""
+    """Create <robot>_bringup package"""
     pkg_dir = out_dir / f"{robot}_bringup"
 
     tmpl = TEMPLATES / "bringup"
@@ -203,15 +331,13 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
         JOINTS=joints_yaml,
     )
 
-    write_template(
-        tmpl / "launch" / "gazebo.launch.py", pkg_dir / "launch" / "gazebo.launch.py", robot
-    )
+    write_template(tmpl / "launch" / "sim.launch.py", pkg_dir / "launch" / "sim.launch.py", robot)
 
     info(f"Created {pkg_dir.relative_to(out_dir.parent)}")
 
 
 def update_description_pkg(robot: str, geometry_urdf: str, meshes_src: Path, out_dir: Path) -> None:
-    """Update only the URDF and meshes in an existing <robot>_description package."""
+    """Update only the URDF and meshes in an existing <robot>_description package"""
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
     meshes_dir = pkg_dir / "meshes"
@@ -243,7 +369,7 @@ def update_description_pkg(robot: str, geometry_urdf: str, meshes_src: Path, out
 
 
 def download(doc_id: str, ws_id: str, el_id: str) -> Path:
-    """Run onshape-to-robot and return the working directory."""
+    """Run onshape-to-robot and return the working directory"""
     creds = get_credentials()
     workdir = Path(tempfile.mkdtemp(prefix="genbot_"))
     info("Running onshape-to-robot (this may take a while)...")
@@ -257,7 +383,7 @@ def download(doc_id: str, ws_id: str, el_id: str) -> Path:
 
 
 def cmd_create(args) -> None:
-    """Create mode: full scaffold of _description + _bringup packages."""
+    """Create mode: full scaffold of _description + _bringup packages"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
@@ -313,7 +439,7 @@ def cmd_create(args) -> None:
 
 
 def cmd_update(args) -> None:
-    """Update mode: replace only URDF and meshes in existing _description package."""
+    """Update mode: replace only URDF and meshes in existing _description package"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
