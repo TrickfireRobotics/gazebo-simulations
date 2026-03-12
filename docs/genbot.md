@@ -180,3 +180,7 @@ genbot/templates/
 ```
 
 After editing templates, newly created robots will use the updated templates. Existing robots are not affected unless you delete and re-create them.
+
+## Setting up RViz
+
+Generated robots do not include an RViz config out of the box. See the [RViz setup guide](./rviz-setup.md) for how to create one and wire it into the launch file.

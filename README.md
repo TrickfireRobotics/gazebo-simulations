@@ -56,6 +56,7 @@ To create or update a robot simulation from an OnShape model, use the **Generate
 
 > [!TIP]
 > See the [genbot documentation](./docs/genbot.md) for details on the pipeline, generated output, and required repository secrets.
+> After generating a robot, follow the [RViz setup guide](./docs/rviz-setup.md) to configure the visualization.
 
 ---
 
