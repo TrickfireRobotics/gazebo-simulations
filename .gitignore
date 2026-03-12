@@ -17,7 +17,7 @@ Icon
 
 ### Python ###
 .mypy_cache
-__pychache__
+__pycache__
 
 ### ROS2 ###
 robot-sim/install
