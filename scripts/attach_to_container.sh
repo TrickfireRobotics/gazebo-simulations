@@ -34,7 +34,7 @@ CONTAINER_ID=$(
 
 # Check if it is running
 if [ -z "$CONTAINER_ID" ]; then
-    echo "No running dev container found for flaggi"
+    echo "No running dev container found matching '$CONTAINER_NAME'"
     echo "Make sure VS Code has reopened the project in the container"
     exit 1
 fi

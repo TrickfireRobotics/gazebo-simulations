@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -o pipefail
+set -eo pipefail
 
 # --------------------------------------------------------------------------------------------
 # start_x_server.sh
@@ -10,7 +10,7 @@ set -o pipefail
 #   - A virtual X server (Xorg) using a dummy display
 #   - A lightweight window manager (Openbox)
 #   - A VNC server (x11vnc) for remote access
-#   - noVNC for accesing the VNC server through a browser
+#   - noVNC for accessing the VNC server through a browser
 #
 # Intended for:
 #   - Running GUI apps (Gazebo) in a Docker container
@@ -92,7 +92,7 @@ run() {
 }
 
 cleanup() {
-    # disable traps to prevent infinitre rercustion
+    # disable traps to prevent infinite recursion
     trap - SIGINT SIGTERM EXIT
     log "[CLEANUP] Shutting down X11 / VNC / noVNC…"
     kill -- -$$ 2>/dev/null
@@ -113,7 +113,7 @@ fi
 # --------------------------------------------------------------------------------------------
 # CLEANUP
 # --------------------------------------------------------------------------------------------
-# Kills all the processes this script startet when it ends. This method specifically traps
+# Kills all the processes this script started when it ends. This method specifically traps
 # the method cleanup on the three events.
 #
 trap cleanup SIGINT SIGTERM EXIT
@@ -178,7 +178,7 @@ run x11vnc \
 #
 # Flags:
 #   --vnc localhost:$VNC_PORT  -> Address of the local VNC server (defined in Dockerfile)
-#   --listen $NO_VMC_PORT             -> Port exposed for browser access (defined in Dockerfile)
+#   --listen $NOVNC_PORT              -> Port exposed for browser access (defined in Dockerfile)
 #
 # Usage:
 #   Open a browser and navigate to:

@@ -87,7 +87,7 @@ def generate_launch_description():
     # ----------------------------------------------
     # Joint controllers
     # ----------------------------------------------
-    # Controlls the arm joints
+    # Controls the arm joints
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
