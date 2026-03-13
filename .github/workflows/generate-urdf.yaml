@@ -57,9 +57,9 @@ jobs:
           ONSHAPE_API_SECRET: ${{ secrets.ONSHAPE_SECRET_KEY }}
         run: |
           if [ "${{ inputs.mode }}" = "create" ]; then
-            python genbot/genbot.py create "${{ inputs.robot_name }}" "${{ inputs.onshape_url }}"
+            python .github/genbot/genbot.py create "${{ inputs.robot_name }}" "${{ inputs.onshape_url }}"
           else
-            python genbot/genbot.py update "${{ inputs.robot_name }}"
+            python .github/genbot/genbot.py update "${{ inputs.robot_name }}"
           fi
 
       - name: Create Pull Request

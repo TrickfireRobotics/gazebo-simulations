@@ -25,4 +25,4 @@ robot-sim/build
 robot-sim/log
 
 ### Genbot ###
-genbot/tests
+.github/genbot/tests
