@@ -16,7 +16,7 @@ from typing import NoReturn
 from urllib.parse import urlparse
 
 TEMPLATES = Path(__file__).parent / "templates"
-REPO_ROOT = Path(__file__).parent.parent
+REPO_ROOT = Path(__file__).parent.parent.parent
 ROBOTS_JSON = REPO_ROOT / "robots.json"
 
 

@@ -165,10 +165,10 @@ This avoids duplicating path resolution and logging logic across launch files.
 
 ## Templates
 
-All generated file content lives in `genbot/templates/`. The placeholder `__ROBOT__` is substituted with the robot name at generation time. If you want to change the structure of generated packages (e.g. add a new launch file or change the controller config), edit the templates directly.
+All generated file content lives in `.github/genbot/templates/`. The placeholder `__ROBOT__` is substituted with the robot name at generation time. If you want to change the structure of generated packages (e.g. add a new launch file or change the controller config), edit the templates directly.
 
 ```
-genbot/templates/
+.github/genbot/templates/
   description/
     CMakeLists.txt
     package.xml

@@ -2,7 +2,7 @@
 set -e
 
 # --------------------------------------------------------------------------------------------
-# Fetch raw OnShape URDF & assets into 'genbot/tests/' for local testing.
+# Fetch raw OnShape URDF & assets into '.github/genbot/tests/' for local testing.
 # Makes one API call per robot; afterwards use 'genbot local' with no API calls.
 #
 # Usage: ./genbot_tests.sh [robot_name [onshape_url]] [--output-dir <dir>]
@@ -16,7 +16,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-GENBOT="$PROJECT_DIR/genbot/genbot.py"
+GENBOT="$PROJECT_DIR/.github/genbot/genbot.py"
 ROBOTS_JSON="$PROJECT_DIR/robots.json"
 
 ROBOT_NAME=""
@@ -31,7 +31,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "  robot_name    Robot to fetch. Omit to fetch all robots in robots.json."
             echo "  onshape_url   OnShape URL (optional — falls back to robots.json if omitted)."
-            echo "  --output-dir  Where to save fixtures (default: genbot/tests/)"
+            echo "  --output-dir  Where to save fixtures (default: .github/genbot/tests/)"
             exit 0
             ;;
         -*) echo "[Error] Unknown option: $1"; exit 1 ;;
@@ -75,4 +75,4 @@ done
 
 echo ""
 echo "[Done] Use genbot local to generate packages without further API calls:"
-echo "  python3 genbot/genbot.py local <robot> genbot/tests/<robot>/robot.urdf"
+echo "  python3 .github/genbot/genbot.py local <robot> .github/genbot/tests/<robot>/robot.urdf"
