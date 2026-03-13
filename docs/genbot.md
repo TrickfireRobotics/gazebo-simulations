@@ -75,6 +75,50 @@ robots.json (stored OnShape coordinates)
     |   robots.json
 ```
 
+## Local testing
+
+You can run genbot locally without triggering the GitHub Actions workflow. This is useful for iterating on genbot itself or inspecting generated output before committing.
+
+### Prerequisites
+
+```bash
+pip install onshape-to-robot
+export ONSHAPE_API_KEY=<your_key>
+export ONSHAPE_API_SECRET=<your_secret>
+```
+
+### Step 1 - Download raw files from OnShape
+
+The `raw` subcommand downloads the URDF and mesh assets from OnShape without generating any ROS2 packages. The output goes into `.github/genbot/tests/` which is gitignored, so you can re-download freely without polluting the repo.
+
+```bash
+# Download using the OnShape URL directly (also saves to robots.json)
+python3 .github/genbot/genbot.py raw arm https://trickfire.onshape.com/documents/...
+
+# Or, if the robot is already in robots.json, just use its name
+python3 .github/genbot/genbot.py raw arm
+```
+
+This saves:
+```
+.github/genbot/tests/arm/
+  robot.urdf      ← raw URDF from onshape-to-robot
+  assets/         ← mesh files
+```
+
+### Step 2 - Generate packages locally
+
+Once you have the raw files, use the `local` subcommand to run the full post-processing and scaffold without any API calls:
+
+```bash
+python3 .github/genbot/genbot.py local arm .github/genbot/tests/arm/robot.urdf
+```
+
+This works as `genbot create` would but it skips `onshape-to-robot` and uses the local files.
+
+> [!TIP]
+> If you want to generate into a different directory to avoid overwriting the real packages, use `--output-dir /tmp/genbot-out`.
+
 ## Usage (GitHub Actions)
 
 1. Go to **Actions** > **Generate/Update Robot from OnShape**
