@@ -21,8 +21,7 @@ def generate_launch_description():
 
     controller_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.controller.yaml")
     world_file = get_asset("sim_worlds", "worlds", "empty.world.sdf")
-    # UNCOMMENT WHEN RVIZ CONFIG SETUP
-    # rviz_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.rviz")
+    rviz_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.rviz")
     urdf_file = get_asset("__ROBOT___description", "urdf", "__ROBOT__.urdf")
     gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
 
@@ -111,10 +110,10 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
-        # arguments=[ # UNCOMMENT WHEN RVIZ CONFIG SETUP
-        #     "-d",
-        #     rviz_config,
-        # ],
+        arguments=[
+            "-d",
+            rviz_config,
+        ],
         condition=IfCondition(LaunchConfiguration("rviz")),
     )
 

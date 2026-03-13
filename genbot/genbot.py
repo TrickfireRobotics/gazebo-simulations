@@ -184,6 +184,17 @@ def _rewrite_mesh_paths(urdf_text: str) -> str:
     )
 
 
+def _extract_links(urdf_text: str) -> list:
+    """Parse and return list of link names from the URDF."""
+    cleaned = re.sub(r"<xacro:[^>]*/?>", "", urdf_text)
+    cleaned = re.sub(r"</xacro:[^>]*>", "", cleaned)
+    cleaned = re.sub(r'xmlns:xacro="[^"]*"', "", cleaned)
+    cleaned = re.sub(r"\$\{[^}]*\}", "", cleaned)
+
+    root = ET.fromstring(cleaned)
+    return [link.get("name") for link in root.findall("link") if link.get("name")]
+
+
 def _extract_revolute_joints(urdf_text: str) -> list:
     """
     Parse and return list of (name, lower_limit, upper_limit) for all revolute joints.
@@ -266,17 +277,18 @@ def _inject_control_include(urdf_text: str, robot_name: str) -> str:
 def postprocess(raw_urdf_path: str | Path, robot_name: str) -> tuple:
     """Read raw URDF, apply all transforms.
 
-    Returns (geometry_urdf_string, control_xacro_string, joint_list).
+    Returns (geometry_urdf_string, control_xacro_string, joint_list, link_list).
     joint_list items are (name, lower_limit, upper_limit).
     """
     text = Path(raw_urdf_path).read_text(encoding="utf-8")
     text = _ensure_xacro_ns(text)
     text = _inject_xacro_properties(text, robot_name)
     text = _rewrite_mesh_paths(text)
+    links = _extract_links(text)
     joints = _extract_revolute_joints(text)
     control_xacro = _generate_control_xacro(robot_name, joints)
     text = _inject_control_include(text, robot_name)
-    return text, control_xacro, joints
+    return text, control_xacro, joints, links
 
 
 # ---------------------------------------------------------------------------
@@ -321,7 +333,7 @@ def generate_description_pkg(
     info(f"Created {pkg_dir.relative_to(out_dir.parent)}")
 
 
-def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
+def generate_bringup_pkg(robot: str, joints: list, links: list, out_dir: Path) -> None:
     """Create <robot>_bringup package"""
     pkg_dir = out_dir / f"{robot}_bringup"
 
@@ -340,6 +352,22 @@ def generate_bringup_pkg(robot: str, joints: list, out_dir: Path) -> None:
         pkg_dir / "config" / f"{robot}.controller.yaml",
         robot,
         JOINTS=joints_yaml,
+    )
+
+    links_yaml = ""
+    for name in links:
+        links_yaml += f"        {name}:\n"
+        links_yaml += "          Alpha: 1\n"
+        links_yaml += "          Show Axes: false\n"
+        links_yaml += "          Show Trail: false\n"
+        if name != "base_link":
+            links_yaml += "          Value: true\n"
+
+    write_template(
+        tmpl / "config" / "__ROBOT__.rviz",
+        pkg_dir / "config" / f"{robot}.rviz",
+        robot,
+        LINKS=links_yaml,
     )
 
     write_template(
@@ -428,7 +456,7 @@ def cmd_create(args) -> None:
         warn(f"Meshes directory {meshes_src} is empty")
 
     info("Post-processing URDF...")
-    geometry_urdf, control_xacro, joints = postprocess(urdf_path, robot)
+    geometry_urdf, control_xacro, joints, links = postprocess(urdf_path, robot)
 
     if joints:
         joint_names = [name for name, _, _ in joints]
@@ -440,7 +468,7 @@ def cmd_create(args) -> None:
     generate_description_pkg(robot, geometry_urdf, control_xacro, meshes_src, out_dir)
 
     info("Generating bringup package...")
-    generate_bringup_pkg(robot, joints, out_dir)
+    generate_bringup_pkg(robot, joints, links, out_dir)
 
     # Register in robots.json
     registry = load_robots_json()
@@ -492,7 +520,7 @@ def cmd_update(args) -> None:
         warn(f"Meshes directory {exported_meshes_src} is empty")
 
     info("Post-processing URDF...")
-    geometry_urdf, _, _ = postprocess(exported_urdf_path, robot)
+    geometry_urdf, _, _, _ = postprocess(exported_urdf_path, robot)
 
     info("Updating description package...")
     update_description_pkg(robot, geometry_urdf, exported_meshes_src, out_dir)
