@@ -167,9 +167,9 @@ def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
     """Insert xacro property and arg declarations after the <robot> opening tag"""
     props = (
         "\n"
-        "    <!-- XACRO -->\n"
-        f'   <xacro:property name="mesh_path" value="package://{robot_name}_description/meshes"/>\n'
-        '    <xacro:arg name="controller_config" default=""/>\n'
+        "  <!-- XACRO -->\n"
+        f'  <xacro:property name="mesh_path" value="package://{robot_name}_description/meshes"/>\n'
+        '  <xacro:arg name="controller_config" default=""/>\n'
     )
     pattern = re.compile(r"(<robot\b[^>]*>)")
     return pattern.sub(r"\1" + props, urdf_text, count=1)
@@ -268,10 +268,21 @@ def _generate_control_xacro(robot_name: str, joints: list) -> str:
 def _inject_control_include(urdf_text: str, robot_name: str) -> str:
     """Append xacro:include for control xacro before </robot>"""
     include = (
-        f'    <xacro:include filename="$(find {robot_name}_description)'
+        f'  <xacro:include filename="$(find {robot_name}_description)'
         f'/urdf/{robot_name}_control.urdf.xacro"/>\n'
     )
     return urdf_text.replace("</robot>", include + "</robot>")
+
+
+def _reindent(text: str, from_spaces: int = 2, to_spaces: int = 4) -> str:
+    """Convert indentation units in an XML file (e.g. 2-space → 4-space)."""
+    result = []
+    for line in text.splitlines(keepends=True):
+        stripped = line.lstrip(" ")
+        n = len(line) - len(stripped)
+        level = round(n / from_spaces)
+        result.append(" " * (level * to_spaces) + stripped)
+    return "".join(result)
 
 
 def postprocess(raw_urdf_path: str | Path, robot_name: str) -> tuple:
@@ -288,6 +299,7 @@ def postprocess(raw_urdf_path: str | Path, robot_name: str) -> tuple:
     joints = _extract_revolute_joints(text)
     control_xacro = _generate_control_xacro(robot_name, joints)
     text = _inject_control_include(text, robot_name)
+    text = _reindent(text)
     return text, control_xacro, joints, links
 
 
@@ -355,7 +367,7 @@ def generate_bringup_pkg(robot: str, joints: list, links: list, out_dir: Path) -
     )
 
     links_yaml = ""
-    for name in links:
+    for name in sorted(links):
         links_yaml += f"        {name}:\n"
         links_yaml += "          Alpha: 1\n"
         links_yaml += "          Show Axes: false\n"

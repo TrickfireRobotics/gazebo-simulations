@@ -116,7 +116,7 @@ __LINKS__      Mass Properties:
         Value: /clicked_point
   Transformation:
     Current:
-      Class: rviz_plugins/TF
+      Class: rviz_default_plugins/TF
   Value: true
   Views:
     Current:
