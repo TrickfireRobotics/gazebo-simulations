@@ -141,7 +141,7 @@ def run_onshape_to_robot(
     env = os.environ.copy()
     env["ONSHAPE_ACCESS_KEY"] = creds["key"]
     env["ONSHAPE_SECRET_KEY"] = creds["secret"]
-    env["ONSHAPE_API_URL"] = api_url
+    env["ONSHAPE_API"] = api_url
 
     subprocess.run(
         ["onshape-to-robot", "."],
@@ -382,10 +382,12 @@ def update_description_pkg(
 # ---------------------------------------------------------------------------
 
 
-def download(doc_id: str, ws_id: str, el_id: str, api_url: str) -> Path:
+def download(robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str) -> Path:
     """Run onshape-to-robot and return the working directory"""
     creds = get_credentials()
-    workdir = Path(tempfile.mkdtemp(prefix="genbot_"))
+    tmpdir = Path(tempfile.mkdtemp(prefix="genbot_"))
+    workdir = tmpdir / robot
+    workdir.mkdir()
     info("Running onshape-to-robot (this may take a while)...")
     run_onshape_to_robot(doc_id, ws_id, el_id, api_url, creds, workdir)
     return workdir
@@ -409,7 +411,7 @@ def cmd_create(args) -> None:
     api_url, doc_id, ws_id, el_id = parse_onshape_url(args.onshape_url)
     info(f"documentId={doc_id}  workspaceId={ws_id}  elementId={el_id}")
 
-    workdir = download(doc_id, ws_id, el_id, api_url)
+    workdir = download(robot, doc_id, ws_id, el_id, api_url)
 
     urdf_path = workdir / "robot.urdf"
     meshes_src = workdir / "assets"
@@ -473,7 +475,7 @@ def cmd_update(args) -> None:
     api_url, doc_id, ws_id, el_id = parse_onshape_url(entry["url"])
     info(f"documentId={doc_id}  workspaceId={ws_id}  elementId={el_id}")
 
-    workdir = download(doc_id, ws_id, el_id, api_url)
+    workdir = download(robot, doc_id, ws_id, el_id, api_url)
 
     exported_urdf_path = workdir / "robot.urdf"
     exported_meshes_src = workdir / "assets"
