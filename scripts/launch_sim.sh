@@ -154,6 +154,8 @@ if [ "$USE_GUI" = true ]; then
   echo "[INFO] Launching joint-gui for robot: $ROBOT_NAME"
   echo "---------------------------------------------------"
   python3 "sim_common/sim_common/joint_gui.py" "$DESCRIPTION_PKG/urdf/arm.urdf" &
+  JOINT_GUI_BKG_PID=$!
+  trap 'kill $JOINT_GUI_BKG_PID 2>dev/null' EXIT INT
 fi
 
 if [ "$LAUNCH" = true ]; then
