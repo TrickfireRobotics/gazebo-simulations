@@ -149,18 +149,9 @@ fi
 # LAUNCH
 # --------------------------------------------------------------------------------------------
 
-if [ "$USE_GUI" = true ]; then
-  echo ""
-  echo "[INFO] Launching joint-gui for robot: $ROBOT_NAME"
-  echo "---------------------------------------------------"
-  python3 "sim_common/sim_common/joint_gui.py" "$DESCRIPTION_PKG/urdf/arm.urdf" &
-  JOINT_GUI_BKG_PID=$!
-  trap 'kill $JOINT_GUI_BKG_PID 2>dev/null' EXIT INT
-fi
-
 if [ "$LAUNCH" = true ]; then
   echo ""
   echo "[INFO] Launching gazebo simulation for robot: $ROBOT_NAME"
   echo "------------------------------------------------------------"
-  ros2 launch "$BRINGUP_PKG" "$LAUNCH_FILE_NAME"
+  ros2 launch "$BRINGUP_PKG" "$LAUNCH_FILE_NAME" gui:="$USE_GUI"
 fi
