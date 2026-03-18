@@ -5,29 +5,32 @@ Dynamically discovers joints from /joint_states and trajectory topics
 via get_topic_names_and_types().
 """
 
+import sys
 import threading
 import tkinter as tk
+import xml.etree.ElementTree as et
 from tkinter import ttk
-import xacro
-import sys
 
 import rclpy
-
+import xacro
 from builtin_interfaces.msg import Duration
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
+# CONFIG
 JOINT_MIN = -3.14
 JOINT_MAX = 3.14
 DEFAULT_DURATION = 2.0
-DISCOVERY_TIMEOUT_S = 5.0  # seconds to wait for /joint_states
+DISCOVERY_TIMEOUT_S = 30.0  # seconds to wait for /joint_states
 
 
 class JointPublisher(Node):
-    def __init__(self, urdf_file_name):
+    """Main class"""
+
+    def __init__(self, urdf_file_name: str) -> None:
         super().__init__("joint_gui")
-        self.possible_joints: dict[str] = self._parse_urdf_joints(urdf_file_name)
+        self.possible_joints: dict[str, dict[str, float]] = self._parse_urdf_joints(urdf_file_name)
 
         self.joint_names: list[str] = []
         self._joints_ready = threading.Event()
@@ -37,10 +40,9 @@ class JointPublisher(Node):
             JointState, "/joint_states", self._on_joint_states, 10
         )
 
-    def _parse_urdf_joints(self, urdf_file_name) -> dict:
+    def _parse_urdf_joints(self, urdf_file_name: str) -> dict[str, dict[str, float]]:
         """Reads through the urdf, gets all the urdf revolute joints, parses the
         max and min angles and returns them in the form of a dictionary"""
-        import xml.etree.ElementTree as et
 
         doc = xacro.process_file(urdf_file_name)
         root = et.fromstring(doc.toxml())
@@ -49,7 +51,7 @@ class JointPublisher(Node):
             if joint.get("type") == "revolute":
                 name = joint.get("name")
                 limit = joint.find("limit")
-                if limit is not None:
+                if name is not None and limit is not None:
                     joints[name] = {
                         "min": float(limit.get("lower", JOINT_MAX)),
                         "max": float(limit.get("upper", JOINT_MIN)),
@@ -57,14 +59,20 @@ class JointPublisher(Node):
         return joints
 
     def _on_joint_states(self, msg: JointState) -> None:
-        """Callback for /joint_states. Captures joint names on the first message and signals readiness."""
+        """
+        Callback for /joint_states.
+        Captures joint names on the first message and signals readiness.
+        """
         if not self.joint_names and msg.name:
             self.joint_names = list(msg.name)
             self.get_logger().info(f"Discovered joints: {self.joint_names}")
             self._joints_ready.set()
 
     def wait_for_joints(self, timeout: float = DISCOVERY_TIMEOUT_S) -> bool:
-        """Block until joint names have been discovered or the timeout expires. Returns True if joints were found."""
+        """
+        Block until joint names have been discovered or the timeout expires.
+        Returns True if joints were found.
+        """
         return self._joints_ready.wait(timeout=timeout)
 
     def discover_trajectory_topics(self) -> list[str]:
@@ -82,7 +90,10 @@ class JointPublisher(Node):
         positions: list[float],
         duration: float = DEFAULT_DURATION,
     ) -> None:
-        """Build and publish a JointTrajectory message to the given topic. Creates the publisher lazily on first use."""
+        """
+        Build and publish a JointTrajectory message to the given topic.
+        Creates the publisher lazily on first use.
+        """
         if topic not in self.joint_publishers:
             self.joint_publishers[topic] = self.create_publisher(JointTrajectory, topic, 10)
 
@@ -103,6 +114,8 @@ class JointPublisher(Node):
 
 
 class JointGui:
+    """Joint GUI class"""
+
     _POLL_MS = 100
     _MAX_POLLS = int(DISCOVERY_TIMEOUT_S * 1000 / _POLL_MS)
 
@@ -133,7 +146,10 @@ class JointGui:
     # ------------------------------------------------------------------
 
     def _poll_discovery(self, attempt: int = 0) -> None:
-        """Periodically check whether joint names have arrived. Builds the UI when ready or shows an error after timeout."""
+        """
+        Periodically check whether joint names have arrived.
+        Builds the UI when ready or shows an error after timeout.
+        """
         if self.node.joint_names:
             self._build_controls()
         elif attempt >= self._MAX_POLLS:
@@ -159,7 +175,10 @@ class JointGui:
     # ------------------------------------------------------------------
 
     def _build_controls(self) -> None:
-        """Construct all UI controls (topic selector, joint sliders, duration spinbox, action buttons) once joints are known."""
+        """
+        Construct all UI controls (topic selector, joint sliders, duration spinbox, action buttons)
+        once joints are known.
+        """
         joints = self.node.joint_names
         topics = self.node.discover_trajectory_topics()
         self._topic_var.set(
@@ -201,7 +220,7 @@ class JointGui:
                 orient=tk.HORIZONTAL,
                 variable=var,
                 length=220,
-                command=lambda val, j=joint: self._on_slider(j, val),
+                command=lambda val, j=joint: self._on_slider(j, val),  # type: ignore[misc]
             ).pack(side=tk.LEFT, padx=6)
 
             lbl = tk.Label(frame, text=" 0.000", width=7, anchor="w")
@@ -287,7 +306,7 @@ def main() -> None:
         rclpy.shutdown()
 
 
-def build_with_filepath(urdf_filepath):
+def build_with_filepath(urdf_filepath: str) -> None:
     """Same as main but this is just a method to build with the urdf path in launch scripts"""
     rclpy.init()
     node = JointPublisher(urdf_filepath)
