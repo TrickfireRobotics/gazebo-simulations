@@ -132,6 +132,7 @@ RUN apt-get update && apt-get install -y \
 # https://github.com/mjbots/moteus
 RUN pip3 install moteus
 
+
 # Install additional Python libraries used by the project
 #   - pyusb: USB device communication
 #   - opencv-python: Python OpenCV bindings
@@ -143,10 +144,13 @@ RUN pip3 install --upgrade pydocstyle
 # Install python linter
 RUN pip3 install ruff
 
+#Used for the GUI
+RUN pip3 install tkinter
 # Install genbot dependencies
 # Upgrade pip first - onshape-to-robot uses uv as its build backend which
 # requires a recent pip to bootstrap correctly.
 RUN pip3 install --upgrade pip setuptools && pip3 install onshape-to-robot
+
 
 # --------------------------------------------------------------------------------------------
 # GAZEBO / SIMULATION SETUP
