@@ -109,6 +109,7 @@ RUN apt-get update && apt-get install -y \
     \
     # ---------------- PYTHON ----------------
     python3-numpy \
+    python3-tk \
     libboost-python-dev \
     libopencv-dev \
     python3-opencv \
