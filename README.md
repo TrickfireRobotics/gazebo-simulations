@@ -33,7 +33,6 @@ Options:
 
 - `--build-only` - Build the packages without launching the simulation
 - `--no-build` - Skip the build step and launch directly (if already built)
-- --no-gui - Doesn't open the joint-gui which controls the joint states in the simulation
 
 > [!TIP]
 > For more information and troubleshooting tips go look at the [ROS workspace docs](./docs/ros-workspace.md).
