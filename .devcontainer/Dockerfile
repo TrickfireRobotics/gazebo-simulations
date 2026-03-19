@@ -144,8 +144,6 @@ RUN pip3 install --upgrade pydocstyle
 # Install python linter
 RUN pip3 install ruff
 
-#Used for the GUI
-RUN pip3 install tkinter
 # Install genbot dependencies
 # Upgrade pip first - onshape-to-robot uses uv as its build backend which
 # requires a recent pip to bootstrap correctly.
