@@ -30,7 +30,7 @@ class JointPublisher(Node):
 
     def __init__(self, urdf_file_name: str) -> None:
         super().__init__("joint_gui")
-        self.possible_joints: dict[str, dict[str, float]] = self._parse_urdf_joints(urdf_file_name)
+        self.possible_joints = self._parse_urdf_joints(urdf_file_name)
 
         self.joint_names: list[str] = []
         self._joints_ready = threading.Event()
@@ -40,7 +40,7 @@ class JointPublisher(Node):
             JointState, "/joint_states", self._on_joint_states, 10
         )
 
-    def _parse_urdf_joints(self, urdf_file_name: str) -> dict[str, dict[str, float]]:
+    def _parse_urdf_joints(self, urdf_file_name: str) -> dict[str, dict[str, float | int]]:
         """Reads through the urdf, gets all the urdf revolute joints, parses the
         max and min angles and returns them in the form of a dictionary"""
 
@@ -51,10 +51,20 @@ class JointPublisher(Node):
             if joint.get("type") == "revolute":
                 name = joint.get("name")
                 limit = joint.find("limit")
+                origin = joint.find("origin")
+                axis_tag = joint.find("axis")
+
                 if name is not None and limit is not None:
+                    rpy = (
+                        tuple(map(float, origin.get("rpy", "0.0 0.0 0.0").split()))
+                        if origin is not None
+                        else (0, 0, 0)
+                    )
+                    # initially origin angle will be 0, when a joint is discovered update value
                     joints[name] = {
                         "min": float(limit.get("lower", JOINT_MAX)),
                         "max": float(limit.get("upper", JOINT_MIN)),
+                        "origin": 0.0,
                     }
         return joints
 
@@ -65,8 +75,14 @@ class JointPublisher(Node):
         """
         if not self.joint_names and msg.name:
             self.joint_names = list(msg.name)
+            origin_angles = list(msg.position)
             self.get_logger().info(f"Discovered joints: {self.joint_names}")
             self._joints_ready.set()
+            # find origin angle and then update accordingly
+            i = 0
+            for joint in self.joint_names:
+                self.possible_joints[joint]["origin"] = origin_angles[i]
+                i = i + 1
 
     def wait_for_joints(self, timeout: float = DISCOVERY_TIMEOUT_S) -> bool:
         """
@@ -265,7 +281,7 @@ class JointGui:
     def _send(self) -> None:
         """Read current slider positions and publish a trajectory command to the selected topic."""
         joints = self.node.joint_names
-        positions = [self.sliders[j].get() for j in joints]
+        positions = [self.sliders[j].get() + self.node.possible_joints[j]["origin"] for j in joints]
         topic = self._topic_var.get().strip()
         if not topic:
             self.status_var.set("No topic selected")
@@ -275,10 +291,9 @@ class JointGui:
 
     def _reset(self) -> None:
         """Zero all joint sliders and reset their display labels."""
-        for var in self.sliders.values():
-            var.set(0.0)
-        for lbl in self.value_labels.values():
-            lbl.config(text=" 0.000")
+        for joint in self.node.joint_names:
+            self.sliders[joint].set(0.0)
+            self.value_labels[joint].config(text="0.0")
         self.status_var.set("Reset")
 
 
