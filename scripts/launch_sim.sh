@@ -28,10 +28,6 @@ while [[ $# -gt 0 ]]; do
     BUILD=false
     shift
     ;;
-  --no-gui)
-    USE_GUI=false
-    shift
-    ;;
   --help)
     echo "Usage: $0 <robot_name> [--build-only] [--no-build]"
     exit 0
@@ -153,5 +149,5 @@ if [ "$LAUNCH" = true ]; then
   echo ""
   echo "[INFO] Launching gazebo simulation for robot: $ROBOT_NAME"
   echo "------------------------------------------------------------"
-  ros2 launch "$BRINGUP_PKG" "$LAUNCH_FILE_NAME" gui:="$USE_GUI"
+  ros2 launch "$BRINGUP_PKG" "$LAUNCH_FILE_NAME" gui:=true
 fi
