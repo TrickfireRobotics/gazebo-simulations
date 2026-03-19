@@ -51,15 +51,8 @@ class JointPublisher(Node):
             if joint.get("type") == "revolute":
                 name = joint.get("name")
                 limit = joint.find("limit")
-                origin = joint.find("origin")
-                axis_tag = joint.find("axis")
 
                 if name is not None and limit is not None:
-                    rpy = (
-                        tuple(map(float, origin.get("rpy", "0.0 0.0 0.0").split()))
-                        if origin is not None
-                        else (0, 0, 0)
-                    )
                     # initially origin angle will be 0, when a joint is discovered update value
                     joints[name] = {
                         "min": float(limit.get("lower", JOINT_MAX)),
