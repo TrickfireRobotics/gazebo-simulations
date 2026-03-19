@@ -12,21 +12,16 @@ The gui is handled during the rest of the bringup process as part of the ros2 la
 
 ```
 Call launch script
+1. Construct the joint controller module. Parse the urdf find all the revolute joint types, then find the min and max angles and store them internally.
   |
   v
-1. Check for the flag, if gui is enabled then pass the urdf model to the gui script.
+2. Polls all of the joints, if joints are found then we get the origin angle and open the thread to allow for the gui to continue.
   |
   v
-2. Construct the joint controller module. Parse the urdf find all the revolute joint types, then find the min and max angles and store them internally.
+3. Begin building the GUI with the current available joints. We continue to poll as the program runs to add new joints to the application.
   |
   v
-3. Polls all of the joints, if joints are found then we open the thread to allow for the gui to continue.
-  |
-  v
-4. Begin building the GUI with the current available joints. We continue to poll as the program runs to add new joints to the application.
-  |
-  v
-5. After that we start a thread to handle the publishing, the main thread handles UI updates.
+4. After that we start a thread to handle the publishing, the main thread handles UI updates.
 
 ```
 
