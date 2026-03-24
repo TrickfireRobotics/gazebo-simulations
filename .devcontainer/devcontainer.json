@@ -1,3 +1,4 @@
+// DOCUMENTATION: https://containers.dev/implementors/json_reference/
 {
     "context": "../",
     "dockerFile": "Dockerfile",
@@ -5,30 +6,51 @@
     "remoteUser": "trickfire",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
+    "initializeCommand": ".devcontainer/launch.sh",
+    "postCreateCommand": "scripts/clean_build.sh",
+    "forwardPorts": [
+        6080,
+        5900
+    ],
     "runArgs": [
         "--privileged",
         "--cap-add=SYS_PTRACE",
         "--device=/dev",
         "--security-opt",
         "seccomp=unconfined",
-        "-e", "DISPLAY",
-        "-e", "QT_X11_NO_MITSHM=1",
-        "-v", "/tmp/.X11-unix:/tmp/.X11-unix"
+        "--env-file",
+        ".devcontainer/launch.env",
+        "-e",
+        "QT_X11_NO_MITSHM=1",
+        "-v",
+        "/tmp/.X11-unix:/tmp/.X11-unix"
     ],
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-azuretools.vscode-docker",
+                // --- Python ---
                 "ms-python.python",
                 "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
                 "ms-python.pylint",
                 "ms-python.mypy-type-checker",
-                "ms-python.isort",
-                "ms-python.black-formatter",
-                "ms-vscode.cmake-tools",
+                // --- C and C++ ---
                 "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
                 "twxs.cmake",
-                "yzhang.markdown-all-in-one"
+                // --- Robotics / ROS / URDF / meshes ---
+                "Ranch-Hand-Robotics.rde-ros-2",
+                "smilerobotics.urdf",
+                "morningfrog.urdf-visualizer",
+                "misiekhardcore.stl-previewer",
+                // --- Container ---
+                "ms-azuretools.vscode-docker",
+                // --- Formatters ---
+                "yzhang.markdown-all-in-one",
+                "DotJoshJohnson.xml",
+                "tamasfe.even-better-toml",
+                "github.vscode-github-actions"
             ]
         }
     }

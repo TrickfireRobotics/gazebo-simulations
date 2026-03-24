@@ -1,4 +1,28 @@
-# macOS
+### macOS ###
 .DS_Store
+.LSOverride
+Icon
 ._*
 *-alias
+
+### VSCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+### Devcontainer ###
+.devcontainer/launch.env
+
+### Python ###
+.mypy_cache
+__pycache__
+
+### ROS2 ###
+robot-sim/install
+robot-sim/build
+robot-sim/log
+
+### Genbot ###
+.github/genbot/tests
