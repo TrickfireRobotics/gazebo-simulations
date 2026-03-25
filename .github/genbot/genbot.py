@@ -14,6 +14,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import NoReturn
 from urllib.parse import urlparse
+from sim_common import reduce_stl
 
 TEMPLATES = Path(__file__).parent / "templates"
 REPO_ROOT = Path(__file__).parent.parent.parent
@@ -303,6 +304,20 @@ def postprocess(raw_urdf_path: str | Path, robot_name: str) -> tuple:
     return text, control_xacro, joints, links
 
 
+# ----------------------------------------------------------------------------
+# Stl post processing
+# ---------------------------------------------------------------------------
+
+
+def reduce_mesh_size(stl_dir: Path):
+    temp_path = Path(f"{stl_dir.name}_temp")
+    temp_path.mkdir(parents=True, exist_ok=True)
+    reduce_stl.batch_process_directory(stl_dir.name, temp_path)
+    og_name = stl_dir.name
+    shutil.rmtree(stl_dir)
+    temp_path.rename(og_name)
+
+
 # ---------------------------------------------------------------------------
 # Package generators
 # ---------------------------------------------------------------------------
@@ -337,6 +352,7 @@ def generate_description_pkg(
                 shutil.copytree(item, dest, dirs_exist_ok=True)
             else:
                 shutil.copy2(item, dest)
+        reduce_mesh_size(meshes_src)
 
     tmpl = TEMPLATES / "description"
     write_template(tmpl / "CMakeLists.txt", pkg_dir / "CMakeLists.txt", robot)
