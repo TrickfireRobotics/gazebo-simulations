@@ -2,11 +2,14 @@ import glob
 import os
 import shutil
 import sys
-
 import open3d as o3d
+
+# Anything less than this it leaves holes in certain meshes that make it visually offputting
+MIN_TRIANGLES = 200
 
 
 def reduce_file_size(input_file_path: str, output_file_path: str, target_triangles) -> None:
+    """Reduces the triangle count of a STL file passed to the method"""
     print(f"Modifying stl files in {input_file_path}")
     mesh = o3d.io.read_triangle_mesh(input_file_path)
     og_len = len(mesh.triangles)
@@ -22,7 +25,7 @@ def reduce_file_size(input_file_path: str, output_file_path: str, target_triangl
     print(f"Mesh {input_file_path} reduced to {final_count} triangles\n")
 
 
-def batch_process_directory(input_dir, output_dir, reduction_ratio=0.2):
+def batch_process_directory(input_dir, output_dir, reduction_ratio=0.4):
     """
     Reads all STLs in a folder and reduces them to a percentage of their original size.
     """
