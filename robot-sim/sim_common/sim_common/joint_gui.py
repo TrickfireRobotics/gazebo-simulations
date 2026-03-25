@@ -33,6 +33,7 @@ class JointPublisher(Node):
         self.possible_joints = self._parse_urdf_joints(urdf_file_name)
 
         self.joint_names: list[str] = []
+        self.current_positions: dict[str, float] = {}
         self._joints_ready = threading.Event()
         self.joint_publishers: dict[str, rclpy.publisher.Publisher] = {}
 
@@ -65,6 +66,7 @@ class JointPublisher(Node):
         """
         Callback for /joint_states.
         Captures joint names on the first message and signals readiness.
+        Continuously updates current_positions on every message.
         """
         if not self.joint_names and msg.name:
             self.joint_names = list(msg.name)
@@ -76,6 +78,10 @@ class JointPublisher(Node):
             for joint in self.joint_names:
                 self.possible_joints[joint]["origin"] = origin_angles[i]
                 i = i + 1
+
+        # Always track latest positions
+        for name, position in zip(msg.name, msg.position):
+            self.current_positions[name] = position
 
     def wait_for_joints(self, timeout: float = DISCOVERY_TIMEOUT_S) -> bool:
         """
@@ -255,6 +261,7 @@ class JointGui:
         btn_frame = tk.Frame(self._controls, pady=8)
         btn_frame.pack()
         ttk.Button(btn_frame, text="Send", command=self._send).pack(side=tk.LEFT, padx=4)
+        ttk.Button(btn_frame, text="Sync", command=self._sync).pack(side=tk.LEFT, padx=4)
         ttk.Button(btn_frame, text="Reset", command=self._reset).pack(side=tk.LEFT, padx=4)
 
         # Swap discovery label for controls + move status label to bottom
@@ -281,6 +288,19 @@ class JointGui:
             return
         self.node.publish(topic, joints, positions, self.duration_var.get())
         self.status_var.set(f"Sent to {topic}: {[f'{p:.2f}' for p in positions]}")
+
+    def _sync(self) -> None:
+        """Sync sliders to the current joint positions reported by /joint_states."""
+        current = self.node.current_positions
+        if not current:
+            self.status_var.set("No joint state data available")
+            return
+        for joint in self.node.joint_names:
+            if joint in current:
+                offset = current[joint] - self.node.possible_joints[joint]["origin"]
+                self.sliders[joint].set(offset)
+                self.value_labels[joint].config(text=f"{offset:+.3f}")
+        self.status_var.set("Synced sliders to current joint positions")
 
     def _reset(self) -> None:
         """Zero all joint sliders and reset their display labels."""
