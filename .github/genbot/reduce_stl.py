@@ -63,8 +63,8 @@ def batch_process_directory(input_dir, output_dir, reduction_ratio=0.4):
         if r is not None:
             old_file_size += r[0]
             new_file_size += r[1]
-    old_file_size = old_file_size / 1000
-    new_file_size = new_file_size / 1000
+    old_file_size = old_file_size // 1000
+    new_file_size = new_file_size // 1000
     log.info(f"reduced folder size from {old_file_size} kb to {new_file_size} kb")
 
     # copy the rest of the .part files
