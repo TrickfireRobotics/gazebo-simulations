@@ -25,7 +25,7 @@ def reduce_file_size(input_file_path: str, output_file_path: str, target_triangl
     if og_len <= target_triangles:
         print(f"Mesh {input_file_path} is already below target. Saving as is.\n")
         o3d.io.write_triangle_mesh(output_file_path, mesh, write_ascii=False)
-        return None
+        return []
     decimated_mesh = mesh.simplify_quadric_decimation(target_number_of_triangles=target_triangles)
     decimated_mesh.compute_vertex_normals()
     o3d.io.write_triangle_mesh(output_file_path, decimated_mesh, write_ascii=False)
@@ -60,7 +60,7 @@ def batch_process_directory(input_dir, output_dir, reduction_ratio=0.4):
         target = int(current_triangles * reduction_ratio)
 
         r = reduce_file_size(file_path, out_path, target)
-        if r is not None:
+        if not len(r) == 0:
             old_file_size += r[0]
             new_file_size += r[1]
     old_file_size = old_file_size // 1000
