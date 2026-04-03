@@ -17,4 +17,4 @@ alias rte="ros2 topic echo "
 alias gte="ign topic -e -t "
 
 # Genbot
-alias genbot="env $(grep -v '^#' .github/genbot/onshape.env | xargs) PYTHONPATH=.github python3 -m genbot"
+alias genbot="env \$(grep -v '^#' .github/genbot/onshape.env 2>/dev/null | xargs 2>/dev/null) PYTHONPATH=.github python3 -m genbot"
