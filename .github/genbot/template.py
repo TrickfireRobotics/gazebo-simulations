@@ -2,8 +2,6 @@
 
 from pathlib import Path
 
-from genbot import TEMPLATES
-
 
 def render(template_path: Path, robot: str, **extras) -> str:
     """Read a template and substitute __ROBOT__ (and any extras) into it"""

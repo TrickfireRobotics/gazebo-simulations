@@ -65,7 +65,7 @@ def batch_process_directory(input_dir, output_dir, reduction_ratio=0.4):
             new_file_size += r[1]
     old_file_size = old_file_size // 1000
     new_file_size = new_file_size // 1000
-    log.info(f"reduced folder size from {old_file_size} kb to {new_file_size} kb")
+    log.info(f"reduced stl folder size from {old_file_size} kb to {new_file_size} kb")
 
     # copy the rest of the .part files
     for file_path in part_files:
