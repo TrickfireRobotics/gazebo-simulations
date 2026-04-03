@@ -26,3 +26,6 @@ robot-sim/log
 
 ### Genbot ###
 .github/genbot/tests
+
+### env ###
+**/*.env
