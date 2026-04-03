@@ -7,8 +7,8 @@ import glob
 import os
 import shutil
 import sys
-import open3d as o3d
-import log
+import open3d as o3d  # type: ignore
+from . import log
 
 # Anything less than this it leaves holes in certain meshes that make it visually offputting
 MIN_TRIANGLES = 200
