@@ -1,3 +1,8 @@
+"""
+Reduce the number of triangles in STL files.
+Useful for reducing the size of meshes for faster simulation.
+"""
+
 import glob
 import os
 import shutil
@@ -6,7 +11,8 @@ import sys
 import open3d as o3d
 
 
-def reduce_file_size(input_file_path: str, output_file_path: str, target_triangles) -> None:
+def reduce_file_size(input_file_path: str, output_file_path: str, target_triangles: int) -> None:
+    """Reduces the number of triangles in an STL file to a target count."""
     print(f"Modifying stl files in {input_file_path}")
     mesh = o3d.io.read_triangle_mesh(input_file_path)
     og_len = len(mesh.triangles)

@@ -18,7 +18,7 @@ OnShape CAD Model
     |  Output: raw URDF with relative mesh paths
     |
     v
-2. POST-PROCESS (genbot.py)
+2. POST-PROCESS (genbot)
     |  a) Add xmlns:xacro namespace to <robot> tag
     |  b) Inject xacro properties: mesh_path, controller_config arg
     |  c) Rewrite mesh paths: meshes/foo.stl -> ${mesh_path}/foo.stl
@@ -30,7 +30,7 @@ OnShape CAD Model
     |  f) Inject <xacro:include> for control xacro into geometry URDF
     |
     v
-3. SCAFFOLD (genbot.py)
+3. SCAFFOLD (genbot)
     |  Renders templates with __ROBOT__ placeholder replaced
     |
     |-- <robot>_description/
@@ -59,12 +59,12 @@ robots.json (stored OnShape coordinates)
     |  Same as create - downloads fresh URDF + meshes
     |
     v
-2. POST-PROCESS (genbot.py)
+2. POST-PROCESS (genbot)
     |  Same transforms as create (steps a-c, f)
     |  Control xacro is NOT regenerated
     |
     v
-3. REPLACE (genbot.py)
+3. REPLACE (genbot)
     |  Only these files are overwritten:
     |-- <robot>_description/urdf/<robot>.urdf    (new geometry)
     |-- <robot>_description/meshes/*             (new meshes, old deleted)
@@ -93,10 +93,10 @@ The `raw` subcommand downloads the URDF and mesh assets from OnShape without gen
 
 ```bash
 # Download using the OnShape URL directly (also saves to robots.json)
-python3 .github/genbot/genbot.py raw arm https://trickfire.onshape.com/documents/...
+PYTHONPATH=.github python3 -m genbot raw arm https://trickfire.onshape.com/documents/...
 
 # Or, if the robot is already in robots.json, just use its name
-python3 .github/genbot/genbot.py raw arm
+PYTHONPATH=.github python3 -m genbot raw arm
 ```
 
 This saves:
@@ -111,7 +111,7 @@ This saves:
 Once you have the raw files, use the `local` subcommand to run the full post-processing and scaffold without any API calls:
 
 ```bash
-python3 .github/genbot/genbot.py local arm .github/genbot/tests/arm/robot.urdf
+PYTHONPATH=.github python3 -m genbot local arm .github/genbot/tests/arm/robot.urdf
 ```
 
 This works as `genbot create` would but it skips `onshape-to-robot` and uses the local files.
@@ -165,7 +165,7 @@ At build time, xacro merges both files into a single robot description.
 
 ## URDF post-processing
 
-The URDF post-processing step in `genbot.py` transforms the raw URDF from `onshape-to-robot` into a format ready for Gazebo simulation. The processing steps are:
+The URDF post-processing step in `genbot` transforms the raw URDF from `onshape-to-robot` into a format ready for Gazebo simulation. The processing steps are:
 
 1. **Xacro namespace** - adds `xmlns:xacro` to the `<robot>` tag
 2. **Xacro properties** - injects a `mesh_path` property (`package://<robot>_description/meshes`) and a `controller_config` arg
