@@ -33,7 +33,12 @@ def main() -> None:
         "local", help="Create packages from a local URDF (no API calls)"
     )
     local_parser.add_argument("robot_name", help="Name for the robot (e.g. arm, rover)")
-    local_parser.add_argument("urdf", help="Path to a local URDF file")
+    local_parser.add_argument(
+        "urdf",
+        nargs="?",
+        default=None,
+        help="Path to a local URDF file (default: .github/genbot/tests/<robot_name>/robot.urdf)",
+    )
     local_parser.add_argument(
         "--assets",
         default=None,

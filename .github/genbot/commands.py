@@ -4,6 +4,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from genbot import REPO_ROOT
 from genbot.log import err, info, warn
 from genbot.onshape import download, parse_onshape_url
 from genbot.reduce_stl import batch_process_directory
@@ -55,8 +56,8 @@ def _scaffold_packages(robot: str, urdf_path: Path, meshes_src: Path, out_dir: P
 
     info("Done!")
     info(f"Packages written to: {out_dir}")
-    info(f"  ├— {robot}_description/")
-    info(f"  └— {robot}_bringup/")
+    info(f" ├─ {robot}_description/")
+    info(f" └─ {robot}_bringup/")
 
 
 # ---------------------------------------------------------------------------
@@ -98,7 +99,8 @@ def cmd_local(args) -> None:
     """Local subcommand"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
-    urdf_path = Path(args.urdf)
+    raw_default = REPO_ROOT / ".github" / "genbot" / "tests" / robot
+    urdf_path = Path(args.urdf) if args.urdf else raw_default / "robot.urdf"
     meshes_src = Path(args.assets) if args.assets else urdf_path.parent / "assets"
 
     if not urdf_path.exists():
