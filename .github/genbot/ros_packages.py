@@ -1,4 +1,4 @@
-"""ROS2 package generation and update."""
+"""ROS2 package generation and updating"""
 
 import shutil
 from pathlib import Path
@@ -16,6 +16,7 @@ def generate_description_pkg(
     out_dir: Path,
 ) -> None:
     """Create <robot>_description package"""
+
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
     meshes_dir = pkg_dir / "meshes"
@@ -23,13 +24,9 @@ def generate_description_pkg(
     urdf_dir.mkdir(parents=True, exist_ok=True)
     meshes_dir.mkdir(parents=True, exist_ok=True)
 
-    # Write processed URDF
     (urdf_dir / f"{robot}.urdf").write_text(geometry_urdf)
-
-    # Write control xacro
     (urdf_dir / f"{robot}_control.urdf.xacro").write_text(control_xacro)
 
-    # Copy meshes
     if meshes_src.exists():
         for item in meshes_src.iterdir():
             dest = meshes_dir / item.name
@@ -93,6 +90,7 @@ def update_description_pkg(
     robot: str, geometry_urdf: str, generated_meshes_src: Path, out_dir: Path
 ) -> None:
     """Update only the URDF and meshes in an existing <robot>_description package"""
+
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
     meshes_dir = pkg_dir / "meshes"
@@ -102,7 +100,6 @@ def update_description_pkg(
 
     (urdf_dir / f"{robot}.urdf").write_text(geometry_urdf)
 
-    # Replace meshes
     if generated_meshes_src.exists():
         if meshes_dir.exists():
             shutil.rmtree(meshes_dir)

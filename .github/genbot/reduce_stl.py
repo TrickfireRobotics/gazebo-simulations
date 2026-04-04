@@ -1,6 +1,5 @@
 """
-Reduce the number of triangles in STL files.
-Useful for reducing the size of meshes for faster simulation.
+Used to reduce the triangle count for STL files to bring down file size
 """
 
 import glob
@@ -18,7 +17,6 @@ def reduce_file_size(input_file_path: str, output_file_path: str, target_triangl
     """Reduces the triangle count of a STL file passed to the method"""
     og_fsize = os.path.getsize(input_file_path)
 
-    print(f"Modifying stl files in {input_file_path}")
     mesh = o3d.io.read_triangle_mesh(input_file_path)
     og_len = len(mesh.triangles)
 
@@ -30,7 +28,7 @@ def reduce_file_size(input_file_path: str, output_file_path: str, target_triangl
     decimated_mesh.compute_vertex_normals()
     o3d.io.write_triangle_mesh(output_file_path, decimated_mesh, write_ascii=False)
     new_fsize = os.path.getsize(output_file_path)
-    r = list()
+    r = []
     r.append(og_fsize)
     r.append(new_fsize)
     return r
@@ -65,16 +63,18 @@ def batch_process_directory(input_dir, output_dir, reduction_ratio=0.4):
             new_file_size += r[1]
     old_file_size = old_file_size // 1000
     new_file_size = new_file_size // 1000
-    log.info(f"reduced stl folder size from {old_file_size} kb to {new_file_size} kb")
+    log.info(f"Reduced stl folder size from {old_file_size} kb to {new_file_size} kb")
 
     # copy the rest of the .part files
     for file_path in part_files:
         filename = os.path.basename(file_path)
         out_path = os.path.join(output_dir, filename)
-        shutil.copy(file_path, out_path)
+        if os.path.abspath(file_path) != os.path.abspath(out_path):
+            shutil.copy(file_path, out_path)
 
 
 def main():
+    """Main method"""
     if len(sys.argv) == 4:
         batch_process_directory(sys.argv[1], sys.argv[2], float(sys.argv[3]))
     elif len(sys.argv) == 3:

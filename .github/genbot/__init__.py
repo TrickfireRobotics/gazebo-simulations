@@ -1,4 +1,4 @@
-"""genbot - generate and update ROS2 packages from an OnShape URDF"""
+"""genbot"""
 
 from pathlib import Path
 
