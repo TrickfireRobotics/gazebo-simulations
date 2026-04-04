@@ -136,7 +136,8 @@ RUN pip3 install moteus
 # Install additional Python libraries used by the project
 #   - pyusb: USB device communication
 #   - opencv-python: Python OpenCV bindings
-RUN pip3 install pyusb opencv-python
+#   - open3d: STL squashing for genbot
+RUN pip3 install pyusb opencv-python open3d
 
 # Update pydocstyle to avoid deprecation warnings during testing
 RUN pip3 install --upgrade pydocstyle
