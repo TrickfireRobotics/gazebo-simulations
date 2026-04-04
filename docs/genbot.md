@@ -6,12 +6,12 @@ It runs locally or via the `generate-urdf` GitHub Actions workflow, which opens 
 
 ## Commands
 
-| Command | What it does |
-| ------- | ------------ |
-| `create` | Download from OnShape and generate packages from scratch |
-| `update` | Re-download from OnShape and refresh only the URDF and meshes |
-| `raw` | Download raw URDF + assets from OnShape, no package generation |
-| `local` | Generate packages from a local URDF, no API calls |
+| Command  | What it does                                                   |
+| -------- | -------------------------------------------------------------- |
+| `create` | Download from OnShape and generate packages from scratch       |
+| `update` | Re-download from OnShape and refresh only the URDF and meshes  |
+| `raw`    | Download raw URDF + assets from OnShape, no package generation |
+| `local`  | Generate packages from a local URDF, no API calls              |
 
 All commands are run as:
 
@@ -116,21 +116,40 @@ The `generate-urdf` workflow runs `create` or `update` on GitHub and opens a PR 
 1. Go to **Actions** > **Generate/Update Robot from OnShape**
 2. Click **Run workflow** and fill in:
 
-| Input | Description |
-| ----- | ----------- |
-| `mode` | `create` or `update` |
-| `robot_name` | Robot identifier (e.g. `arm`) |
+| Input         | Description                                                    |
+| ------------- | -------------------------------------------------------------- |
+| `mode`        | `create` or `update`                                           |
+| `robot_name`  | Robot identifier (e.g. `arm`)                                  |
 | `onshape_url` | Full OnShape URL (required for `create`, ignored for `update`) |
 
 The workflow checks out the repo, installs dependencies, runs genbot with credentials from repository secrets, and opens a PR on branch `genbot/<mode>-<robot_name>`.
 
 ### Required secrets
 
-| Secret | Description |
-| ------ | ----------- |
-| `ONSHAPE_ACCESS_KEY` | OnShape API key |
+| Secret               | Description        |
+| -------------------- | ------------------ |
+| `ONSHAPE_ACCESS_KEY` | OnShape API key    |
 | `ONSHAPE_SECRET_KEY` | OnShape API secret |
 
 ## RViz
 
 Generated robots include an RViz config template (`config/<robot>.rviz`). See the [RViz setup guide](./rviz-setup.md) for how to wire it into the launch file.
+
+## Code structure
+
+All source lives under `.github/genbot/`.
+
+| File              | Responsibility                                                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --- | -------- | ---------------------------------------------------- |
+| `__init__.py`     | Package init — defines shared path constants (`REPO_ROOT`, `TEMPLATES`, `ROBOTS_JSON`)                                                 |
+| `__main__.py`     | Entry point for `python -m genbot`; just calls `cli.main()`                                                                            |     | `cli.py` | Argument parsing and command dispatch via `argparse` |
+| `commands.py`     | Implementation of every subcommand (`cmd_create`, `cmd_local`, `cmd_raw`, `cmd_update`)                                                |
+| `onshape.py`      | OnShape integration — parses document URLs and shells out to `onshape-to-robot`                                                        |
+| `urdf.py`         | URDF post-processing — injects xacro namespace/properties, rewrites mesh paths, extracts joints/links, generates `_control.urdf.xacro` |
+| `ros_packages.py` | Generates and updates the `_description` and `_bringup` ROS2 packages from processed URDF + templates                                  |
+| `template.py`     | Template rendering — replaces `__ROBOT__` (and other `__KEY__` tokens) in template files                                               |
+| `reduce_stl.py`   | STL decimation via `open3d` — reduces triangle counts to shrink mesh file sizes                                                        |
+| `credentials.py`  | Reads `ONSHAPE_API_KEY` / `ONSHAPE_API_SECRET` from the environment                                                                    |
+| `registry.py`     | Reads and writes the `robots.json` registry (robot name → OnShape URL)                                                                 |
+| `log.py`          | Thin logging helpers: `info()`, `warn()`, `err()` (err exits with code 1)                                                              |
+| `templates/`      | Template files copied and rendered into generated packages (`_description` and `_bringup` skeletons)                                   |
