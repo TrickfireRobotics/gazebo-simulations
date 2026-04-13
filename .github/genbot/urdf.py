@@ -113,6 +113,27 @@ def _generate_control_xacro(robot_name: str, joints: list) -> str:
     return "\n".join(lines)
 
 
+def _inject_world_base_link(urdf_text: str) -> str:
+    """Insert a world link and fixed world_to_base_link joint before the first <link> tag."""
+    snippet = (
+        "\n"
+        "  <!-- World base link -->\n"
+        '  <link name="world"/>\n'
+        "\n"
+        '  <joint name="world_to_base_link" type="fixed">\n'
+        '    <parent link="world"/>\n'
+        '    <child link="base_link"/>\n'
+        '    <origin xyz="0 0 0" rpy="0 0 0"/>\n'
+        "  </joint>\n"
+        "\n"
+    )
+    match = re.search(r"<link\b", urdf_text)
+    if match:
+        pos = match.start()
+        return urdf_text[:pos] + snippet + urdf_text[pos:]
+    return urdf_text.replace("</robot>", snippet + "</robot>", 1)
+
+
 def _inject_control_include(urdf_text: str, robot_name: str) -> str:
     """Append xacro:include for control xacro before </robot>"""
     include = (
@@ -136,16 +157,19 @@ def _reindent(text: str, from_spaces: int = 2, to_spaces: int = 4) -> str:
     return "".join(result)
 
 
-def postprocess(raw_urdf_path: str | Path, robot_name: str) -> tuple:
+def postprocess(raw_urdf_path: str | Path, robot_name: str, world_base_link: bool = False) -> tuple:
     """Read raw URDF, apply all transforms.
 
     Returns (geometry_urdf_string, control_xacro_string, joint_list, link_list).
     joint_list items are (name, lower_limit, upper_limit).
+    If world_base_link is True, a fixed world→base_link joint is prepended.
     """
     text = Path(raw_urdf_path).read_text(encoding="utf-8")
     text = _ensure_xacro_ns(text)
     text = _inject_xacro_properties(text, robot_name)
     text = _rewrite_mesh_paths(text)
+    if world_base_link:
+        text = _inject_world_base_link(text)
     links = _extract_links(text)
     joints = _extract_revolute_joints(text)
     control_xacro = _generate_control_xacro(robot_name, joints)

@@ -21,6 +21,17 @@ from genbot.urdf import postprocess
 # ---------------------------------------------------------------------------
 
 
+def _prompt_yes_no(question: str) -> bool:
+    """Ask a yes/no question, return True for yes."""
+    while True:
+        answer = input(f"[genbot] {question} [y/n]: ").strip().lower()
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("n", "no"):
+            return False
+        print("[genbot] Please answer y or n.")
+
+
 def _reduce_meshes(meshes_dir: Path, no_reduce: bool) -> None:
     """Reduce STL triangle counts in-place unless --no-reduce was passed"""
     if no_reduce:
@@ -32,7 +43,9 @@ def _reduce_meshes(meshes_dir: Path, no_reduce: bool) -> None:
     batch_process_directory(str(meshes_dir), str(meshes_dir))
 
 
-def _scaffold_packages(robot: str, urdf_path: Path, meshes_src: Path, out_dir: Path) -> None:
+def _scaffold_packages(
+    robot: str, urdf_path: Path, meshes_src: Path, out_dir: Path, world_base_link: bool = False
+) -> None:
     """Post-process URDF and write _description + _bringup packages"""
     if not meshes_src.exists():
         warn(f"Meshes directory {meshes_src} was not created")
@@ -40,7 +53,7 @@ def _scaffold_packages(robot: str, urdf_path: Path, meshes_src: Path, out_dir: P
         warn(f"Meshes directory {meshes_src} is empty")
 
     info("Post-processing URDF...")
-    geometry_urdf, control_xacro, joints, links = postprocess(urdf_path, robot)
+    geometry_urdf, control_xacro, joints, links = postprocess(urdf_path, robot, world_base_link)
 
     if joints:
         joint_names = [name for name, _, _ in joints]
@@ -84,15 +97,22 @@ def cmd_create(args) -> None:
             "  Check onshape-to-robot output above for errors."
         )
 
+    if args.attach_to_world is not None:
+        world_base_link = args.attach_to_world
+    else:
+        world_base_link = _prompt_yes_no(
+            "Fix robot to world? (arm/fixed base = yes, mobile chassis = no)"
+        )
+
     _reduce_meshes(workdir / "assets", args.no_reduce)
-    _scaffold_packages(robot, urdf_path, workdir / "assets", out_dir)
+    _scaffold_packages(robot, urdf_path, workdir / "assets", out_dir, world_base_link)
 
     # Register in robots.json
     registry = load_robots_json()
     registry = [e for e in registry if e["name"] != robot]
-    registry.append({"name": robot, "url": args.onshape_url})
+    registry.append({"name": robot, "url": args.onshape_url, "world_base_link": world_base_link})
     save_robots_json(registry)
-    info(f"Registered '{robot}' in robots.json")
+    info(f"Registered '{robot}' in robots.json (world_base_link={world_base_link})")
 
 
 def cmd_local(args) -> None:
@@ -108,16 +128,23 @@ def cmd_local(args) -> None:
 
     info(f"Creating packages for robot: {robot} (local mode)")
 
+    if args.attach_to_world is not None:
+        world_base_link = args.attach_to_world
+    else:
+        world_base_link = _prompt_yes_no(
+            "Fix robot to world? (arm/fixed base = yes, mobile chassis = no)"
+        )
+
     if not args.no_reduce and meshes_src.exists() and any(meshes_src.iterdir()):
         with tempfile.TemporaryDirectory() as tmp:
             reduced = Path(tmp) / "assets"
             shutil.copytree(meshes_src, reduced)
             _reduce_meshes(reduced, no_reduce=False)
-            _scaffold_packages(robot, urdf_path, reduced, out_dir)
+            _scaffold_packages(robot, urdf_path, reduced, out_dir, world_base_link)
     else:
         if args.no_reduce:
             info("Skipping STL reduction (--no-reduce)")
-        _scaffold_packages(robot, urdf_path, meshes_src, out_dir)
+        _scaffold_packages(robot, urdf_path, meshes_src, out_dir, world_base_link)
 
 
 def cmd_raw(args) -> None:
@@ -193,10 +220,13 @@ def cmd_update(args) -> None:
     elif not any(exported_meshes_src.iterdir()):
         warn(f"Meshes directory {exported_meshes_src} is empty")
 
+    world_base_link = entry.get("world_base_link", False)
+    info(f"world_base_link={world_base_link} (from robots.json)")
+
     _reduce_meshes(exported_meshes_src, args.no_reduce)
 
     info("Post-processing URDF...")
-    geometry_urdf, _, _, _ = postprocess(exported_urdf_path, robot)
+    geometry_urdf, _, _, _ = postprocess(exported_urdf_path, robot, world_base_link)
 
     info("Updating description package...")
     update_description_pkg(robot, geometry_urdf, exported_meshes_src, out_dir)

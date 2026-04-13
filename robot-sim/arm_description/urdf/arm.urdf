@@ -7,7 +7,17 @@
     <xacro:arg name="controller_config" default=""/>
 
     <!-- Link base_link -->
-    <link name="base_link">
+
+    <!-- World base link -->
+    <link name="world"/>
+
+    <joint name="world_to_base_link" type="fixed">
+        <parent link="world"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+<link name="base_link">
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value="1e-09"/>
