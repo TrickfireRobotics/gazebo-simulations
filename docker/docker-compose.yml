@@ -10,7 +10,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      target: dev
+      target: runtime
     image: gazebo-simulations:latest
     container_name: gazebo-sim
     user: trickfire

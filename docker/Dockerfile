@@ -1,16 +1,16 @@
 # --------------------------------------------------------------------------------------------
-# Multi-stage build: Ubuntu 22.04 z(Jammy) + ROS 2 Humble + Gazebo Fortress
+# Multi-stage build: Ubuntu 22.04 (Jammy) + ROS 2 Humble + Gazebo Fortress
 #
 # Targets:
-#   base    shared environment
-#   dev     + VNC/headless display stack + dev tooling  (devcontainer, docker-compose)
+#   runtime   simulation environment + VNC/headless display stack  (docker-compose)
+#   dev       + dev tooling  (devcontainer)
 # --------------------------------------------------------------------------------------------
 
 
 # --------------------------------------------------------------------------------------------
-# BASE
+# RUNTIME
 
-FROM ros:humble-ros-base AS base
+FROM ros:humble-ros-base AS runtime
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ="America/Los_Angeles"
@@ -72,30 +72,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------
-# Python packages
+# VNC / headless display stack
 
-RUN pip3 install --upgrade pip setuptools
-
-RUN rosdep init || true
-
-
-# --------------------------------------------------------------------------------------------
-# DEV — development environment for working on the codebase (devcontainer)
-
-FROM base AS dev
-
-#
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb novnc x11vnc websockify openbox xterm python3-xdg \
     mesa-utils libglx-mesa0 libgl1-mesa-glx libgl1-mesa-dri \
     xserver-xorg-core xserver-xorg-video-dummy \
     && rm -rf /var/lib/apt/lists/*
-
-# --------------------------------------
-# Dev tooling
-
-RUN pip3 install ruff onshape-to-robot
-RUN pip3 install open3d --ignore-installed blinker
 
 EXPOSE 6080 5900
 ENV VNC_PORT=5900
@@ -116,9 +99,15 @@ RUN printf '#include <stdlib.h>\nint drmCloseBufferHandle(int fd, unsigned int h
     rm /tmp/drm_stub.c && \
     ldconfig
 
-RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
-    -o /usr/local/bin/shfmt && \
-    chmod +x /usr/local/bin/shfmt
+# --------------------------------------
+# Python packages
+
+RUN pip3 install --upgrade pip setuptools
+
+RUN rosdep init || true
+
+# --------------------------------------
+# User
 
 RUN useradd trickfire --shell /bin/bash --create-home --no-log-init
 COPY docker/shell/trickfire.bashrc /home/trickfire/.bashrc
@@ -128,5 +117,22 @@ RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 RUN rosdep fix-permissions && \
     chown -R trickfire:trickfire /usr/local/lib/python3.10/dist-packages && \
     chmod -R a+rX /usr/local/lib/python3.10/dist-packages
+
+USER trickfire
+
+
+# --------------------------------------------------------------------------------------------
+# DEV — adds dev tooling on top of runtime  (devcontainer)
+
+FROM runtime AS dev
+
+USER root
+
+RUN pip3 install ruff onshape-to-robot
+RUN pip3 install open3d --ignore-installed blinker
+
+RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
+    -o /usr/local/bin/shfmt && \
+    chmod +x /usr/local/bin/shfmt
 
 USER trickfire
