@@ -28,7 +28,7 @@ if [[ -z "$PC_IP" ]]; then
 fi
 
 TERM=xterm-256color sshpass -p 'trickfire' ssh -Y -t \
-	-o GSSAPIAuthentication=no -o LogLevel=ERROR \
+	-o GSSAPIAuthentication=no -o LogLevel=ERROR -o StrictHostKeyChecking=no \
 	trickfire@"$PC_IP" \
 	"if [ -d ~/gazebo-simulations ]; then \
 		PROMPT_ENV=${TARGET}-host bash --rcfile ~/gazebo-simulations/docker/shell/ssh.bashrc.sh; \
