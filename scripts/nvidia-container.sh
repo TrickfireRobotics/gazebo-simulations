@@ -26,32 +26,33 @@ cd "$PROJECT_DIR"
 
 LOCAL_MODE=false
 for arg in "$@"; do
-    case "$arg" in
-        --local) LOCAL_MODE=true ;;
-    esac
+	case "$arg" in
+	--local)
+		LOCAL_MODE=true
+		;;
+	esac
 done
 
 # STOP
 if docker ps -q --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
-    echo "[INFO] Stopping running container..."
-    if $LOCAL_MODE; then
-        docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml down
-    else
-        docker compose -f docker/docker-compose.yml down
-    fi
+	echo "[INFO] Stopping running container..."
+	if $LOCAL_MODE; then
+		docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml down
+	else
+		docker compose -f docker/docker-compose.yml down
+	fi
 fi
 
 docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
-
 # START
 echo "[INFO] Starting container..."
 if $LOCAL_MODE; then
-    echo "[INFO] Local mode: rendering to host display ${DISPLAY}"
-    xhost +local:docker
-    docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml up -d --build
+	echo "[INFO] Local mode: rendering to host display ${DISPLAY}"
+	xhost +local:docker
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml up -d --build
 else
-    docker compose -f docker/docker-compose.yml up -d --build
+	docker compose -f docker/docker-compose.yml up -d --build
 	HOST_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
 	echo "[INFO] VNC viewer -> ${HOST_IP:-<host-ip>}:${VNC_PORT:-5900}"
 	echo "[INFO] Browser    -> http://${HOST_IP:-<host-ip>}:${NOVNC_PORT:-6080}/vnc.html"
