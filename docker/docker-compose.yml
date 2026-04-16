@@ -25,8 +25,7 @@ services:
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: graphics,display,compute,utility
       __EGL_VENDOR_LIBRARY_FILENAMES: /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-      # Tegra libdrm.so.2 is missing drmCloseBufferHandle; stub it so Mesa swrast loads.
-      LD_PRELOAD: /usr/local/lib/libdrm_stub.so
+      
       PROMPT_ENV: ${HOSTNAME:-nvidia}-sim
       TZ: ${TZ:-UTC}
 
