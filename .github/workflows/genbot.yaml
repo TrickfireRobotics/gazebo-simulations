@@ -1,4 +1,4 @@
-name: Generate/Update Robot from OnShape
+name: Create new robot
 
 on:
   workflow_dispatch:
@@ -18,6 +18,10 @@ on:
         description: 'OnShape URL (required for create, ignored for update)'
         required: false
         type: string
+      attach_to_world:
+        description: 'Fix robot to world? (arm/fixed base = true, mobile chassis = false)'
+        required: true
+        type: boolean
 
 jobs:
   generate:
@@ -58,7 +62,8 @@ jobs:
           PYTHONPATH: .github
         run: |
           if [ "${{ inputs.mode }}" = "create" ]; then
-            python -m genbot create "${{ inputs.robot_name }}" "${{ inputs.onshape_url }}"
+            ATTACH_FLAG=$([[ "${{ inputs.attach_to_world }}" == "true" ]] && echo "--attach-to-world" || echo "--no-attach-to-world")
+            python -m genbot create "${{ inputs.robot_name }}" "${{ inputs.onshape_url }}" $ATTACH_FLAG
           else
             python -m genbot update "${{ inputs.robot_name }}"
           fi
