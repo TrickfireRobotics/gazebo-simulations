@@ -7,10 +7,10 @@
 #
 # The prompt label and color are driven by $PROMPT_ENV:
 #
-#   local-dev   (blue)    — devcontainer on the local machine  [set by launch.sh → launch.env]
-#   orin-host   (amber)   — SSH shell on the Orin host         [set by or-ssh.sh]
-#   orin-dev    (green)   — devcontainer on the Orin           [set by launch.sh → launch.env]
-#   orin-sim    (magenta) — gazebo-sim container on the Orin   [set by .devcontainer/docker-compose.yml]
+#   local-dev    (blue)    — devcontainer on the local machine  [set by launch.sh → launch.env]
+#   <name>-host  (amber)   — SSH shell on a remote host         [set by ssh-nvidia.sh]
+#   <name>-dev   (green)   — devcontainer on a remote host      [set by launch.sh → launch.env]
+#   <name>-sim   (magenta) — gazebo-sim container               [set by .devcontainer/docker-compose.yml]
 # --------------------------------------------------------------------------------------------
 
 # --- Colors (256-color ANSI escape sequences, wrapped for PS1 safety) ---
@@ -23,21 +23,21 @@ case "${PROMPT_ENV:-}" in
         _C='\[\e[38;5;39m\]'    # dodger blue
         _L='LOCAL-DEV'
         ;;
-    orin-host)
+    *-host)
         _C='\[\e[38;5;214m\]'   # amber / orange
-        _L='ORIN-HOST'
+        _L="${PROMPT_ENV^^}"
         ;;
-    orin-dev)
+    *-dev)
         _C='\[\e[38;5;82m\]'    # bright green
-        _L='ORIN-DEV'
+        _L="${PROMPT_ENV^^}"
         ;;
-    orin-sim)
+    *-sim)
         _C='\[\e[38;5;201m\]'   # magenta
-        _L='ORIN-SIM'
+        _L="${PROMPT_ENV^^}"
         ;;
     *)
         _C='\[\e[37m\]'         # plain white fallback
-        _L="$PROMPT_ENV"
+        _L="${PROMPT_ENV^^}"
         ;;
 esac
 

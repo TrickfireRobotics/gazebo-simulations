@@ -42,7 +42,7 @@ services:
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: graphics,display,compute,utility
       __EGL_VENDOR_LIBRARY_FILENAMES: /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-      PROMPT_ENV: orin-sim
+      PROMPT_ENV: ${HOSTNAME:-nvidia}-sim
 
     volumes:
       - ..:/home/trickfire/gazebo-simulations
@@ -55,7 +55,7 @@ services:
 
     privileged: true
 
-    command: scripts/vnc-start.sh
+    command: scripts/start_x_server.sh
 
     stdin_open: true
     tty: true

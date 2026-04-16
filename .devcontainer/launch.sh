@@ -64,8 +64,8 @@ esac
 # so this works regardless of the developer's OS (macOS, Linux, Windows WSL).
 #
 if [ -f /etc/nv_tegra_release ]; then
-    log_info "Detected Jetson host — setting PROMPT_ENV=orin-dev"
-    ENV_VARS_ARRAY["PROMPT_ENV"]="orin-dev"
+    log_info "Detected Jetson host — setting PROMPT_ENV=${HOSTNAME}-dev"
+    ENV_VARS_ARRAY["PROMPT_ENV"]="${HOSTNAME}-dev"
 else
     log_info "Detected local host — setting PROMPT_ENV=local-dev"
     ENV_VARS_ARRAY["PROMPT_ENV"]="local-dev"

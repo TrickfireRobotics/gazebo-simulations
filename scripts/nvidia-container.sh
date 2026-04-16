@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------------
-# orion-container.sh
+# nvidia-container.sh
 # --------------------------------------------------------------------------------------------
 # Kills the sim container if running, starts it fresh, and attaches a shell.
 #
 # Usage:
-#   ./scripts/orion-container.sh
+#   ./scripts/nvidia-container.sh
 #
 # IMPORTANT:
 #   - Run from the HOST, not inside the container
