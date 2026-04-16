@@ -1,38 +1,21 @@
 # --------------------------------------------------------------------------------------------
-# docker-compose.yml
-# --------------------------------------------------------------------------------------------
-# Runs the simulation environment on an Ubuntu host with VNC access.
-#
-# The project directory is mounted into the container, so:
-#   - Pull new code on the HOST (git pull), changes are immediately visible inside
-#   - Build artifacts (robot-sim/build, install, log) persist between container restarts
-#
-# Usage:
-#   Start:   docker compose up -d
-#   Stop:    docker compose down
-#   Rebuild: docker compose up -d --build
-#
-# Connect via browser:
-#   http://<host-ip>:6080/vnc.html
-#
-# Or over SSH tunnel:
-#   ssh -L 6080:localhost:6080 user@host
-#   then open: http://localhost:6080/vnc.html
-#
-# Once connected, open a terminal and run:
-#   ./scripts/ros-launch.sh arm
+# Gazebo Simulation Environment
+# Runs on NVIDIA Jetson host with GPU support
+# Includes X11 server and VNC/noVNC for remote display
+# Automatically starts X server via startup script
 # --------------------------------------------------------------------------------------------
 
 services:
   sim:
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
+      dockerfile: docker/Dockerfile
+      target: remote
     image: gazebo-simulations:latest
     container_name: gazebo-sim
     user: trickfire
 
-    # runtime: nvidia
+    runtime: nvidia
 
     environment:
       DISPLAY: ":1"
@@ -42,7 +25,11 @@ services:
       NVIDIA_VISIBLE_DEVICES: all
       NVIDIA_DRIVER_CAPABILITIES: graphics,display,compute,utility
       __EGL_VENDOR_LIBRARY_FILENAMES: /usr/share/glvnd/egl_vendor.d/10_nvidia.json
+      # Tegra libdrm.so.2 is missing drmCloseBufferHandle; stub it so Mesa swrast loads.
+      # TODO: Delete if fixed
+      # LD_PRELOAD: /usr/local/lib/libdrm_stub.so
       PROMPT_ENV: ${HOSTNAME:-nvidia}-sim
+      TZ: ${TZ:-UTC}
 
     volumes:
       - ..:/home/trickfire/gazebo-simulations

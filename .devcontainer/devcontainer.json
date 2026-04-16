@@ -1,7 +1,10 @@
 // DOCUMENTATION: https://containers.dev/implementors/json_reference/
 {
-    "context": "../",
-    "dockerFile": "Dockerfile",
+    "build": {
+        "context": "../",
+        "dockerfile": "../docker/Dockerfile",
+        "target": "remote"
+    },
     "containerUser": "trickfire",
     "remoteUser": "trickfire",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",

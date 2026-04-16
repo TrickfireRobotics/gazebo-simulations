@@ -49,5 +49,6 @@ else
     IFS='|' read -r PC_NAME PC_IP <<< "${NVIDIA_PCS[$index]}"
 fi
 
-TERM=xterm-256color ssh -t -o GSSAPIAuthentication=no trickfire@"$PC_IP" \
-    "if [ -d ~/gazebo-simulations ]; then cd ~/gazebo-simulations && PROMPT_ENV=${PC_NAME}-host bash --rcfile ~/gazebo-simulations/.devcontainer/shell/ssh.bashrc.sh; else bash; fi"
+
+TERM=xterm-256color ssh -Y -t -o GSSAPIAuthentication=no trickfire@"$PC_IP" \
+    "if [ -d ~/gazebo-simulations ]; then cd ~/gazebo-simulations && PROMPT_ENV=${PC_NAME}-host bash --rcfile ~/gazebo-simulations/docker/shell/ssh.bashrc.sh; else bash; fi"

@@ -20,7 +20,14 @@ set -eo pipefail
 # --------------------------------------------------------------------------------------------
 # Parse resolution from xorg.conf
 
-XORG_CONF="/etc/X11/xorg.conf"
+# Use the NVIDIA driver if the GPU is available (on the Jetsons), otherwise fall back to dummy.
+if [ -e /proc/driver/nvidia ] || nvidia-smi &>/dev/null; then
+    XORG_CONF="/etc/X11/xorg.nvidia.conf"
+    echo "[X11] NVIDIA GPU detected, using nvidia Xorg driver"
+else
+    XORG_CONF="/etc/X11/xorg.dummy.conf"
+    echo "[X11] No NVIDIA GPU detected, using dummy Xorg driver"
+fi
 
 SCREEN_MODE=$(grep -oP '(?<=Modes ")[^"]+' "$XORG_CONF" | head -1)
 if [ -z "$SCREEN_MODE" ]; then
@@ -129,7 +136,7 @@ trap cleanup SIGINT SIGTERM EXIT
 #   -config xorg.conf     -> Use a custom dummy display configuration
 #
 log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
-run Xorg "$DISPLAY" -noreset -config /etc/X11/xorg.conf &
+run Xorg "$DISPLAY" -noreset -config "$XORG_CONF" &
 sleep 1
 
 # --------------------------------------------------------------------------------------------

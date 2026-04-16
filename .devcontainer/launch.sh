@@ -5,20 +5,15 @@ set -euo pipefail
 # --------------------------------------------------------------------------------------------
 # launch.sh
 # --------------------------------------------------------------------------------------------
-# Devcontainer initialization script.
-#
-# This script:
-#   - Creates or overwrites the .devcontainer/launch.env file
-#   - Sets environment variables based on host OS
-#   - Uses defaults when host variables are not set
+# Devcontainer initialization script
+# This script runs on the host machine via the devcontainer's initializeCommand.
+# It sets up the correct DISPLAY environment variable for the container:
+#   - Linux: forwards the host DISPLAY variable to the container's X server
+#   - Windows WSL: forwards the host DISPLAY variable
+#   - macOS: uses a hardcoded :0 for the custom X server
 # --------------------------------------------------------------------------------------------
 
 
-# --------------------------------------------------------------------------------------------
-# VARIABLES & METHODS
-# --------------------------------------------------------------------------------------------
-# These are the variables the script uses, and simple log methods for easier logging
-#
 LAUNCH_ENV_FILE=".devcontainer/launch.env"
 
 log_info() { echo "[INFO] $*"; }
@@ -28,14 +23,6 @@ log_error() { echo "[ERROR] $*" >&2; }
 OS="$(uname)"
 log_info "Detected host OS: $OS"
 
-# --------------------------------------------------------------------------------------------
-# ENV VARS SETUP
-# --------------------------------------------------------------------------------------------
-# This switch statement will set some enviromental variables based on the host os:
-# DISPLAY
-#   - MacOS: Hardset to :0
-#   - Linux & Windows WSL: forward host DISPLAY
-#
 declare -A ENV_VARS_ARRAY
 
 case "$OS" in
@@ -56,13 +43,7 @@ case "$OS" in
         ;;
 esac
 
-# --------------------------------------------------------------------------------------------
-# PROMPT ENV
-# --------------------------------------------------------------------------------------------
-# Detect whether we're on a Jetson (Orin) or a local dev machine.
-# /etc/nv_tegra_release is present on all NVIDIA Jetson devices and nowhere else,
-# so this works regardless of the developer's OS (macOS, Linux, Windows WSL).
-#
+# Bash prompt setup
 if [ -f /etc/nv_tegra_release ]; then
     log_info "Detected Jetson host — setting PROMPT_ENV=${HOSTNAME}-dev"
     ENV_VARS_ARRAY["PROMPT_ENV"]="${HOSTNAME}-dev"
@@ -71,12 +52,7 @@ else
     ENV_VARS_ARRAY["PROMPT_ENV"]="local-dev"
 fi
 
-# --------------------------------------------------------------------------------------------
-# LAUNCH ENV FILE
-# --------------------------------------------------------------------------------------------
-# Writes the env vars defined above into .devcontainer/launch.env to be source by
-# the container.
-#
+# Write env vars into the launch.env file
 log_info "Initializing environment file at $LAUNCH_ENV_FILE..."
 rm -f "$LAUNCH_ENV_FILE"
 touch "$LAUNCH_ENV_FILE"

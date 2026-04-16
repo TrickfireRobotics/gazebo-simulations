@@ -5,4 +5,4 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/prompt.sh"
-[ -f "$SCRIPT_DIR/bash_aliases" ] && . "$SCRIPT_DIR/bash_aliases"
+[ -f "$SCRIPT_DIR/sim.aliases.sh" ] && . "$SCRIPT_DIR/sim.aliases.sh"
