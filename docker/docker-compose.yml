@@ -10,7 +10,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      target: remote
+      target: dev
     image: gazebo-simulations:latest
     container_name: gazebo-sim
     user: trickfire
@@ -26,8 +26,7 @@ services:
       NVIDIA_DRIVER_CAPABILITIES: graphics,display,compute,utility
       __EGL_VENDOR_LIBRARY_FILENAMES: /usr/share/glvnd/egl_vendor.d/10_nvidia.json
       # Tegra libdrm.so.2 is missing drmCloseBufferHandle; stub it so Mesa swrast loads.
-      # TODO: Delete if fixed
-      # LD_PRELOAD: /usr/local/lib/libdrm_stub.so
+      LD_PRELOAD: /usr/local/lib/libdrm_stub.so
       PROMPT_ENV: ${HOSTNAME:-nvidia}-sim
       TZ: ${TZ:-UTC}
 

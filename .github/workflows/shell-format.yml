@@ -1,0 +1,23 @@
+name: Shell Format Check
+
+on:
+    push:
+        paths:
+            - "**/*.sh"
+            - "docker/shell/*"
+    pull_request:
+        paths:
+            - "**/*.sh"
+            - "docker/shell/*"
+
+jobs:
+  shfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shfmt
+        uses: mfinelli/setup-shfmt@v3
+
+      - name: Check shell formatting
+        run: shfmt -d .

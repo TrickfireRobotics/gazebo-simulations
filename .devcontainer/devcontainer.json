@@ -3,7 +3,7 @@
     "build": {
         "context": "../",
         "dockerfile": "../docker/Dockerfile",
-        "target": "remote"
+        "target": "dev"
     },
     "containerUser": "trickfire",
     "remoteUser": "trickfire",
@@ -53,7 +53,8 @@
                 "yzhang.markdown-all-in-one",
                 "DotJoshJohnson.xml",
                 "tamasfe.even-better-toml",
-                "github.vscode-github-actions"
+                "github.vscode-github-actions",
+                "mkhl.shfmt"
             ]
         }
     }

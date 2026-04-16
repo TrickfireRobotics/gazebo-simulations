@@ -26,24 +26,24 @@ USER_NAME="trickfire"
 # Find vscode devcontainer -------------------------------------------------------------------
 
 CONTAINER_ID=$(
-    docker ps --format "{{.ID}} {{.Image}}" |
-        grep "^.* $CONTAINER_NAME" |
-        awk '{print $1}' |
-        head -n 1
+	docker ps --format "{{.ID}} {{.Image}}" |
+		grep "^.* $CONTAINER_NAME" |
+		awk '{print $1}' |
+		head -n 1
 )
 
 # Check if it is running
 if [ -z "$CONTAINER_ID" ]; then
-    echo "No running dev container found matching '$CONTAINER_NAME'"
-    echo "Make sure VS Code has reopened the project in the container"
-    exit 1
+	echo "No running dev container found matching '$CONTAINER_NAME'"
+	echo "Make sure VS Code has reopened the project in the container"
+	exit 1
 fi
 
 # Attach to .devcontainer --------------------------------------------------------------------
 
 WORKSPACE_FOLDER="$(basename "$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)")"
 docker exec -it -u "$USER_NAME" \
-    -e TERM=xterm-256color \
-    -e XAUTHORITY="${XAUTHORITY:-}" \
-    "$CONTAINER_ID" \
-    bash -il -c "[ -d /home/trickfire/${WORKSPACE_FOLDER} ] && cd /home/trickfire/${WORKSPACE_FOLDER}; exec bash -il"
+	-e TERM=xterm-256color \
+	-e XAUTHORITY="${XAUTHORITY:-}" \
+	"$CONTAINER_ID" \
+	bash -il -c "[ -d /home/trickfire/${WORKSPACE_FOLDER} ] && cd /home/trickfire/${WORKSPACE_FOLDER}; exec bash -il"

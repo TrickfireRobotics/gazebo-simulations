@@ -14,10 +14,10 @@
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.formatOnSave": true,
-        "editor.formatOnType": true,
-        "editor.wordBasedSuggestions": "off",
-        "editor.defaultColorDecorators": "never",
-        "diffEditor.ignoreTrimWhitespace": false,
+    },
+    "[shellscript]": {
+        "editor.defaultFormatter": "mkhl.shfmt",
+        "editor.formatOnSave": true,
     },
     "json.format.keepLines": true,
     "json.format.enable": true,

@@ -30,9 +30,9 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-info()    { printf "${CYAN}[INFO]${RESET}  %s\n" "$*"; }
+info() { printf "${CYAN}[INFO]${RESET}  %s\n" "$*"; }
 success() { printf "${GREEN}[OK]${RESET}    %s\n" "$*"; }
-warn()    { printf "${YELLOW}[WARN]${RESET}  %s\n" "$*"; }
+warn() { printf "${YELLOW}[WARN]${RESET}  %s\n" "$*"; }
 
 printf "\n${BOLD}${CYAN}Jetson Docker Setup${RESET}\n\n"
 
@@ -42,13 +42,13 @@ printf "\n${BOLD}${CYAN}Jetson Docker Setup${RESET}\n\n"
 
 info "Setting up NVIDIA Container Toolkit apt repository..."
 
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
-    | gpg --dearmor \
-    | sudo tee /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg > /dev/null
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey |
+	gpg --dearmor |
+	sudo tee /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg >/dev/null
 
-curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list \
-    | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
-    | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list |
+	sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' |
+	sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list >/dev/null
 
 info "Installing nvidia-container-toolkit..."
 sudo apt-get update -qq
@@ -70,11 +70,11 @@ success "nvidia runtime configured for Docker."
 # podman is not in Ubuntu 20.04 default repos — use the Kubic OBS repository.
 info "Adding Kubic OBS repository for podman..."
 UBUNTU_VERSION_ID=$(lsb_release -rs)
-curl -fsSL "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${UBUNTU_VERSION_ID}/Release.key" \
-    | gpg --dearmor \
-    | sudo tee /usr/share/keyrings/libcontainers-keyring.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/libcontainers-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${UBUNTU_VERSION_ID}/ /" \
-    | sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list > /dev/null
+curl -fsSL "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${UBUNTU_VERSION_ID}/Release.key" |
+	gpg --dearmor |
+	sudo tee /usr/share/keyrings/libcontainers-keyring.gpg >/dev/null
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_${UBUNTU_VERSION_ID}/ /" |
+	sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list >/dev/null
 sudo apt-get update -qq
 sudo apt-get install -y podman
 success "podman installed."
@@ -110,17 +110,17 @@ success "Xvfb and x11vnc installed."
 CURRENT_USER="${SUDO_USER:-$USER}"
 ADDED_TO_DOCKER=false
 
-if getent group docker > /dev/null 2>&1; then
-    if id -nG "$CURRENT_USER" | grep -qw docker; then
-        warn "User '$CURRENT_USER' is already in the docker group."
-    else
-        info "Adding '$CURRENT_USER' to the docker group..."
-        sudo usermod -aG docker "$CURRENT_USER"
-        success "User '$CURRENT_USER' added to the docker group."
-        ADDED_TO_DOCKER=true
-    fi
+if getent group docker >/dev/null 2>&1; then
+	if id -nG "$CURRENT_USER" | grep -qw docker; then
+		warn "User '$CURRENT_USER' is already in the docker group."
+	else
+		info "Adding '$CURRENT_USER' to the docker group..."
+		sudo usermod -aG docker "$CURRENT_USER"
+		success "User '$CURRENT_USER' added to the docker group."
+		ADDED_TO_DOCKER=true
+	fi
 else
-    warn "docker group does not exist — is Docker installed? Skipping group setup."
+	warn "docker group does not exist — is Docker installed? Skipping group setup."
 fi
 
 # --------------------------------------------------------------------------------------------
@@ -136,5 +136,5 @@ printf "\n${GREEN}${BOLD}Setup complete.${RESET}\n\n"
 # Apply docker group to the current shell without requiring logout.
 # exec replaces this process with a new shell that has the docker group active.
 if [[ "$ADDED_TO_DOCKER" == true ]]; then
-    info "Please run 'exec newgrp docker' to apply the docker group to your current shell session"
+	info "Please run 'exec newgrp docker' to apply the docker group to your current shell session"
 fi

@@ -13,7 +13,6 @@ set -euo pipefail
 #   - macOS: uses a hardcoded :0 for the custom X server
 # --------------------------------------------------------------------------------------------
 
-
 LAUNCH_ENV_FILE=".devcontainer/launch.env"
 
 log_info() { echo "[INFO] $*"; }
@@ -26,30 +25,30 @@ log_info "Detected host OS: $OS"
 declare -A ENV_VARS_ARRAY
 
 case "$OS" in
-    Darwin)
-        log_info "Configuring environment for MacOS"
-        ENV_VARS_ARRAY["DISPLAY"]=":0"
-        ;;
-    Linux)
-        log_info "Configuring environment for Linux"
-        ENV_VARS_ARRAY["DISPLAY"]="${DISPLAY:-:0}"
-        ;;
-    MINGW*|CYGWIN*|MSYS*)
-        log_info "Configuring environment for Windows WSL"
-        ENV_VARS_ARRAY["DISPLAY"]="${DISPLAY:-:0}"
-        ;;
-    *)
-        log_warn "Unknown OS: $OS. No OS-specific environment variables set."
-        ;;
+Darwin)
+	log_info "Configuring environment for MacOS"
+	ENV_VARS_ARRAY["DISPLAY"]=":0"
+	;;
+Linux)
+	log_info "Configuring environment for Linux"
+	ENV_VARS_ARRAY["DISPLAY"]="${DISPLAY:-:0}"
+	;;
+MINGW* | CYGWIN* | MSYS*)
+	log_info "Configuring environment for Windows WSL"
+	ENV_VARS_ARRAY["DISPLAY"]="${DISPLAY:-:0}"
+	;;
+*)
+	log_warn "Unknown OS: $OS. No OS-specific environment variables set."
+	;;
 esac
 
 # Bash prompt setup
 if [ -f /etc/nv_tegra_release ]; then
-    log_info "Detected Jetson host — setting PROMPT_ENV=${HOSTNAME}-dev"
-    ENV_VARS_ARRAY["PROMPT_ENV"]="${HOSTNAME}-dev"
+	log_info "Detected Jetson host - setting PROMPT_ENV=${HOSTNAME}-dev"
+	ENV_VARS_ARRAY["PROMPT_ENV"]="${HOSTNAME}-dev"
 else
-    log_info "Detected local host — setting PROMPT_ENV=local-dev"
-    ENV_VARS_ARRAY["PROMPT_ENV"]="local-dev"
+	log_info "Detected local host - setting PROMPT_ENV=local-dev"
+	ENV_VARS_ARRAY["PROMPT_ENV"]="local-dev"
 fi
 
 # Write env vars into the launch.env file
@@ -58,17 +57,17 @@ rm -f "$LAUNCH_ENV_FILE"
 touch "$LAUNCH_ENV_FILE"
 
 if [[ ${#ENV_VARS_ARRAY[@]} -gt 0 ]]; then
-    > "$LAUNCH_ENV_FILE"
-    for var in "${!ENV_VARS_ARRAY[@]}"; do
-        echo "$var=${ENV_VARS_ARRAY[$var]}" >> "$LAUNCH_ENV_FILE"
-    done
+	>"$LAUNCH_ENV_FILE"
+	for var in "${!ENV_VARS_ARRAY[@]}"; do
+		echo "$var=${ENV_VARS_ARRAY[$var]}" >>"$LAUNCH_ENV_FILE"
+	done
 
-    log_info "Environment file $LAUNCH_ENV_FILE configured successfully with the following variables:"
-    echo "--------------------------------------------------"
-    for var in "${!ENV_VARS_ARRAY[@]}"; do
-        echo "$var=${ENV_VARS_ARRAY[$var]}"
-    done
-    echo "--------------------------------------------------"
+	log_info "Environment file $LAUNCH_ENV_FILE configured successfully with the following variables:"
+	echo "--------------------------------------------------"
+	for var in "${!ENV_VARS_ARRAY[@]}"; do
+		echo "$var=${ENV_VARS_ARRAY[$var]}"
+	done
+	echo "--------------------------------------------------"
 else
-    log_warn "No environment variables were set"
+	log_warn "No environment variables were set"
 fi

@@ -31,7 +31,7 @@ If you find this too long, don't worry, me too, thats why ther's an alias for it
 
 ### `raw`: Download from OnShape
 
-Downloads raw URDF + assets into `.github/genbot/tests/<robot_name>/` (gitignored) without generating any ROS2 packages. For the initial download you need to pass the OnShape URL — after that it's saved in `robots.json` and you can omit it.
+Downloads raw URDF + assets into `.github/genbot/tests/<robot_name>/` (gitignored) without generating any ROS2 packages. For the initial download you need to pass the OnShape URL - after that it's saved in `robots.json` and you can omit it.
 
 ```bash
 # First time
@@ -43,7 +43,7 @@ ONSHAPE_API_KEY=<your_key> ONSHAPE_API_SECRET=<your_secret> PYTHONPATH=.github p
 
 ### `local`: Generate from local files
 
-Runs the full post-processing and scaffolding pipeline on a local URDF with no API calls or keys needed. The typical use is to run this after `raw` — if you haven't moved the downloaded files, you can just pass the robot name and it will find them automatically. You can also point at any URDF; meshes are assumed to be in `assets/` next to it, or override with `--assets`.
+Runs the full post-processing and scaffolding pipeline on a local URDF with no API calls or keys needed. The typical use is to run this after `raw` - if you haven't moved the downloaded files, you can just pass the robot name and it will find them automatically. You can also point at any URDF; meshes are assumed to be in `assets/` next to it, or override with `--assets`.
 
 ```bash
 # Using raw files from `genbot raw`
@@ -141,14 +141,14 @@ All source lives under `.github/genbot/`.
 
 | File              | Responsibility                                                                                                                         |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --- | -------- | ---------------------------------------------------- |
-| `__init__.py`     | Package init — defines shared path constants (`REPO_ROOT`, `TEMPLATES`, `ROBOTS_JSON`)                                                 |
+| `__init__.py`     | Package init - defines shared path constants (`REPO_ROOT`, `TEMPLATES`, `ROBOTS_JSON`)                                                 |
 | `__main__.py`     | Entry point for `python -m genbot`; just calls `cli.main()`                                                                            |     | `cli.py` | Argument parsing and command dispatch via `argparse` |
 | `commands.py`     | Implementation of every subcommand (`cmd_create`, `cmd_local`, `cmd_raw`, `cmd_update`)                                                |
-| `onshape.py`      | OnShape integration — parses document URLs and shells out to `onshape-to-robot`                                                        |
-| `urdf.py`         | URDF post-processing — injects xacro namespace/properties, rewrites mesh paths, extracts joints/links, generates `_control.urdf.xacro` |
+| `onshape.py`      | OnShape integration - parses document URLs and shells out to `onshape-to-robot`                                                        |
+| `urdf.py`         | URDF post-processing - injects xacro namespace/properties, rewrites mesh paths, extracts joints/links, generates `_control.urdf.xacro` |
 | `ros_packages.py` | Generates and updates the `_description` and `_bringup` ROS2 packages from processed URDF + templates                                  |
-| `template.py`     | Template rendering — replaces `__ROBOT__` (and other `__KEY__` tokens) in template files                                               |
-| `reduce_stl.py`   | STL decimation via `open3d` — reduces triangle counts to shrink mesh file sizes                                                        |
+| `template.py`     | Template rendering - replaces `__ROBOT__` (and other `__KEY__` tokens) in template files                                               |
+| `reduce_stl.py`   | STL decimation via `open3d` - reduces triangle counts to shrink mesh file sizes                                                        |
 | `credentials.py`  | Reads `ONSHAPE_API_KEY` / `ONSHAPE_API_SECRET` from the environment                                                                    |
 | `registry.py`     | Reads and writes the `robots.json` registry (robot name → OnShape URL)                                                                 |
 | `log.py`          | Thin logging helpers: `info()`, `warn()`, `err()` (err exits with code 1)                                                              |

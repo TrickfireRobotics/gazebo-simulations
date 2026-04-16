@@ -3,8 +3,7 @@
 #
 # Targets:
 #   base    shared environment
-#   remote  + VNC/headless display stack  (Jetson / devcontainer)
-#   local   nothing extra                 (Distrobox — host provides display/GPU/user)
+#   dev     + VNC/headless display stack + dev tooling  (devcontainer, docker-compose)
 # --------------------------------------------------------------------------------------------
 
 
@@ -44,7 +43,7 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg \
 # APT packages
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git python3-pip ssh-client vim wget btop zstd \
+    git python3-pip wget zstd \
     ros-humble-rosbridge-server \
     python3-rosdep \
     python3-colcon-common-extensions \
@@ -78,29 +77,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --------------------------------------
 # Python packages
 
-RUN pip3 install moteus pyusb ruff pydocstyle
-RUN pip3 install --upgrade pip setuptools && pip3 install onshape-to-robot
+RUN pip3 install moteus pyusb
+RUN pip3 install --upgrade pip setuptools
 
 RUN rosdep init || true
 
 
 # --------------------------------------------------------------------------------------------
-# LOCAL (Distrobox)
+# DEV — development environment for working on the codebase (devcontainer)
 
-# So far needs only things in BASE
-FROM base AS local
+FROM base AS dev
 
-
-# --------------------------------------------------------------------------------------------
-# REMOTE (devcontainer, docker-compose)
-
-FROM base AS remote
-
+#
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb novnc x11vnc websockify openbox xterm python3-xdg \
     mesa-utils libglx-mesa0 libgl1-mesa-glx libgl1-mesa-dri \
     xserver-xorg-core xserver-xorg-video-dummy \
     && rm -rf /var/lib/apt/lists/*
+
+# --------------------------------------
+# Dev tooling
+
+RUN pip3 install ruff pydocstyle onshape-to-robot
+RUN pip3 install open3d --ignore-installed blinker
 
 EXPOSE 6080 5900
 ENV VNC_PORT=5900
@@ -114,11 +113,16 @@ COPY docker/xorg.dummy.conf /etc/X11/xorg.dummy.conf
 # Mesa GLX has no FB configs. This stub provides the missing symbol so Mesa
 # software rendering works inside the container.
 # Sketchy solution idk what to do with this GG
+# TODO: Remove this when graphics are fixed
 RUN printf '#include <stdlib.h>\nint drmCloseBufferHandle(int fd, unsigned int handle){ return 0; }\n' \
     > /tmp/drm_stub.c && \
     gcc -shared -fPIC -o /usr/local/lib/libdrm_stub.so /tmp/drm_stub.c && \
     rm /tmp/drm_stub.c && \
     ldconfig
+
+RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
+    -o /usr/local/bin/shfmt && \
+    chmod +x /usr/local/bin/shfmt
 
 RUN useradd trickfire --shell /bin/bash --create-home --no-log-init
 COPY docker/shell/trickfire.bashrc /home/trickfire/.bashrc
