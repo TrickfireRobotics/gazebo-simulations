@@ -61,7 +61,7 @@ fi
 # ATTACH
 echo "[INFO] Attaching shell..."
 docker exec -it -u "$USER_NAME" \
-    -e TERM=xterm-256color \
-    -e DISPLAY="$DISPLAY" \
-    "$CONTAINER_NAME" \
-    bash -il
+	-e TERM=xterm-256color \
+	-e DISPLAY="$DISPLAY" \
+	"$CONTAINER_NAME" \
+	bash -il
