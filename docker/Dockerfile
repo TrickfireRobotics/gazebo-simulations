@@ -102,7 +102,7 @@ RUN printf '#include <stdlib.h>\nint drmCloseBufferHandle(int fd, unsigned int h
 # --------------------------------------
 # Python packages
 
-RUN pip3 install --upgrade pip setuptools
+RUN pip3 install --upgrade pip "setuptools<66.0.0"
 
 RUN rosdep init || true
 
