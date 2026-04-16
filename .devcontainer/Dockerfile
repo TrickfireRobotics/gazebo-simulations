@@ -109,7 +109,6 @@ RUN apt-get update && apt-get install -y \
     \
     # ---------------- PYTHON ----------------
     python3-numpy \
-    python3-tk \
     libboost-python-dev \
     libopencv-dev \
     python3-opencv \
@@ -132,7 +131,6 @@ RUN apt-get update && apt-get install -y \
 # https://github.com/mjbots/moteus
 RUN pip3 install moteus
 
-
 # Install additional Python libraries used by the project
 #   - pyusb: USB device communication
 #   - opencv-python: Python OpenCV bindings
@@ -149,7 +147,6 @@ RUN pip3 install ruff
 # Upgrade pip first - onshape-to-robot uses uv as its build backend which
 # requires a recent pip to bootstrap correctly.
 RUN pip3 install --upgrade pip setuptools && pip3 install onshape-to-robot
-
 
 # --------------------------------------------------------------------------------------------
 # GAZEBO / SIMULATION SETUP

@@ -1,4 +1,4 @@
-"""Logging class"""
+"""Logging utilities for genbot."""
 
 import sys
 from typing import NoReturn

@@ -123,10 +123,7 @@ def _inject_control_include(urdf_text: str, robot_name: str) -> str:
 
 
 def _reindent(text: str, from_spaces: int = 2, to_spaces: int = 4) -> str:
-    """
-    Convert indentation units in an XML file.
-    Default is from 2 to 4 spaces.
-    """
+    """Convert indentation units in an XML file (e.g. 2-space -> 4-space)."""
     result = []
     for line in text.splitlines(keepends=True):
         stripped = line.lstrip(" ")

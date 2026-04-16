@@ -27,10 +27,9 @@ Once you launch the `devcontainer`, set up your display environment and verified
 ./scripts/launch_sim.sh arm
 ```
 
-The script accepts the robot name as an argument (currently only `arm` is available). It builds the required packages (`<robot>_description`, `<robot>_bringup`, `sim_common`, `sim_worlds`), sources the workspace, and launches the Gazebo simulation with RViz. Additionally the script will launch a joint-gui that controls the different joint states with sliders.
+The script accepts the robot name as an argument (currently only `arm` is available). It builds the required packages (`<robot>_description`, `<robot>_bringup`, `sim_common`, `sim_worlds`), sources the workspace, and launches the Gazebo simulation with RViz.
 
 Options:
-
 - `--build-only` - Build the packages without launching the simulation
 - `--no-build` - Skip the build step and launch directly (if already built)
 

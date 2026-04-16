@@ -128,25 +128,12 @@ def generate_launch_description():
         output="screen",
     )
 
-    # ----------------------------------------------
-    # Joint GUI
-    # ----------------------------------------------
-
-    joint_gui = Node(
-        package="sim_common",
-        executable="joint_gui",
-        arguments=[urdf_file],
-        condition=IfCondition(LaunchConfiguration("gui")),
-        output="screen",
-    )
-
     return LaunchDescription(
         [
             gz_sim,
             spawn_robot,
             robot_state_publisher,
             DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),
-            DeclareLaunchArgument("gui", default_value="true", description="Open Joint GUI."),
             RegisterEventHandler(
                 event_handler=OnProcessExit(
                     target_action=spawn_robot,
@@ -161,6 +148,5 @@ def generate_launch_description():
             ),
             bridge,
             rviz,
-            joint_gui,
         ]
     )

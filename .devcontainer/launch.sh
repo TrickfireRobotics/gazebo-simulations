@@ -57,6 +57,21 @@ case "$OS" in
 esac
 
 # --------------------------------------------------------------------------------------------
+# PROMPT ENV
+# --------------------------------------------------------------------------------------------
+# Detect whether we're on a Jetson (Orin) or a local dev machine.
+# /etc/nv_tegra_release is present on all NVIDIA Jetson devices and nowhere else,
+# so this works regardless of the developer's OS (macOS, Linux, Windows WSL).
+#
+if [ -f /etc/nv_tegra_release ]; then
+    log_info "Detected Jetson host — setting PROMPT_ENV=orin-dev"
+    ENV_VARS_ARRAY["PROMPT_ENV"]="orin-dev"
+else
+    log_info "Detected local host — setting PROMPT_ENV=local-dev"
+    ENV_VARS_ARRAY["PROMPT_ENV"]="local-dev"
+fi
+
+# --------------------------------------------------------------------------------------------
 # LAUNCH ENV FILE
 # --------------------------------------------------------------------------------------------
 # Writes the env vars defined above into .devcontainer/launch.env to be source by
