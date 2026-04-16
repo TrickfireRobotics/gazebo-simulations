@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
 # --------------------------------------------------------------------------------------------
-# start_container.sh
+# orion-container.sh
 # --------------------------------------------------------------------------------------------
 # Kills the sim container if running, starts it fresh, and attaches a shell.
 #
 # Usage:
-#   ./scripts/start_container.sh
+#   ./scripts/orion-container.sh
 #
 # IMPORTANT:
 #   - Run from the HOST, not inside the container
-#   - Requires docker-compose.yml at the project root
+#   - Requires .devcontainer/docker-compose.yml
 # --------------------------------------------------------------------------------------------
 
 set -euo pipefail
@@ -26,12 +26,12 @@ cd "$PROJECT_DIR"
 # STOP
 if docker ps -q --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
     echo "[INFO] Stopping running container..."
-    docker compose down
+    docker compose -f .devcontainer/docker-compose.yml down
 fi
 
 # START
 echo "[INFO] Starting container..."
-docker compose up -d
+docker compose -f .devcontainer/docker-compose.yml up -d
 
 # ATTACH
 echo "[INFO] Attaching shell..."

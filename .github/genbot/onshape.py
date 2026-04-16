@@ -1,4 +1,4 @@
-"""OnShape API integration: URL parsing, download, and onshape-to-robot runner."""
+"""Onshape API integration"""
 
 import json
 import os
@@ -18,11 +18,11 @@ _ONSHAPE_URL_RE = re.compile(
 
 
 def parse_onshape_url(url: str) -> tuple:
-    """Return (api_url, documentId, workspaceId, elementId) from an OnShape URL"""
+    """Return (api_url, documentId, workspaceId, elementId) from an Onshape URL"""
     m = _ONSHAPE_URL_RE.search(url)
     if not m:
         err(
-            f"Could not parse OnShape URL: {url}\n"
+            f"Could not parse Onshape URL: {url}\n"
             "  Expected format: https://<host>/documents/<docId>/w/<wsId>/e/<elId>"
         )
     parsed = urlparse(url)
@@ -62,6 +62,6 @@ def download(robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str) -> P
     tmpdir = Path(tempfile.mkdtemp(prefix="genbot_"))
     workdir = tmpdir / robot
     workdir.mkdir()
-    info("Running onshape-to-robot (this may take a while)...")
+    info("Running onshape-to-robot...")
     run_onshape_to_robot(doc_id, ws_id, el_id, api_url, creds, workdir)
     return workdir

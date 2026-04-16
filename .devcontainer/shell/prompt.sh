@@ -8,9 +8,9 @@
 # The prompt label and color are driven by $PROMPT_ENV:
 #
 #   local-dev   (blue)    — devcontainer on the local machine  [set by launch.sh → launch.env]
-#   orin-host   (amber)   — SSH shell on the Orin host         [set by orin_ssh.sh]
+#   orin-host   (amber)   — SSH shell on the Orin host         [set by or-ssh.sh]
 #   orin-dev    (green)   — devcontainer on the Orin           [set by launch.sh → launch.env]
-#   orin-sim    (magenta) — gazebo-sim container on the Orin   [set by docker-compose.yml]
+#   orin-sim    (magenta) — gazebo-sim container on the Orin   [set by .devcontainer/docker-compose.yml]
 # --------------------------------------------------------------------------------------------
 
 # --- Colors (256-color ANSI escape sequences, wrapped for PS1 safety) ---

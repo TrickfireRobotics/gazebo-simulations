@@ -7,7 +7,7 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
     "initializeCommand": ".devcontainer/launch.sh",
-    "postCreateCommand": "scripts/clean_build.sh",
+    "postCreateCommand": "scripts/ros-clean.sh",
     "forwardPorts": [
         6080,
         5900

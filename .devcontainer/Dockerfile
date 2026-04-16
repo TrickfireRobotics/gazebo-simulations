@@ -109,6 +109,7 @@ RUN apt-get update && apt-get install -y \
     \
     # ---------------- PYTHON ----------------
     python3-numpy \
+    python3-tk \
     libboost-python-dev \
     libopencv-dev \
     python3-opencv \
@@ -131,6 +132,7 @@ RUN apt-get update && apt-get install -y \
 # https://github.com/mjbots/moteus
 RUN pip3 install moteus
 
+
 # Install additional Python libraries used by the project
 #   - pyusb: USB device communication
 #   - opencv-python: Python OpenCV bindings
@@ -147,6 +149,7 @@ RUN pip3 install ruff
 # Upgrade pip first - onshape-to-robot uses uv as its build backend which
 # requires a recent pip to bootstrap correctly.
 RUN pip3 install --upgrade pip setuptools && pip3 install onshape-to-robot
+
 
 # --------------------------------------------------------------------------------------------
 # GAZEBO / SIMULATION SETUP
@@ -211,10 +214,10 @@ RUN useradd trickfire \
     --no-log-init
 
 # Copy custom bash configuration for the user
-COPY .devcontainer/trickfire.bashrc /home/trickfire/.bashrc
+COPY .devcontainer/shell/trickfire.bashrc /home/trickfire/.bashrc
 
 # Copy custom bash aliases for the user
-COPY .devcontainer/gz-sim.bash_aliases /home/trickfire/.bash_aliases
+COPY .devcontainer/shell/bash_aliases /home/trickfire/.bash_aliases
 
 # Copy robot workspace into correct location in container
 

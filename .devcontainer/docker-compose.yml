@@ -20,13 +20,13 @@
 #   then open: http://localhost:6080/vnc.html
 #
 # Once connected, open a terminal and run:
-#   ./scripts/launch_sim.sh arm
+#   ./scripts/ros-launch.sh arm
 # --------------------------------------------------------------------------------------------
 
 services:
   sim:
     build:
-      context: .
+      context: ..
       dockerfile: .devcontainer/Dockerfile
     image: gazebo-simulations:latest
     container_name: gazebo-sim
@@ -45,7 +45,7 @@ services:
       PROMPT_ENV: orin-sim
 
     volumes:
-      - .:/home/trickfire/gazebo-simulations
+      - ..:/home/trickfire/gazebo-simulations
 
     working_dir: /home/trickfire/gazebo-simulations
 
@@ -55,7 +55,7 @@ services:
 
     privileged: true
 
-    command: scripts/start_x_server.sh
+    command: scripts/vnc-start.sh
 
     stdin_open: true
     tty: true

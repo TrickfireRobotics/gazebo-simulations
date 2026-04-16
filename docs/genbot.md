@@ -1,230 +1,155 @@
-# genbot - OnShape to ROS2 Simulation Pipeline
+# genbot
 
-`genbot` is a GitHub Actions tool that takes a robot CAD model from [OnShape](https://www.onshape.com/), downloads its URDF via [`onshape-to-robot`](https://github.com/Rhoban/onshape-to-robot), post-processes it for Gazebo simulation, and generates ready-to-build ROS2 packages. It runs via the `generate-urdf` workflow and opens a PR with the results.
+`genbot` is a CLI tool that takes a robot CAD model from [OnShape](https://www.onshape.com/), downloads its URDF via [`onshape-to-robot`](https://github.com/Rhoban/onshape-to-robot), post-processes it for Gazebo simulation, and generates ready-to-build ROS2 packages.
 
-## Overview
+It runs locally or via the `generate-urdf` GitHub Actions workflow, which opens a PR with the results.
 
-### Create mode pipeline
+## Commands
 
-Used when adding a new robot for the first time. Requires an OnShape URL. Generates both `_description` and `_bringup` packages and registers the robot in `robots.json`.
+| Command  | What it does                                                   |
+| -------- | -------------------------------------------------------------- |
+| `create` | Download from OnShape and generate packages from scratch       |
+| `update` | Re-download from OnShape and refresh only the URDF and meshes  |
+| `raw`    | Download raw URDF + assets from OnShape, no package generation |
+| `local`  | Generate packages from a local URDF, no API calls              |
 
-```
-OnShape CAD Model
-    |
-    v
-1. DOWNLOAD (onshape-to-robot)
-    |  Connects to OnShape API with credentials
-    |  Downloads URDF (robot.urdf) + mesh files (meshes/*.stl)
-    |  Output: raw URDF with relative mesh paths
-    |
-    v
-2. POST-PROCESS (genbot)
-    |  a) Add xmlns:xacro namespace to <robot> tag
-    |  b) Inject xacro properties: mesh_path, controller_config arg
-    |  c) Rewrite mesh paths: meshes/foo.stl -> ${mesh_path}/foo.stl
-    |  d) Parse URDF to extract all revolute joints + their limits
-    |  e) Generate <robot>_control.urdf.xacro:
-    |     - ros2_control hardware interface (gz_ros2_control/GazeboSimSystem)
-    |     - Per-joint position command + state interfaces
-    |     - Gazebo plugin block (libgz_ros2_control-system.so, 60 Hz)
-    |  f) Inject <xacro:include> for control xacro into geometry URDF
-    |
-    v
-3. SCAFFOLD (genbot)
-    |  Renders templates with __ROBOT__ placeholder replaced
-    |
-    |-- <robot>_description/
-    |     urdf/<robot>.urdf                  (post-processed geometry)
-    |     urdf/<robot>_control.urdf.xacro    (generated control block)
-    |     meshes/                            (copied from download)
-    |     CMakeLists.txt, package.xml        (from templates)
-    |
-    |-- <robot>_bringup/
-    |     launch/<robot>.launch.py         (from template)
-    |     config/<robot>.controller.yaml     (from template, joints filled in)
-    |     CMakeLists.txt, package.xml        (from templates)
-    |
-    |-- robots.json                          (registers OnShape coordinates)
-```
-
-### Update mode pipeline
-
-Used when the OnShape CAD model has changed and you want to pull in new geometry. Reads the OnShape URL from `robots.json` - no need to re-enter it. Only replaces the geometry URDF and meshes. The control xacro, bringup package, and any manual edits are preserved.
-
-```
-robots.json (stored OnShape coordinates)
-    |
-    v
-1. DOWNLOAD (onshape-to-robot)
-    |  Same as create - downloads fresh URDF + meshes
-    |
-    v
-2. POST-PROCESS (genbot)
-    |  Same transforms as create (steps a-c, f)
-    |  Control xacro is NOT regenerated
-    |
-    v
-3. REPLACE (genbot)
-    |  Only these files are overwritten:
-    |-- <robot>_description/urdf/<robot>.urdf    (new geometry)
-    |-- <robot>_description/meshes/*             (new meshes, old deleted)
-    |
-    |  These are NOT touched:
-    |   <robot>_description/urdf/<robot>_control.urdf.xacro
-    |   <robot>_bringup/ (entire package)
-    |   robots.json
-```
-
-## Local testing
-
-You can run genbot locally without triggering the GitHub Actions workflow. This is useful for iterating on genbot itself or inspecting generated output before committing.
-
-### Prerequisites
+All commands are run as:
 
 ```bash
-pip install onshape-to-robot
-export ONSHAPE_API_KEY=<your_key>
-export ONSHAPE_API_SECRET=<your_secret>
+PYTHONPATH=.github python3 -m genbot <command> [args]
 ```
 
-### Step 1 - Download raw files from OnShape
-
-The `raw` subcommand downloads the URDF and mesh assets from OnShape without generating any ROS2 packages. The output goes into `.github/genbot/tests/` which is gitignored, so you can re-download freely without polluting the repo.
+Commands that require Onshape keys are ran like this, passing in the keys:
 
 ```bash
-# Download using the OnShape URL directly (also saves to robots.json)
-PYTHONPATH=.github python3 -m genbot raw arm https://trickfire.onshape.com/documents/...
-
-# Or, if the robot is already in robots.json, just use its name
-PYTHONPATH=.github python3 -m genbot raw arm
+ONSHAPE_API_KEY=<your_key> ONSHAPE_API_SECRET=<your_secret> PYTHONPATH=.github python3 -m genbot <command> [args]
 ```
 
-This saves:
-```
-.github/genbot/tests/arm/
-  robot.urdf      ← raw URDF from onshape-to-robot
-  assets/         ← mesh files
-```
+If you find this too long, don't worry, me too, thats why ther's an alias for it. Make a `.github/genbot/onshape.env` file that includes the key and sectet vars, and then you can just run `genbot <command> [args]`.
 
-### Step 2 - Generate packages locally
+## Commands
 
-Once you have the raw files, use the `local` subcommand to run the full post-processing and scaffold without any API calls:
+### `raw`: Download from OnShape
+
+Downloads raw URDF + assets into `.github/genbot/tests/<robot_name>/` (gitignored) without generating any ROS2 packages. For the initial download you need to pass the OnShape URL — after that it's saved in `robots.json` and you can omit it.
 
 ```bash
-PYTHONPATH=.github python3 -m genbot local arm .github/genbot/tests/arm/robot.urdf
+# First time
+ONSHAPE_API_KEY=<your_key> ONSHAPE_API_SECRET=<your_secret> PYTHONPATH=.github python3 -m genbot raw <robot_name> https://cad.onshape.com/documents/...
+
+# Subsequent times
+ONSHAPE_API_KEY=<your_key> ONSHAPE_API_SECRET=<your_secret> PYTHONPATH=.github python3 -m genbot raw <robot_name>
 ```
 
-This works as `genbot create` would but it skips `onshape-to-robot` and uses the local files.
+### `local`: Generate from local files
+
+Runs the full post-processing and scaffolding pipeline on a local URDF with no API calls or keys needed. The typical use is to run this after `raw` — if you haven't moved the downloaded files, you can just pass the robot name and it will find them automatically. You can also point at any URDF; meshes are assumed to be in `assets/` next to it, or override with `--assets`.
+
+```bash
+# Using raw files from `genbot raw`
+PYTHONPATH=.github python3 -m genbot local <robot_name>
+
+# Or point at a specific URDF
+PYTHONPATH=.github python3 -m genbot local <robot_name> path/to/robot.urdf
+```
 
 > [!TIP]
-> If you want to generate into a different directory to avoid overwriting the real packages, use `--output-dir /tmp/genbot-out`.
+> Use `--output-dir <directory>` to write somewhere else and avoid overwriting the real packages.
 
-## Usage (GitHub Actions)
+### `create`: New robot from OnShape
+
+Downloads from OnShape and generates both packages in one step. Registers the robot in `robots.json`. Reduces STL triangle counts by default (pass `--no-reduce` to skip).
+
+```bash
+ONSHAPE_API_KEY=<your_key> ONSHAPE_API_SECRET=<your_secret> PYTHONPATH=.github python3 -m genbot create <robot_name> <onshape_url> [--output-dir DIR] [--no-reduce]
+```
+
+### `update`: Refresh URDF and meshes
+
+Re-downloads from OnShape and replaces only the geometry URDF and meshes. The control xacro, bringup package, and any manual edits are left untouched. Reads the OnShape URL from `robots.json`. Reduces STL triangle counts by default (pass `--no-reduce` to skip).
+
+```bash
+ONSHAPE_API_KEY=<your_key> ONSHAPE_API_SECRET=<your_secret> PYTHONPATH=.github python3 -m genbot update <robot_name> [--output-dir DIR] [--no-reduce]
+```
+
+## What gets generated
+
+### `create` and `local`
+
+Both packages are written from scratch:
+
+```
+<robot>_description/
+  urdf/<robot>.urdf                   ← post-processed geometry URDF
+  urdf/<robot>_control.urdf.xacro     ← generated ros2_control block
+  meshes/                             ← STL files
+  CMakeLists.txt, package.xml
+
+<robot>_bringup/
+  launch/<robot>.launch.py
+  config/<robot>.controller.yaml
+  config/<robot>.rviz
+  CMakeLists.txt, package.xml
+```
+
+### `update`
+
+Only these files are overwritten:
+
+```
+<robot>_description/urdf/<robot>.urdf   ← new geometry
+<robot>_description/meshes/*            ← new meshes (old ones deleted)
+```
+
+These are **not** touched:
+
+```
+<robot>_description/urdf/<robot>_control.urdf.xacro
+<robot>_bringup/  (entire package)
+robots.json
+```
+
+## GitHub Actions workflow
+
+The `generate-urdf` workflow runs `create` or `update` on GitHub and opens a PR with the results.
 
 1. Go to **Actions** > **Generate/Update Robot from OnShape**
-2. Click **Run workflow**
-3. Fill in the inputs:
+2. Click **Run workflow** and fill in:
 
 | Input         | Description                                                    |
 | ------------- | -------------------------------------------------------------- |
 | `mode`        | `create` or `update`                                           |
-| `robot_name`  | Robot identifier (e.g. `arm`, `rover`)                         |
+| `robot_name`  | Robot identifier (e.g. `arm`)                                  |
 | `onshape_url` | Full OnShape URL (required for `create`, ignored for `update`) |
 
-The OnShape URL should look like:
+The workflow checks out the repo, installs dependencies, runs genbot with credentials from repository secrets, and opens a PR on branch `genbot/<mode>-<robot_name>`.
 
-```
-https://cad.onshape.com/documents/<docId>/w/<workspaceId>/e/<elementId>
-```
-
-### What the workflow does
-
-1. Checks out the repo
-2. Installs Python 3.11 and `onshape-to-robot`
-3. Validates inputs (URL required for create, robot must exist in `robots.json` for update)
-4. Runs genbot with OnShape credentials from repository secrets
-5. Opens a PR on branch `genbot/<mode>-<robot_name>` with the generated/updated files
-
-The PR can then be reviewed and merged like any other code change.
-
-### Required repository secrets
+### Required secrets
 
 | Secret               | Description        |
 | -------------------- | ------------------ |
 | `ONSHAPE_ACCESS_KEY` | OnShape API key    |
 | `ONSHAPE_SECRET_KEY` | OnShape API secret |
 
-## Two-layer URDF architecture
+## RViz
 
-genbot splits the URDF into two files to keep geometry and control concerns separate:
+Generated robots include an RViz config template (`config/<robot>.rviz`). See the [RViz setup guide](./rviz-setup.md) for how to wire it into the launch file.
 
-- **`<robot>.urdf`** - Contains links, joints, visual/collision meshes (from OnShape). Includes a `xacro:include` pointing to the control xacro. This file gets replaced on `update`.
-- **`<robot>_control.urdf.xacro`** - Contains `ros2_control` hardware interface definitions, joint command/state interfaces, and the Gazebo `gz_ros2_control` plugin config. This file is generated once during `create` and never overwritten by `update`, so manual edits are preserved.
+## Code structure
 
-At build time, xacro merges both files into a single robot description.
+All source lives under `.github/genbot/`.
 
-## URDF post-processing
-
-The URDF post-processing step in `genbot` transforms the raw URDF from `onshape-to-robot` into a format ready for Gazebo simulation. The processing steps are:
-
-1. **Xacro namespace** - adds `xmlns:xacro` to the `<robot>` tag
-2. **Xacro properties** - injects a `mesh_path` property (`package://<robot>_description/meshes`) and a `controller_config` arg
-3. **Mesh path rewriting** - converts relative `meshes/foo.stl` paths to `${mesh_path}/foo.stl` so meshes resolve correctly via ROS package paths
-4. **Joint extraction** - parses all revolute joints and their limits, used to generate the controller config
-5. **Control xacro generation** - creates the `<robot>_control.urdf.xacro` with:
-   - `ros2_control` hardware interface using `gz_ros2_control/GazeboSimSystem`
-   - Per-joint position command interface with min/max bounds
-   - Per-joint state interfaces (position, velocity, effort)
-   - Gazebo plugin block (`libgz_ros2_control-system.so`) at 60 Hz update rate
-6. **Control include injection** - appends `<xacro:include>` before `</robot>` to pull in the control xacro
-
-## Robot registry - `robots.json`
-
-The file `robots.json` at the repo root maps robot names to their OnShape document coordinates:
-
-```json
-{
-  "arm": {
-    "documentId": "...",
-    "workspaceId": "...",
-    "elementId": "...",
-    "onshapeUrl": "https://trickfire.onshape.com/documents/..."
-  }
-}
-```
-
-This registry is written automatically by `create` mode and read by `update` mode so you don't need to re-enter the OnShape URL.
-
-## Shared utilities - `sim_common`
-
-The `robot-sim/sim_common/` package provides shared launch utilities used by all `_bringup` packages:
-
-| Function              | Description                                                                 |
-| --------------------- | --------------------------------------------------------------------------- |
-| `log(msg)`            | Green info log for launch files                                             |
-| `err(msg)`            | Red error log, exits with code 1                                            |
-| `get_asset(pkg, ...)` | Resolves file path inside a ROS2 package share directory, errors if missing |
-
-This avoids duplicating path resolution and logging logic across launch files.
-
-## Templates
-
-All generated file content lives in `.github/genbot/templates/`. The placeholder `__ROBOT__` is substituted with the robot name at generation time. If you want to change the structure of generated packages (e.g. add a new launch file or change the controller config), edit the templates directly.
-
-```
-.github/genbot/templates/
-  description/
-    CMakeLists.txt
-    package.xml
-  bringup/
-    CMakeLists.txt
-    package.xml
-    config/controller.yaml
-    launch/<robot>.launch.py
-```
-
-After editing templates, newly created robots will use the updated templates. Existing robots are not affected unless you delete and re-create them.
-
-## Setting up RViz
-
-Generated robots do not include an RViz config out of the box. See the [RViz setup guide](./rviz-setup.md) for how to create one and wire it into the launch file.
+| File              | Responsibility                                                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --- | -------- | ---------------------------------------------------- |
+| `__init__.py`     | Package init — defines shared path constants (`REPO_ROOT`, `TEMPLATES`, `ROBOTS_JSON`)                                                 |
+| `__main__.py`     | Entry point for `python -m genbot`; just calls `cli.main()`                                                                            |     | `cli.py` | Argument parsing and command dispatch via `argparse` |
+| `commands.py`     | Implementation of every subcommand (`cmd_create`, `cmd_local`, `cmd_raw`, `cmd_update`)                                                |
+| `onshape.py`      | OnShape integration — parses document URLs and shells out to `onshape-to-robot`                                                        |
+| `urdf.py`         | URDF post-processing — injects xacro namespace/properties, rewrites mesh paths, extracts joints/links, generates `_control.urdf.xacro` |
+| `ros_packages.py` | Generates and updates the `_description` and `_bringup` ROS2 packages from processed URDF + templates                                  |
+| `template.py`     | Template rendering — replaces `__ROBOT__` (and other `__KEY__` tokens) in template files                                               |
+| `reduce_stl.py`   | STL decimation via `open3d` — reduces triangle counts to shrink mesh file sizes                                                        |
+| `credentials.py`  | Reads `ONSHAPE_API_KEY` / `ONSHAPE_API_SECRET` from the environment                                                                    |
+| `registry.py`     | Reads and writes the `robots.json` registry (robot name → OnShape URL)                                                                 |
+| `log.py`          | Thin logging helpers: `info()`, `warn()`, `err()` (err exits with code 1)                                                              |
+| `templates/`      | Template files copied and rendered into generated packages (`_description` and `_bringup` skeletons)                                   |

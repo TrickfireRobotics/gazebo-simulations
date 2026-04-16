@@ -1,4 +1,4 @@
-"""robots.json registry management."""
+"""robots.json registry file"""
 
 import json
 

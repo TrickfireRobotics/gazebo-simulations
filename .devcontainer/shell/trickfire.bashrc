@@ -36,7 +36,7 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
 fi
 
 # Unified project prompt (PROMPT_ENV set via launch.env or docker-compose)
-source ~/gazebo-simulations/.devcontainer/prompt.sh
+source ~/gazebo-simulations/.devcontainer/shell/prompt.sh
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
