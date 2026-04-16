@@ -65,6 +65,7 @@ check_pc() {
         echo "CPUS_ONLINE=$(cat /sys/devices/system/cpu/online)"
         echo "GPU_FREQ=$(cat /sys/class/devfreq/*/cur_freq 2>/dev/null | head -1)"
         echo "FAN_PROFILE=$(cat /sys/devices/platform/thermal_fan_est/fan_profile 2>/dev/null)"
+        echo "FAN_PWM=$(cat /sys/class/hwmon/hwmon*/pwm1 2>/dev/null | head -1)"
         echo "WIFI_PM=$(iwconfig wlan0 2>/dev/null | grep -oP "Power Management:\K\S+")"
         echo "ETH_CARRIER=$(cat /sys/class/net/eth0/carrier 2>/dev/null)"
         echo "ACTIVE_IFACE=$(ip route get 8.8.8.8 2>/dev/null | grep -oP "dev \K\S+")"
@@ -84,11 +85,12 @@ check_pc() {
     # parse remote values
     get() { echo "$remote" | grep "^$1=" | cut -d= -f2-; }
 
-    local power_mode cpu_online gpu_freq fan_profile wifi_pm eth_carrier active_iface svc_jetson svc_wifi
+    local power_mode cpu_online gpu_freq fan_profile fan_pwm wifi_pm eth_carrier active_iface svc_jetson svc_wifi
     power_mode=$(get POWER_MODE)
     cpu_online=$(get CPUS_ONLINE)
     gpu_freq=$(get GPU_FREQ)
     fan_profile=$(get FAN_PROFILE)
+    fan_pwm=$(get FAN_PWM)
     wifi_pm=$(get WIFI_PM)
     eth_carrier=$(get ETH_CARRIER)
     active_iface=$(get ACTIVE_IFACE)
@@ -122,12 +124,13 @@ check_pc() {
     fi
 
     # --- Fan ---
-    if [[ "$fan_profile" == "cool" ]]; then
-        ok "Fan profile" "$fan_profile"
-    elif [[ "$fan_profile" == "quiet" ]]; then
-        fail "Fan profile" "$fan_profile  (should be cool)"
+
+    if [[ "$fan_pwm" == "255" || "$fan_profile" == full* ]]; then
+        ok "Fan profile" "full  (pwm=${fan_pwm:-?})"
+    elif [[ "$fan_profile" == "quiet" || "$fan_profile" == "cool" ]]; then
+        fail "Fan profile" "$fan_profile  (should be full, pwm=${fan_pwm:-?})"
     else
-        warn "Fan profile" "${fan_profile:-unknown}"
+        warn "Fan profile" "${fan_profile:-unknown}  (pwm=${fan_pwm:-?})"
     fi
 
     # --- Thermals ---
