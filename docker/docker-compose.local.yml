@@ -1,0 +1,13 @@
+# Docker Compose override for local X11 mode (--local flag in nvidia-container.sh).
+# Renders directly to $DISPLAY instead of running a VNC X server.
+# Works both when sitting at the Jetson's monitor (:0) or SSH'd in with -Y forwarding.
+
+services:
+  sim:
+    environment:
+      DISPLAY: "${DISPLAY}"
+      XAUTHORITY: /tmp/container.xauth
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /tmp/container.xauth:/tmp/container.xauth
+    command: sleep infinity

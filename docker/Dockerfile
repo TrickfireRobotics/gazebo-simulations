@@ -44,15 +44,12 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git python3-pip wget zstd \
-    ros-humble-rosbridge-server \
     python3-rosdep \
     python3-colcon-common-extensions \
     ros-humble-ros-gz-sim \
     ros-humble-ros-ign-bridge \
     ros-humble-ros2-controllers \
-    usbutils can-utils iproute2 kmod \
-    python3-numpy python3-tk libboost-python-dev libopencv-dev python3-opencv \
-    lsb-release gnupg wget \
+    python3-tk \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -77,7 +74,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --------------------------------------
 # Python packages
 
-RUN pip3 install moteus pyusb
 RUN pip3 install --upgrade pip setuptools
 
 RUN rosdep init || true
@@ -98,7 +94,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --------------------------------------
 # Dev tooling
 
-RUN pip3 install ruff pydocstyle onshape-to-robot
+RUN pip3 install ruff onshape-to-robot
 RUN pip3 install open3d --ignore-installed blinker
 
 EXPOSE 6080 5900

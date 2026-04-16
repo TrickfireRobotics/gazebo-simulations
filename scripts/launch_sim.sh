@@ -6,13 +6,14 @@ set -e
 # Usage: ./launch_sim.sh <robot_name> [--build-only] [--no-build]
 #
 # Expects packages named:
-#   <robot_name>_description  →  URDF, meshes
-#   <robot_name>_bringup      →  launch files, configs
-#   sim_worlds                →  shared world files and models (Gazebo only)
+#   <robot_name>_description  ->  URDF, meshes
+#   <robot_name>_bringup      ->  launch files, configs
+#   sim_worlds                ->  shared world files and models (Gazebo only)
 #
 # Example: ./launch_sim.sh arm
 # --------------------------------------------------------------------------------------------
 
+# Parse arguments
 ROBOT_NAME=""
 BUILD=true
 LAUNCH=true
@@ -48,24 +49,16 @@ if [ -z "$ROBOT_NAME" ]; then
 	exit 1
 fi
 
-# --------------------------------------------------------------------------------------------
-# PATHS
-# --------------------------------------------------------------------------------------------
-
+# Setup paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKSPACE_DIR="$PROJECT_DIR/robot-sim"
 SIM_COMMON_DIR="$PROJECT_DIR/robot-sim/sim_common/sim_common/"
-
 LOG_DIR="$WORKSPACE_DIR/log"
 LOG_PATH="$LOG_DIR/${ROBOT_NAME}-gazebo-$(date +'%Y-%m-%d_%H-%M').log"
-
 cd "$WORKSPACE_DIR"
 
-# --------------------------------------------------------------------------------------------
-# VALIDATE - check expected packages exist before bothering to build
-# --------------------------------------------------------------------------------------------
-
+# Validate required resouorces
 BRINGUP_PKG="${ROBOT_NAME}_bringup"
 DESCRIPTION_PKG="${ROBOT_NAME}_description"
 
@@ -90,6 +83,7 @@ fi
 
 #
 
+# Setup logging, print banner
 mkdir -p "$LOG_DIR"
 exec > >(tee >(sed -r 's/\x1B\[[0-9;]*[mK]//g' >>"$LOG_PATH")) 2>&1
 
@@ -100,38 +94,21 @@ echo "Workspace: $WORKSPACE_DIR"
 echo "Log:       $LOG_PATH"
 echo "--------------------------------------------------------------"
 
-# --------------------------------------------------------------------------------------------
-# BUILD
-# --------------------------------------------------------------------------------------------
-
+# Build ROS2 workspace
 if [ "$BUILD" = true ]; then
-	echo ""
 	echo "[INFO] Building ROS2 workspace..."
-
 	colcon build \
 		--packages-up-to "$BRINGUP_PKG" "$DESCRIPTION_PKG" sim_worlds sim_common \
 		--cmake-args -DBUILD_TESTING=OFF
-
-	if [ ! -f install/setup.bash ]; then
-		echo "[Error] install/setup.bash not found - build may have failed"
-		exit 1
-	fi
-
 	echo "[INFO] Build complete"
 fi
 
-# --------------------------------------------------------------------------------------------
-# SOURCE
-# --------------------------------------------------------------------------------------------
-
+# Source ROS2
 echo "[INFO] Sourcing ROS2 environment..."
 # shellcheck disable=SC1091
 source install/setup.bash
 
-# --------------------------------------------------------------------------------------------
-# SIMULATOR-SPECIFIC ENVIRONMENT
-# --------------------------------------------------------------------------------------------
-
+# Add sim_worlds share directory to GZ_SIM_RESOURCE_PATH so Gazebo can find world files
 SIM_WORLDS_SHARE="$WORKSPACE_DIR/install/sim_worlds/share/sim_worlds"
 if [ -d "$SIM_WORLDS_SHARE/worlds" ]; then
 	export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$SIM_WORLDS_SHARE"
@@ -141,10 +118,7 @@ else
 	echo "       Expected: $SIM_WORLDS_SHARE/worlds"
 fi
 
-# --------------------------------------------------------------------------------------------
-# LAUNCH
-# --------------------------------------------------------------------------------------------
-
+# Launch simulation
 if [ "$LAUNCH" = true ]; then
 	echo ""
 	echo "[INFO] Launching gazebo simulation for robot: $ROBOT_NAME"
