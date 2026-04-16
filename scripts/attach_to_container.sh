@@ -7,12 +7,12 @@ set -euo pipefail
 # Attaches a terminal to the running devcontainer. Run from the host.
 # --------------------------------------------------------------------------------------------
 
-CONTAINER_NAME="vsc-gazebo-simulations"
+IMAGE_PREFIX="vsc-gazebo-simulations"
 USER_NAME="trickfire"
 
-CONTAINER_ID=$(docker ps -q --filter "name=$CONTAINER_NAME" | head -n1)
+CONTAINER_ID=$(docker ps --format '{{.ID}} {{.Image}}' | awk -v prefix="$IMAGE_PREFIX" '$2 ~ "^" prefix {print $1}' | head -n1)
 if [ -z "$CONTAINER_ID" ]; then
-	echo "No running container matching '$CONTAINER_NAME'" >&2
+	echo "No running container with image matching '$IMAGE_PREFIX'" >&2
 	exit 1
 fi
 
