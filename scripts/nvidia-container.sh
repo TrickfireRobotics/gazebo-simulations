@@ -7,11 +7,11 @@
 #
 # Usage:
 #   ./scripts/nvidia-container.sh           # VNC mode (browser at localhost:6080)
-#   ./scripts/nvidia-container.sh --local   # Local mode (renders to host display)
+#   ./scripts/nvidia-container.sh --local   # Local mode (uses compose extension + host display)
 #
 # IMPORTANT:
 #   - Run from the HOST, not inside the container
-#   - Requires .devcontainer/docker-compose.yml
+#   - Uses docker/docker-compose.yml (+ docker/docker-compose-local.yml with --local)
 # --------------------------------------------------------------------------------------------
 
 set -euo pipefail
@@ -34,8 +34,14 @@ done
 # STOP
 if docker ps -q --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
     echo "[INFO] Stopping running container..."
-    docker compose -f .devcontainer/docker-compose.yml down
+    if $LOCAL_MODE; then
+        docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml down
+    else
+        docker compose -f docker/docker-compose.yml down
+    fi
 fi
+
+docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
 
 # START
@@ -43,22 +49,12 @@ echo "[INFO] Starting container..."
 if $LOCAL_MODE; then
     echo "[INFO] Local mode: rendering to host display ${DISPLAY}"
     xhost +local:docker
-    docker run -d --rm \
-        --name "$CONTAINER_NAME" \
-        --runtime nvidia \
-        --privileged \
-        -e DISPLAY="$DISPLAY" \
-        -e NVIDIA_VISIBLE_DEVICES=all \
-        -e NVIDIA_DRIVER_CAPABILITIES=graphics,display,compute,utility \
-        -e TZ=UTC \
-        -v /tmp/.X11-unix:/tmp/.X11-unix \
-        -v "$(pwd):/home/trickfire/gazebo-simulations" \
-        -w /home/trickfire/gazebo-simulations \
-        --user trickfire \
-        gazebo-simulations:latest \
-        sleep infinity
+    docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml up -d --build
 else
-    docker compose -f .devcontainer/docker-compose.yml up -d
+    docker compose -f docker/docker-compose.yml up -d --build
+	HOST_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+	echo "[INFO] VNC viewer -> ${HOST_IP:-<host-ip>}:${VNC_PORT:-5900}"
+	echo "[INFO] Browser    -> http://${HOST_IP:-<host-ip>}:${NOVNC_PORT:-6080}/vnc.html"
 fi
 
 # ATTACH
