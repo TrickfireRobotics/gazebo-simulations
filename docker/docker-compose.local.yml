@@ -6,8 +6,6 @@ services:
   sim:
     environment:
       DISPLAY: "${DISPLAY}"
-      XAUTHORITY: /tmp/container.xauth
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - /tmp/container.xauth:/tmp/container.xauth
     command: sleep infinity

@@ -32,13 +32,8 @@ docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
 echo "[INFO] Starting container..."
 if $LOCAL_MODE; then
-	# $DISPLAY is set by SSH X11 forwarding (-Y flag in ssh-nvidia.sh)
-	# xauth cookie is required so the container can connect to the forwarded display
-	touch /tmp/container.xauth
-	xauth nlist "$DISPLAY" | sed -e 's/^..../ffff/' | xauth -f /tmp/container.xauth nmerge -
-	xhost +local:docker 2>/dev/null || true
-
 	echo "[INFO] Local X11 mode: rendering to host display ${DISPLAY}"
+	xhost +local: 2>/dev/null || true
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.local.yml up -d --build
 else
 	docker compose -f docker/docker-compose.yml up -d --build
