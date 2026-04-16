@@ -50,5 +50,5 @@ else
 fi
 
 
-TERM=xterm-256color ssh -Y -t -o GSSAPIAuthentication=no trickfire@"$PC_IP" \
-    "if [ -d ~/gazebo-simulations ]; then cd ~/gazebo-simulations && PROMPT_ENV=${PC_NAME}-host bash --rcfile ~/gazebo-simulations/docker/shell/ssh.bashrc.sh; else bash; fi"
+TERM=xterm-256color sshpass -p 'trickfire' ssh -Y -t -o GSSAPIAuthentication=no -o LogLevel=ERROR trickfire@"$PC_IP" \
+    "if [ -d ~/gazebo-simulations ]; then PROMPT_ENV=${PC_NAME}-host bash --rcfile ~/gazebo-simulations/docker/shell/ssh.bashrc.sh; else bash; fi"
