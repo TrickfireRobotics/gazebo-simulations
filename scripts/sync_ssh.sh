@@ -38,5 +38,7 @@ rsync -az \
 	--exclude='.git/' \
 	-e "sshpass -p trickfire ssh -q -o StrictHostKeyChecking=no -o GSSAPIAuthentication=no -o ConnectTimeout=5" \
 	"${REPO_ROOT}/" \
-	"${REMOTE_USER}@${REMOTE_IP}:${REMOTE_PATH}" ||
+	"${REMOTE_USER}@${REMOTE_IP}:${REMOTE_PATH}" || {
 	echo "Host unreachable!"
+	exit 1
+}

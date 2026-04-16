@@ -17,7 +17,6 @@ set -e
 ROBOT_NAME=""
 BUILD=true
 LAUNCH=true
-USE_GUI=true
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -58,7 +57,7 @@ LOG_DIR="$WORKSPACE_DIR/log"
 LOG_PATH="$LOG_DIR/${ROBOT_NAME}-gazebo-$(date +'%Y-%m-%d_%H-%M').log"
 cd "$WORKSPACE_DIR"
 
-# Validate required resouorces
+# Validate required resources
 BRINGUP_PKG="${ROBOT_NAME}_bringup"
 DESCRIPTION_PKG="${ROBOT_NAME}_description"
 

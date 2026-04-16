@@ -26,7 +26,7 @@ RUN apt-get update && \
 
 ENV LANG=en_US.UTF-8
 
-RUN echo "${TZ}" > /etc/localtime && \
+RUN ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
     echo "${TZ}" > /etc/timezone
 
 # --------------------------------------
@@ -75,7 +75,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # VNC / headless display stack
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    xvfb novnc x11vnc websockify openbox xterm python3-xdg \
+    xvfb novnc x11vnc websockify openbox xterm python3-xdg x11-utils \
     mesa-utils libglx-mesa0 libgl1-mesa-glx libgl1-mesa-dri \
     xserver-xorg-core xserver-xorg-video-dummy \
     && rm -rf /var/lib/apt/lists/*
