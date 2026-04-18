@@ -41,8 +41,26 @@ export default defineConfig({
                 },
             ],
             sidebar: [
-                { label: 'Guides', autogenerate: { directory: 'guides' } },
-                { label: 'Reference', autogenerate: { directory: 'reference' } },
+                {
+                    label: 'Guides',
+                    items: [
+                        { label: 'Getting Started', slug: 'guides/getting-started' },
+                        { label: 'Running Simulations', slug: 'guides/running-simulations' },
+                        { label: 'Moving Joints', slug: 'guides/moving-joints' },
+                        { label: 'Adding a New Robot', slug: 'guides/adding-robots' },
+                    ],
+                },
+                {
+                    label: 'Reference',
+                    items: [
+                        { label: 'ROS Workspace', slug: 'reference/ros-workspace' },
+                        { label: 'Scripts', slug: 'reference/scripts' },
+                        { label: 'Genbot', slug: 'reference/genbot' },
+                        { label: 'Joint GUI', slug: 'reference/joint-gui' },
+                        { label: 'Launch System', slug: 'reference/launch-system' },
+                        { label: 'Docker Environment', slug: 'reference/docker-environment' },
+                    ],
+                },
                 { label: 'Dev Notes', autogenerate: { directory: 'dev' } },
             ],
             customCss: ['./src/styles/custom.css'],

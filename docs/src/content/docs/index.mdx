@@ -1,13 +1,15 @@
 ---
-title: Trickfire Gazebo Simulations
-description: Documentation for the TrickFire gazebo-simulations project.
+title: TrickFire Gazebo Simulations
+description: Documentation for the TrickFire Robotics Gazebo simulation environment.
 template: splash
 hero:
-  title: Trickfire Gazebo Simulations
-  tagline: Documentation for the TrickFire robotics simulation environment.
+  title: TrickFire Gazebo Simulations
+  tagline: Simulate TrickFire robots in Gazebo with ROS 2, inside a fully containerized environment. From CAD to running sim in minutes.
+  image:
+    html: '<img src="/gazebo-simulations/logo-small.png" alt="TrickFire Robotics Logo" class="hero-logo">'
   actions:
-    - text: Get started
-      link: /gazebo-simulations/reference/genbot/
+    - text: Get Started
+      link: /gazebo-simulations/guides/getting-started/
       icon: right-arrow
     - text: View on GitHub
       link: https://github.com/TrickfireRobotics/gazebo-simulations
@@ -15,16 +17,27 @@ hero:
       variant: minimal
 ---
 
-import { CardGrid, Card } from '@astrojs/starlight/components';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 <CardGrid>
-  <Card title="Guides" icon="open-book">
-    Step-by-step instructions for specific tasks — moving joints, setting up RViz, and configuring the X server.
-  </Card>
-  <Card title="Reference" icon="information">
-    Descriptions of the tools and systems in this project: genbot, joint-gui, and the ROS workspace.
-  </Card>
-  <Card title="Dev Notes" icon="pencil">
-    Internal notes and tips for contributors.
-  </Card>
+  <LinkCard
+    title="Getting Started"
+    description="Clone the repo, open in a Dev Container, start the X server, and launch your first simulation."
+    href="/gazebo-simulations/guides/getting-started/"
+  />
+  <LinkCard
+    title="Running Simulations"
+    description="Launch any robot with a single command. Build, source, and run Gazebo + RViz + Joint GUI automatically."
+    href="/gazebo-simulations/guides/running-simulations/"
+  />
+  <LinkCard
+    title="Adding Robots"
+    description="Use genbot to pull a CAD model from OnShape and generate ready-to-build ROS 2 packages with one command."
+    href="/gazebo-simulations/guides/adding-robots/"
+  />
+  <LinkCard
+    title="Reference"
+    description="Deep dives into genbot, the launch system, scripts, the Docker environment, and the ROS workspace layout."
+    href="/gazebo-simulations/reference/ros-workspace/"
+  />
 </CardGrid>

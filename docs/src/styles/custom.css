@@ -20,7 +20,6 @@
     --sl-color-accent: #00fe00;
     --sl-color-accent-high: #99ee99;
 
-    /* Darker than brand Eerie Black (#222) so the page feels richer */
     --sl-color-bg: #161616;
     --sl-color-bg-nav: #0e0e0e;
     --sl-color-bg-sidebar: #121212;
@@ -59,7 +58,16 @@
     letter-spacing: 0.03em;
 }
 
-/*  Accent Pink — h2 headings & sidebar section labels  */
+.hero-logo {
+    width: auto;
+    height: min(40vh, 20rem);
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    margin-inline: auto;
+}
+
+/*  Accent Pink - h2 headings & sidebar section labels  */
 :root[data-theme="dark"] .sl-markdown-content h2 {
     color: #e93cac;
 }

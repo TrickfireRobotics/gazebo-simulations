@@ -1,11 +1,73 @@
 ---
 title: Dev Notes
-description: Internal notes and tips for contributors.
+description: Internal notes, tips, and architectural decisions for contributors.
 ---
 
-# Community `apt` repository
+## Architecture decisions
 
-It can happen that a `ROS` plugin seems to be not installable by `apt`. This is because some of them are not in the main repository, but in another one called `universe`. To enable it, run these commands. I am pretty sure you have to run them in each new shell when you want to install something from it.
+### Why a Dev Container?
+
+ROS 2 + Gazebo + their dependencies are notoriously painful to install natively, especially across different OS versions. The container guarantees everyone has the same Ubuntu 22.04 + ROS Humble + Gazebo Fortress environment. No "works on my machine" issues.
+
+### Why Gazebo Fortress (not Harmonic)?
+
+The main TrickFire robot codebase uses ROS 2 Humble, so the simulation environment matches. ROS 2 Humble officially supports Gazebo Fortress -- newer Gazebo versions (like Harmonic) require ROS 2 Iron or newer. Since Humble is the current LTS and we need to stay compatible with the main robot, we use Fortress.
+
+### Why two packages per robot?
+
+The `_description` / `_bringup` split is a ROS convention:
+- **`_description`** contains the robot model (URDF + meshes) -- things that change when the CAD changes
+- **`_bringup`** contains runtime config (launch files, controller YAML, RViz config) -- things you tweak during development
+
+This separation means `genbot update` can safely replace the description without touching your launch customizations.
+
+## Useful CLI commands
+
+### Gazebo camera position
+
+To set the camera position in the Gazebo viewer:
+
+```bash
+gz service -s /gui/move_to/pose \
+    --reqtype gz.msgs.GUICamera \
+    --reptype gz.msgs.Boolean \
+    --timeout 2000 \
+    --req "pose: {position: {x: 0.0, y: -2.0, z: 2.0} orientation: {x: -0.2706, y: 0.2706, z: 0.6533, w: 0.6533}}"
+```
+
+To read the current camera position:
+
+```bash
+gz topic -e -t /gui/camera/pose
+```
+
+### ROS 2 inspection
+
+```bash
+# List all topics
+ros2 topic list
+
+# See joint states in real time
+ros2 topic echo /joint_states
+
+# List active controllers
+ros2 control list_controllers
+
+# Check controller manager status
+ros2 control list_hardware_interfaces
+```
+
+### Building a single package
+
+```bash
+cd robot-sim
+colcon build --packages-select arm_description
+source install/setup.bash
+```
+
+## Community `apt` repository
+
+Some ROS packages live in the `universe` repository rather than `main`. If `apt` can't find a package:
 
 ```bash
 apt-get update
@@ -14,16 +76,16 @@ add-apt-repository -y universe
 apt-get update
 ```
 
-# How to set/read camera info using CLI commands
+:::note
+The Dockerfile already enables `universe` for the packages that need it.
+:::
 
-To set camera position use this format of command:
+## Common pitfalls
 
-```bash
-gz service -s /gui/move_to/pose --reqtype gz.msgs.GUICamera --reptype gz.msgs.Boolean --timeout 2000 --req "pose: {position: {x: 0.0, y: -2.0, z: 2.0} orientation: {x: -0.2706, y: 0.2706, z: 0.6533, w: 0.6533}}"
-```
+**Forgetting to source after build:** ROS 2 can't find packages until you run `source install/setup.bash`. The launch script does this automatically, but if you're running ROS commands manually, you need to source first.
 
-To read camera position use this topic listener:
+**Stale build artifacts:** If something breaks for no obvious reason, run `./scripts/clean_build.sh` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
 
-```bash
-gz topic -e -t /gui/camera/pose
-```
+**X server not running:** Gazebo and RViz will fail silently or crash if the X server isn't started. Always run `./scripts/start_x_server.sh` first.
+
+**Port conflicts:** If port 6080 or 5900 is already in use, the X server script will fail. Make sure no other VNC sessions or containers are using those ports.
