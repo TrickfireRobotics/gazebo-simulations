@@ -67,6 +67,18 @@
     margin-inline: auto;
 }
 
+/*  Hero "Get Started" button — TrickFire pink  */
+.hero .sl-link-button.primary {
+    background-color: #e93cac;
+    border-color: #e93cac;
+    color: #ffffff;
+}
+
+.hero .sl-link-button.primary:hover {
+    background-color: #c0007a;
+    border-color: #c0007a;
+}
+
 /*  Accent Pink - h2 headings & sidebar section labels  */
 :root[data-theme="dark"] .sl-markdown-content h2 {
     color: #e93cac;
