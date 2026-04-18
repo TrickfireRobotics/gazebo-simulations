@@ -24,19 +24,30 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_DIR"
 
-LOCAL_MODE=false
-for arg in "$@"; do
-	case "$arg" in
-	--local)
-		LOCAL_MODE=true
-		;;
-	esac
-done
+# LOCAL_MODE=false
+# for arg in "$@"; do
+# 	case "$arg" in
+# 	--local)
+# 		LOCAL_MODE=true
+# 		;;
+# 	esac
+# done
+
+NVIDIA_GPU=false
+if lspci | grep -iq "nvidia"; then
+	echo "NVIDIA hardware detected. Checking for drivers"
+	if command -v nvidia-smi &> /dev/null; then
+		echo "NVIDIA drivers detected. Enabling GPU support in container."
+		NVIDIA_GPU=true
+	else
+		echo "No NVIDIA drivers detected. Running without GPU support."
+	fi
+fi
 
 # STOP
 if docker ps -q --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
 	echo "[INFO] Stopping running container..."
-	if $LOCAL_MODE; then
+	if $NVIDIA_GPU; then
 		docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml down
 	else
 		docker compose -f docker/docker-compose.yml down
@@ -47,8 +58,8 @@ docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
 # START
 echo "[INFO] Starting container..."
-if $LOCAL_MODE; then
-	echo "[INFO] Local mode: rendering to host display ${DISPLAY}"
+if $NVIDIA_GPU; then
+	echo "[INFO] NVIDIA GPU mode: rendering to host display ${DISPLAY}"
 	xhost +local:docker
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose-local.yml up -d --build
 else
