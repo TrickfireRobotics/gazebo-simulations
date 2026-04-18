@@ -36,7 +36,7 @@ source install/setup.bash
 
 Here is a small flowchart to show how this simulation functions. This one is specific to the robot arm simulation as it is the only model we are simulating at the moment:
 
-![Arm system flowchart](../../../assets/excalidraw/arm-flowchart.excalidraw.png)
+![Arm system flowchart](../../../assets/arm-flowchart.excalidraw.png)
 
 ## Troubleshooting
 

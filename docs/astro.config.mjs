@@ -6,7 +6,22 @@ export default defineConfig({
     base: '/gazebo-simulations',
     integrations: [
         starlight({
-            title: 'Trickfire Gazebo Simulations',
+            title: 'TrickFire Gazebo Simulations',
+            head: [
+                {
+                    tag: 'script',
+                    content: `
+                        if (!localStorage.getItem('starlight-theme')) {
+                            localStorage.setItem('starlight-theme', 'dark');
+                        }
+                    `,
+                },
+            ],
+            logo: {
+                src: './src/assets/logo.png',
+                alt: 'TrickFire Robotics Logo',
+                replacesTitle: true,
+            },
             social: [
                 {
                     icon: 'github',
