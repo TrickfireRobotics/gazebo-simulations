@@ -52,7 +52,12 @@
         // Robot Dev extension stuff
         ".vscode/browse.vc.db": true,
         ".vscode/browse.vc.db-shm": true,
-        ".vscode/browse.vc.db-wal": true
+        ".vscode/browse.vc.db-wal": true,
+
+        // Astro website
+        "docs/.astro": true,
+        "docs/node_modules": true,
+        "docs/dist": true,
     },
 
 

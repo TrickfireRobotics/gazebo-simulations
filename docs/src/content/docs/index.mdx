@@ -1,0 +1,30 @@
+---
+title: Trickfire Gazebo Simulations
+description: Documentation for the TrickFire gazebo-simulations project.
+template: splash
+hero:
+  title: Trickfire Gazebo Simulations
+  tagline: Documentation for the TrickFire robotics simulation environment.
+  actions:
+    - text: Get started
+      link: /gazebo-simulations/reference/genbot/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/TrickfireRobotics/gazebo-simulations
+      icon: external
+      variant: minimal
+---
+
+import { CardGrid, Card } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Guides" icon="open-book">
+    Step-by-step instructions for specific tasks — moving joints, setting up RViz, and configuring the X server.
+  </Card>
+  <Card title="Reference" icon="information">
+    Descriptions of the tools and systems in this project: genbot, joint-gui, and the ROS workspace.
+  </Card>
+  <Card title="Dev Notes" icon="pencil">
+    Internal notes and tips for contributors.
+  </Card>
+</CardGrid>

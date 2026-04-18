@@ -1,3 +1,8 @@
+---
+title: Moving Robot Joints
+description: Use the move_joints node to send joint trajectory commands to any robot in the simulation.
+---
+
 # Moving Robot Joints
 
 Use the `move_joints` node from `sim_common` to send joint trajectory commands to any robot in the simulation.

@@ -1,3 +1,8 @@
+---
+title: X Server
+description: Explanation of the headless X11 server setup used for running the simulation without a physical display.
+---
+
 This page is for more info on how I do the X11 server.
 
 This is the explanation to the `xorg.conf` file:

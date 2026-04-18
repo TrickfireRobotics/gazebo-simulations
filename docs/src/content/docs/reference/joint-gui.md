@@ -1,3 +1,8 @@
+---
+title: Joint GUI
+description: A GUI that controls joint states and sends commands via ROS2.
+---
+
 # joint-gui - joint-gui that controls joint states and sends commands via ros2
 
 'joint-gui' is a gui that runs when we launch the simulation. The gui takes in a urdf model as an argument, parses all of the joints which are of type revolute then builds the gui components.

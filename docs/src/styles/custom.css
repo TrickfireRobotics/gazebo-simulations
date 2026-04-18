@@ -1,0 +1,22 @@
+/* TrickFire brand colors: #00FE00 neon green, #E93CAC neon pink, #222222 dark bg */
+
+:root[data-theme='dark'] {
+  --sl-color-accent-low: #003300;
+  --sl-color-accent: #00fe00;
+  --sl-color-accent-high: #ccffcc;
+  --sl-color-bg: #222222;
+  --sl-color-bg-nav: #1a1a1a;
+  --sl-color-bg-sidebar: #1c1c1c;
+  --sl-color-hairline-light: #2e2e2e;
+  --sl-color-hairline-shade: #333333;
+}
+
+/* Pink for h2 headings */
+:root[data-theme='dark'] .sl-markdown-content h2 {
+  color: #e93cac;
+}
+
+/* Pink for sidebar section labels */
+:root[data-theme='dark'] .group-label span {
+  color: #e93cac;
+}
