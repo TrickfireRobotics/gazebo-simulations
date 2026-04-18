@@ -22,11 +22,22 @@ export default defineConfig({
                 alt: 'TrickFire Robotics Logo',
                 replacesTitle: true,
             },
+            favicon: '/favicon.ico',
             social: [
                 {
                     icon: 'github',
                     label: 'GitHub',
                     href: 'https://github.com/TrickfireRobotics/gazebo-simulations',
+                },
+                {
+                    icon: 'external',
+                    label: 'Notion',
+                    href: 'https://www.notion.so/trickfire/invite/7f153eec8ed8ebe4608dc95892fce859540f8640',
+                },
+                {
+                    icon: 'external',
+                    label: 'TrickFire Robotics',
+                    href: 'https://trickfirerobotics.github.io',
                 },
             ],
             sidebar: [
