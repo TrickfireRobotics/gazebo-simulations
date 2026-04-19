@@ -4,6 +4,7 @@ import starlight from '@astrojs/starlight';
 export default defineConfig({
     site: 'https://trickfirerobotics.github.io',
     base: '/gazebo-simulations',
+    srcDir: './',
     integrations: [
         starlight({
             title: 'TrickFire Gazebo Simulations',
@@ -18,7 +19,7 @@ export default defineConfig({
                 },
             ],
             logo: {
-                src: './src/assets/logo.png',
+                src: './assets/nav-logo.png',
                 alt: 'TrickFire Robotics Logo',
                 replacesTitle: true,
             },
@@ -64,9 +65,9 @@ export default defineConfig({
                 { label: 'Dev Notes', autogenerate: { directory: 'dev' } },
             ],
             components: {
-                SocialIcons: './src/components/SocialIcons.astro',
+                SocialIcons: './components/SocialIcons.astro',
             },
-            customCss: ['./src/styles/custom.css'],
+            customCss: ['./styles/custom.css'],
         }),
     ],
 });
