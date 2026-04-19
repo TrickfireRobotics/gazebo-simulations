@@ -50,7 +50,8 @@
                 "github.vscode-github-actions",
                 // --- Docs ---
                 "unifiedjs.vscode-mdx",
-                "esbenp.prettier-vscode"
+                "esbenp.prettier-vscode",
+                "astro-build.astro-vscode"
             ]
         }
     }
