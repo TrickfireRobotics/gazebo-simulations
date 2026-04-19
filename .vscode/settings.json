@@ -17,11 +17,22 @@
         "editor.formatOnType": true,
         "editor.wordBasedSuggestions": "off",
         "editor.defaultColorDecorators": "never",
-        "diffEditor.ignoreTrimWhitespace": false,
+        "diffEditor.ignoreTrimWhitespace": false
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
     },
     "json.format.keepLines": true,
     "json.format.enable": true,
-
+    "prettier.tabWidth": 4,
+    "prettier.trailingComma": "none",
 
     // ================================
     // GENERAL VSCODE BEHAVIOR
@@ -29,14 +40,11 @@
 
     // To prevent vscode creating 20 random forwarded ports
     "remote.autoForwardPorts": false,
-    "editor.rulers": [
-        100
-    ],
+    "editor.rulers": [100],
     "files.associations": {
         "model.config": "xml"
     },
     "files.exclude": {
-
         // General
         "**/.git": true,
         "**/.hg": true,
@@ -57,9 +65,8 @@
         // Astro website
         "docs/.astro": true,
         "docs/node_modules": true,
-        "docs/dist": true,
+        "docs/dist": true
     },
-
 
     // ================================
     // ROS2 SETTINGS
@@ -67,13 +74,11 @@
 
     "ROS2.distro": "humble",
 
-
     // ================================
     // CMAKE SETTINGS
     // ================================
 
     "cmake.ignoreCMakeListsMissing": true,
-
 
     // ================================
     // PYTHON SETTINGS
@@ -90,5 +95,5 @@
         "/opt/ros/humble/local/lib/python3.10/dist-packages",
         "robot-sim/sim_common",
         ".github"
-    ],
+    ]
 }

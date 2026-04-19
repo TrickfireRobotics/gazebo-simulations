@@ -8,10 +8,7 @@
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
     "initializeCommand": ".devcontainer/launch.sh",
     "postCreateCommand": "scripts/clean_build.sh",
-    "forwardPorts": [
-        6080,
-        5900
-    ],
+    "forwardPorts": [6080, 5900],
     "runArgs": [
         "--privileged",
         "--cap-add=SYS_PTRACE",
@@ -52,7 +49,8 @@
                 "tamasfe.even-better-toml",
                 "github.vscode-github-actions",
                 // --- Docs ---
-                "unifiedjs.vscode-mdx"
+                "unifiedjs.vscode-mdx",
+                "esbenp.prettier-vscode"
             ]
         }
     }
