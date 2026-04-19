@@ -20,14 +20,12 @@ gazebo-simulations/
 The ROS 2 workspace containing the Gazebo Fortress simulation packages. Built with `colcon` inside the Dev Container.
 
 **Packages:**
-- `arm_bringup` - launch files
-- `arm_description` - URDF/SDF models and worlds
+- `<robot>_bringup` - launch files
+- `<robot>_description` - URDF/SDF models and worlds
 - `sim_common` - shared ROS utilities and configs
 - `sim_worlds` - Gazebo world definitions
 
 When adding or modifying a package, keep `package.xml` and `CMakeLists.txt` up to date so `colcon` can resolve build order and dependencies.
-
-See [robot-sim/README.md](robot-sim/README.md) for a deeper breakdown and build notes.
 
 ### `docs/` - Documentation site
 
@@ -59,9 +57,19 @@ The simulation runs inside a Docker Dev Container. Follow the [Getting Started](
 
 For `docs/` changes, only Node.js is required, no container needed.
 
-## Python style
+## Formatting
 
-Python code is linted and formatted with [ruff](https://docs.astral.sh/ruff/). Run it before submitting:
+All formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
+
+| Language | Formatter |
+|---|---|
+| Python | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`) |
+| Astro | Astro (`astro-build.astro-vscode`) |
+| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) — 4-space indent, no trailing commas |
+| XML | XML Tools (`DotJoshJohnson.xml`) |
+| Dockerfile | Docker (`ms-azuretools.vscode-containers`) |
+
+For Python, you can also run Ruff manually before submitting:
 
 ```bash
 ruff check .
