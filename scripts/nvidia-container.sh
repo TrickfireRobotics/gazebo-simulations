@@ -6,12 +6,15 @@
 # Kills the sim container if running, starts it fresh, and attaches a shell.
 #
 # Usage:
-#   ./scripts/nvidia-container.sh           # VNC mode (browser at localhost:6080)
-#   ./scripts/nvidia-container.sh --local   # Local mode (uses compose extension + host display)
+#   ./scripts/nvidia-container.sh
+#     - Checks for NVIDIA hardware and driver availability
+#     - Starts with GPU support and host-display rendering when available
+#     - Falls back to VNC/noVNC mode when GPU support is unavailable
+#       (localhost:6080)
 #
 # IMPORTANT:
 #   - Run from the HOST, not inside the container
-#   - Uses docker/docker-compose.yml (+ docker/docker-compose-local.yml with --local)
+#   - Uses docker/docker-compose.yml (+ docker/docker-compose-local.yml if NVIDIA GPU is detected)
 # --------------------------------------------------------------------------------------------
 
 set -euo pipefail
@@ -23,15 +26,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_DIR"
-
-# LOCAL_MODE=false
-# for arg in "$@"; do
-# 	case "$arg" in
-# 	--local)
-# 		LOCAL_MODE=true
-# 		;;
-# 	esac
-# done
 
 NVIDIA_GPU=false
 if lspci | grep -iq "nvidia"; then
