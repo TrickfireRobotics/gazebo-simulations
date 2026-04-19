@@ -36,7 +36,7 @@ cd "$PROJECT_DIR"
 NVIDIA_GPU=false
 if lspci | grep -iq "nvidia"; then
 	echo "NVIDIA hardware detected. Checking for drivers"
-	if command -v nvidia-smi &> /dev/null; then
+	if command -v nvidia-smi &>/dev/null; then
 		echo "NVIDIA drivers detected. Enabling GPU support in container."
 		NVIDIA_GPU=true
 	else
