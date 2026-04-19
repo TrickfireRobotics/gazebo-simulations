@@ -11,5 +11,6 @@
     "printWidth": 100,
     "tabWidth": 4,
     "useTabs": false,
-    "singleQuote": false
+    "singleQuote": true,
+    "trailingComma": "none"
 }
