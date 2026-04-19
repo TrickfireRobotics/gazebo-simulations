@@ -45,27 +45,27 @@ If you prefer to run it locally (useful for iteration):
 
 Create a file at `.github/genbot/onshape.env`:
 
-```bash
+```bash title="Inside devcontainer"
 ONSHAPE_API_KEY=your_key_here
 ONSHAPE_API_SECRET=your_secret_here
 ```
 
 This lets you run `genbot` without passing credentials every time. Alternatively, export them directly:
 
-```bash
+```bash title="Inside devcontainer"
 export ONSHAPE_API_KEY=your_key
 export ONSHAPE_API_SECRET=your_secret
 ```
 
 ### 2. Run the create command
 
-```bash
+```bash title="Inside devcontainer"
 PYTHONPATH=.github python3 -m genbot create <robot_name> <onshape_url> --attach-to-world
 ```
 
 Or if you set up `onshape.env`, the alias works:
 
-```bash
+```bash title="Inside devcontainer"
 genbot create <robot_name> <onshape_url> --attach-to-world
 ```
 
@@ -97,7 +97,7 @@ The robot is also registered in `robots.json` at the repo root with its OnShape 
 
 ## 4. Launch
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/launch_sim.sh <robot_name>
 ```
 
@@ -105,7 +105,7 @@ The robot is also registered in `robots.json` at the repo root with its OnShape 
 
 If the OnShape model changes and you need to refresh the URDF and meshes:
 
-```bash
+```bash title="Inside devcontainer"
 genbot update <robot_name>
 ```
 

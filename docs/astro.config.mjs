@@ -63,6 +63,9 @@ export default defineConfig({
                 },
                 { label: 'Dev Notes', autogenerate: { directory: 'dev' } },
             ],
+            components: {
+                SocialIcons: './src/components/SocialIcons.astro',
+            },
             customCss: ['./src/styles/custom.css'],
         }),
     ],

@@ -9,7 +9,7 @@ All scripts live in the `scripts/` directory at the repository root. They're des
 
 The main entry point for running simulations. Builds the ROS 2 workspace and launches Gazebo with the specified robot.
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/launch_sim.sh <robot_name> [flags]
 ```
 
@@ -38,7 +38,7 @@ The main entry point for running simulations. Builds the ROS 2 workspace and lau
 
 Starts a complete headless X11 desktop inside the container so Gazebo, RViz, and other GUI apps can render.
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/start_x_server.sh [-v|--verbose]
 ```
 
@@ -63,7 +63,7 @@ The script traps `SIGINT`/`SIGTERM` and cleans up all child processes on exit.
 
 Deletes ROS 2 build artifacts to resolve unexplained build failures.
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/clean_build.sh
 ```
 
@@ -81,7 +81,7 @@ If a build fails and the error doesn't make sense, run this first. Stale artifac
 
 Opens a new interactive terminal inside a running Dev Container. Run this from the **host machine**, not inside the container.
 
-```bash
+```bash title="Host terminal"
 ./scripts/attach_to_container.sh
 ```
 

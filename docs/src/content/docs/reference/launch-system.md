@@ -14,7 +14,7 @@ Each robot has a launch file at `robot-sim/<robot>_bringup/launch/<robot>.launch
 
 These are set via command line:
 
-```bash
+```bash title="Inside devcontainer"
 ros2 launch arm_bringup arm.launch.py gui:=false rviz:=false
 ```
 

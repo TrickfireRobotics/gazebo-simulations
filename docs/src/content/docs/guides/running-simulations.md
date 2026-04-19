@@ -7,13 +7,13 @@ All simulations are launched through a single script. It builds the workspace, s
 
 ## Basic usage
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/launch_sim.sh <robot_name>
 ```
 
 For example, to run the arm simulation:
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/launch_sim.sh arm
 ```
 
@@ -25,7 +25,7 @@ For example, to run the arm simulation:
 | `--build-only` | Build the workspace but don't launch the simulation. Useful for checking if your changes compile. |
 | `--help` | Print usage info and exit. |
 
-```bash
+```bash title="Inside devcontainer"
 # Skip building (already built)
 ./scripts/launch_sim.sh arm --no-build
 
@@ -50,7 +50,7 @@ If any are missing, the script exits with an error.
 
 Runs `colcon build` targeting the robot's packages plus shared ones:
 
-```bash
+```bash title="Inside devcontainer"
 colcon build \
     --packages-up-to <robot>_bringup <robot>_description sim_worlds sim_common \
     --cmake-args -DBUILD_TESTING=OFF
@@ -62,7 +62,7 @@ The `--packages-up-to` flag ensures all dependencies are built in the right orde
 
 Sources the workspace overlay so ROS 2 can find the built packages:
 
-```bash
+```bash title="Inside devcontainer"
 source install/setup.bash
 ```
 
@@ -70,7 +70,7 @@ source install/setup.bash
 
 Sets `GZ_SIM_RESOURCE_PATH` so Gazebo can find world files from `sim_worlds`:
 
-```bash
+```bash title="Inside devcontainer"
 export GZ_SIM_RESOURCE_PATH=".../install/sim_worlds/share/sim_worlds"
 ```
 
@@ -78,7 +78,7 @@ export GZ_SIM_RESOURCE_PATH=".../install/sim_worlds/share/sim_worlds"
 
 Calls the robot's launch file with the GUI enabled:
 
-```bash
+```bash title="Inside devcontainer"
 ros2 launch <robot>_bringup <robot>.launch.py gui:=true
 ```
 

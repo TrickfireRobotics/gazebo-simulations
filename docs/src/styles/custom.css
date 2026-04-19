@@ -67,7 +67,7 @@
     margin-inline: auto;
 }
 
-/*  Hero "Get Started" button — TrickFire pink  */
+/*  Hero "Get Started" button - TrickFire pink  */
 .hero .sl-link-button.primary {
     background-color: #e93cac;
     border-color: #e93cac;
@@ -94,4 +94,16 @@
 
 :root[data-theme="light"] .group-label span {
     color: #c0007a;
+}
+
+/*  Code block terminal title: left-aligned, monospaced, dimmer  */
+.expressive-code .frame.is-terminal .header {
+    justify-content: flex-start;
+    padding-inline-start: calc(var(--ec-uiPadInl) + 2.1rem + 0.75rem);
+}
+
+.expressive-code .frame.is-terminal .title {
+    font-family: var(--ec-codeFontFml);
+    font-size: 0.78em;
+    opacity: 0.5;
 }

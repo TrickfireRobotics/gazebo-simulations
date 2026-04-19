@@ -5,6 +5,10 @@ description: Set up the TrickFire simulation environment from scratch and run yo
 
 This guide walks you through the full setup: cloning the repo, opening the Dev Container, and getting a display running so you can launch simulations.
 
+:::note
+Each code block is labeled - **Host terminal** for commands run on your local machine, **Inside devcontainer** for commands run inside the container. Pay attention to these before running anything.
+:::
+
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
@@ -13,7 +17,7 @@ This guide walks you through the full setup: cloning the repo, opening the Dev C
 
 ## 1. Clone the repository
 
-```bash
+```bash title="Host terminal"
 git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
 cd gazebo-simulations
 ```
@@ -38,7 +42,7 @@ Gazebo and RViz need a display to render their GUIs. Since the container has no 
 If your host machine already has an X11 server and you've configured X11 forwarding to the container (e.g. via `DISPLAY` and X socket mounting), you can skip this step entirely. You can verify by running `xeyes` inside the container -- if a pair of eyes appears on your screen, your X11 setup is working.
 :::
 
-```bash
+```bash title="Inside devcontainer"
 ./scripts/start_x_server.sh
 ```
 
@@ -56,7 +60,7 @@ localhost:5900
 
 You should see a desktop. To verify the display is working, open a new terminal and run:
 
-```bash
+```bash title="Inside devcontainer"
 xeyes
 ```
 

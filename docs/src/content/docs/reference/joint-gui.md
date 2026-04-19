@@ -67,13 +67,13 @@ This matters because joints may not start at position 0 -- the origin angle ensu
 
 The GUI is registered as a console script entry point. You can run it outside of the launch file:
 
-```bash
+```bash title="Inside devcontainer"
 ros2 run sim_common joint_gui <path_to_urdf>
 ```
 
 For example:
 
-```bash
+```bash title="Inside devcontainer"
 ros2 run sim_common joint_gui \
     $(ros2 pkg prefix arm_description)/share/arm_description/urdf/arm.urdf
 ```

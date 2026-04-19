@@ -27,7 +27,7 @@ This separation means `genbot update` can safely replace the description without
 
 To set the camera position in the Gazebo viewer:
 
-```bash
+```bash title="Inside devcontainer"
 gz service -s /gui/move_to/pose \
     --reqtype gz.msgs.GUICamera \
     --reptype gz.msgs.Boolean \
@@ -37,13 +37,13 @@ gz service -s /gui/move_to/pose \
 
 To read the current camera position:
 
-```bash
+```bash title="Inside devcontainer"
 gz topic -e -t /gui/camera/pose
 ```
 
 ### ROS 2 inspection
 
-```bash
+```bash title="Inside devcontainer"
 # List all topics
 ros2 topic list
 
@@ -59,7 +59,7 @@ ros2 control list_hardware_interfaces
 
 ### Building a single package
 
-```bash
+```bash title="Inside devcontainer"
 cd robot-sim
 colcon build --packages-select arm_description
 source install/setup.bash
@@ -69,7 +69,7 @@ source install/setup.bash
 
 Some ROS packages live in the `universe` repository rather than `main`. If `apt` can't find a package:
 
-```bash
+```bash title="Inside devcontainer"
 apt-get update
 apt-get install -y software-properties-common
 add-apt-repository -y universe

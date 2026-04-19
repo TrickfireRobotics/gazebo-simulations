@@ -11,13 +11,13 @@ It can be run locally or through the **Generate/Update Robot from OnShape** GitH
 
 All commands follow this pattern:
 
-```bash
+```bash title="Inside devcontainer"
 PYTHONPATH=.github python3 -m genbot <command> [args]
 ```
 
 For commands that call the OnShape API, pass your credentials:
 
-```bash
+```bash title="Inside devcontainer"
 ONSHAPE_API_KEY=<key> ONSHAPE_API_SECRET=<secret> PYTHONPATH=.github python3 -m genbot <command> [args]
 ```
 
@@ -25,7 +25,7 @@ ONSHAPE_API_KEY=<key> ONSHAPE_API_SECRET=<secret> PYTHONPATH=.github python3 -m 
 
 Create `.github/genbot/onshape.env` with:
 
-```bash
+```bash title="Inside devcontainer"
 ONSHAPE_API_KEY=your_key_here
 ONSHAPE_API_SECRET=your_secret_here
 ```
@@ -38,7 +38,7 @@ Then you can just run `genbot <command> [args]` -- the alias handles the rest.
 
 Downloads from OnShape and generates both packages from scratch. Registers the robot in `robots.json`. Reduces STL triangle counts by default.
 
-```bash
+```bash title="Inside devcontainer"
 genbot create <robot_name> <onshape_url> [--attach-to-world] [--no-reduce] [--output-dir DIR]
 ```
 
@@ -52,7 +52,7 @@ genbot create <robot_name> <onshape_url> [--attach-to-world] [--no-reduce] [--ou
 
 Re-downloads from OnShape and replaces **only** the geometry URDF and meshes. The control xacro, bringup package, and manual edits are preserved. Reads the OnShape URL from `robots.json`.
 
-```bash
+```bash title="Inside devcontainer"
 genbot update <robot_name> [--no-reduce] [--output-dir DIR]
 ```
 
@@ -60,7 +60,7 @@ genbot update <robot_name> [--no-reduce] [--output-dir DIR]
 
 Downloads raw URDF + assets into `.github/genbot/tests/<robot_name>/` (gitignored) without generating ROS 2 packages. Useful for inspecting what `onshape-to-robot` produces.
 
-```bash
+```bash title="Inside devcontainer"
 # First time (saves URL to robots.json)
 genbot raw <robot_name> <onshape_url>
 
@@ -72,7 +72,7 @@ genbot raw <robot_name>
 
 Runs the full post-processing and package generation on a local URDF file. No API keys needed.
 
-```bash
+```bash title="Inside devcontainer"
 # From a previous `genbot raw` download
 genbot local <robot_name>
 
