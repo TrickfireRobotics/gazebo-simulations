@@ -23,7 +23,7 @@ export default defineConfig({
                 alt: 'TrickFire Robotics Logo',
                 replacesTitle: true,
             },
-            favicon: 'favicon.ico',
+            favicon: '/favicon.ico',
             social: [
                 {
                     icon: 'github',
