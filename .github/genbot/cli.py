@@ -27,6 +27,14 @@ def main() -> None:
         action="store_true",
         help="Skip STL triangle-count reduction",
     )
+    create_parser.add_argument(
+        "--attach-to-world",
+        dest="attach_to_world",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Fix robot to world (arm/fixed base = yes, mobile chassis = no). "
+        "If omitted, prompts interactively.",
+    )
 
     # --- local ---
     local_parser = subparsers.add_parser(
@@ -53,6 +61,14 @@ def main() -> None:
         "--no-reduce",
         action="store_true",
         help="Skip STL triangle-count reduction",
+    )
+    local_parser.add_argument(
+        "--attach-to-world",
+        dest="attach_to_world",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Fix robot to world (arm/fixed base = yes, mobile chassis = no). "
+        "If omitted, prompts interactively.",
     )
 
     # --- raw ---

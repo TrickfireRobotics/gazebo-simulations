@@ -10,11 +10,8 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
     "initializeCommand": ".devcontainer/launch.sh",
-    "postCreateCommand": "scripts/ros-clean.sh",
-    "forwardPorts": [
-        6080,
-        5900
-    ],
+    "postCreateCommand": "scripts/clean_build.sh",
+    "forwardPorts": [6080, 5900],
     "runArgs": [
         "--privileged",
         "--cap-add=SYS_PTRACE",
@@ -54,7 +51,10 @@
                 "DotJoshJohnson.xml",
                 "tamasfe.even-better-toml",
                 "github.vscode-github-actions",
-                "mkhl.shfmt"
+                // --- Docs ---
+                "unifiedjs.vscode-mdx",
+                "esbenp.prettier-vscode",
+                "astro-build.astro-vscode"
             ]
         }
     }
