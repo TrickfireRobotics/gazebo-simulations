@@ -29,3 +29,8 @@ robot-sim/log
 
 ### env ###
 **/*.env
+
+### Astro ###
+node_modules/
+dist/
+.astro/
