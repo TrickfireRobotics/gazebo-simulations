@@ -31,7 +31,7 @@ The first build takes a while since it downloads the full Docker image with ROS 
 Once inside, you'll be the `trickfire` user at `/home/trickfire/gazebo-simulations`.
 
 :::note
-The `postCreateCommand` in `devcontainer.json` automatically runs `scripts/clean_build.sh` to clear any stale ROS build artifacts.
+The `postCreateCommand` in `devcontainer.json` automatically runs `scripts/ros-clean.sh` to clear any stale ROS build artifacts.
 :::
 
 ## 3. Start the display
