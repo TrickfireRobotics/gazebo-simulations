@@ -15,24 +15,9 @@ declare -A NVIDIA_PCS=(
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then
-	if [[ -t 0 ]]; then
-		echo "No target specified. Choose a machine:"
-		OPTIONS=($(printf "%s\n" "${!NVIDIA_PCS[@]}" | sort))
-		select CHOICE in "${OPTIONS[@]}" "quit"; do
-			if [[ "$CHOICE" == "quit" ]]; then
-				echo "Cancelled."
-				exit 0
-			elif [[ -n "$CHOICE" ]]; then
-				TARGET="$CHOICE"
-				break
-			fi
-			echo "Invalid selection. Try again."
-		done
-	else
-		echo "Usage: $0 <target>"
-		echo "Known PCs: ${!NVIDIA_PCS[*]}"
-		exit 1
-	fi
+	echo "Usage: $0 <target>"
+	echo "Known PCs: ${!NVIDIA_PCS[*]}"
+	exit 1
 fi
 
 PC_IP="${NVIDIA_PCS[$TARGET]:-}"

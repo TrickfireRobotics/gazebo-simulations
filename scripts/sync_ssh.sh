@@ -22,26 +22,10 @@ declare -A KNOWN_HOSTS=(
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then
-	if [[ -t 0 ]]; then
-		echo "No target specified. Choose a machine:"
-		OPTIONS=($(printf "%s\n" "${!KNOWN_HOSTS[@]}" | sort))
-		select CHOICE in "${OPTIONS[@]}" "quit"; do
-			if [[ "$CHOICE" == "quit" ]]; then
-				echo "Cancelled."
-				exit 0
-			elif [[ -n "$CHOICE" ]]; then
-				TARGET="$CHOICE"
-				break
-			fi
-			echo "Invalid selection. Try again."
-		done
-	else
-		echo "Usage: $0 <target>"
-		echo "Known PCs: ${!KNOWN_HOSTS[*]}"
-		exit 1
-	fi
+	echo "Usage: $0 <target>"
+	echo "Known PCs: ${!KNOWN_HOSTS[*]}"
+	exit 1
 fi
-
 
 REMOTE_IP="${KNOWN_HOSTS[$TARGET]:-$TARGET}"
 REPO_ROOT="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)"
