@@ -13,7 +13,7 @@
 
 NVIDIA_PCS=(
 	"orin|192.168.0.211"
-	"xavier|192.168.0.148"
+	"xavier|192.168.0.205"
 )
 
 # colours
