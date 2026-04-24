@@ -28,14 +28,11 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_DIR"
 
 NVIDIA_GPU=false
-if lspci | grep -iq "nvidia"; then
-	echo "NVIDIA hardware detected. Checking for drivers"
-	if command -v nvidia-smi &>/dev/null; then
-		echo "NVIDIA drivers detected. Enabling GPU support in container."
-		NVIDIA_GPU=true
-	else
-		echo "No NVIDIA drivers detected. Running without GPU support."
-	fi
+if [ -e /dev/nvhost-gpu ] || (command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null); then
+	echo "NVIDIA GPU detected. Enabling GPU support in container."
+	NVIDIA_GPU=true
+else
+	echo "No NVIDIA GPU available. Running without GPU support."
 fi
 
 # STOP

@@ -109,7 +109,8 @@ RUN rosdep init || true
 # --------------------------------------
 # User
 
-RUN useradd trickfire --shell /bin/bash --create-home --no-log-init
+RUN useradd trickfire --shell /bin/bash --create-home --no-log-init && \
+    usermod -aG video trickfire
 COPY docker/shell/trickfire.bashrc /home/trickfire/.bashrc
 COPY docker/shell/sim.aliases.sh /home/trickfire/.bash_aliases
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
