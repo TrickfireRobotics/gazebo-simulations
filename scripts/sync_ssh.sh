@@ -16,16 +16,32 @@ REMOTE_USER="trickfire"
 REMOTE_PATH="/home/trickfire/gazebo-simulations"
 
 declare -A KNOWN_HOSTS=(
-	[xavier]="192.168.0.148"
+	[xavier]="192.168.0.205"
 	[orin]="192.168.0.211"
 )
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then
-	echo "Usage: $0 <target>"
-	echo "Known PCs: ${!KNOWN_HOSTS[*]}"
-	exit 1
+	if [[ -t 0 ]]; then
+		echo "No target specified. Choose a machine:"
+		OPTIONS=($(printf "%s\n" "${!KNOWN_HOSTS[@]}" | sort))
+		select CHOICE in "${OPTIONS[@]}" "quit"; do
+			if [[ "$CHOICE" == "quit" ]]; then
+				echo "Cancelled."
+				exit 0
+			elif [[ -n "$CHOICE" ]]; then
+				TARGET="$CHOICE"
+				break
+			fi
+			echo "Invalid selection. Try again."
+		done
+	else
+		echo "Usage: $0 <target>"
+		echo "Known PCs: ${!KNOWN_HOSTS[*]}"
+		exit 1
+	fi
 fi
+
 
 REMOTE_IP="${KNOWN_HOSTS[$TARGET]:-$TARGET}"
 REPO_ROOT="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)"
