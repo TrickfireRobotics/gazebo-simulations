@@ -127,7 +127,7 @@ SSHes into a named remote PC with a project-configured prompt.
 ./scripts/ssh.sh <target>
 ```
 
-Targets and IPs are loaded from [`remote_pcs.sh`](#remote-pcssh-registry) at the repo root.
+Targets and IPs are loaded from [`remote_pcs.sh`](#remote_pcssh-registry) at the repo root.
 
 The SSH session loads the project shell config (`docker/shell/ssh.bashrc.sh`) and sets `PROMPT_ENV` to `<target>-host` for an orange-colored prompt label.
 
@@ -141,7 +141,7 @@ Syncs the local repo to a remote PC over rsync. Useful for deploying code change
 ./scripts/sync_ssh.sh <target>
 ```
 
-Uses targets from [`remote_pcs.sh`](#remote-pcssh-registry) (or accepts a raw IP address). Excludes files listed in `.gitignore` and the `.git/` directory.
+Uses targets from [`remote_pcs.sh`](#remote_pcssh-registry) (or accepts a raw IP address). Excludes files listed in `.gitignore` and the `.git/` directory.
 
 ---
 
@@ -153,7 +153,7 @@ Runs a health check on remote PCs and reports power mode, CPU/GPU state, fan, th
 ./scripts/health_check_remote.sh <target>
 ```
 
-Targets and IPs are loaded from [`remote_pcs.sh`](#remote-pcssh-registry) at the repo root.
+Targets and IPs are loaded from [`remote_pcs.sh`](#remote_pcssh-registry) at the repo root.
 
 **What it checks:**
 - Reachability (ping latency and packet loss)
