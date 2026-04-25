@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 # ------------------------------------------------------------------------------
-# ros-clean.sh
+# ros_clean.sh
 # Deletes the files that ROS build, to prevent unexplainable issues.
 # NOTE: This script is also ran as the 'postCreateCommand' for this devcontainer
 # ------------------------------------------------------------------------------

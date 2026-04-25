@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------------------------------
 # setup_jetson.sh
-# One-time host setup for start-container.sh on a Jetson (or any NVIDIA Linux).
+# One-time host setup for start_container.sh on a Jetson (or any NVIDIA Linux).
 # --------------------------------------------------------------------------------------------
 
 set -euo pipefail
