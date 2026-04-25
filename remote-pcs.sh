@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------------------------------
-# nvidia-pcs.sh
-# Registry of NVIDIA PCs (Jetsons) reachable over the network.
+# remote-pcs.sh
+# Registry of remote PCs reachable over the network.
 # Sourced by scripts that need to resolve PC names to IPs.
 # --------------------------------------------------------------------------------------------
 

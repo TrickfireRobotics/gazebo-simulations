@@ -1,8 +1,7 @@
 # --------------------------------------------------------------------------------------------
 # Gazebo Simulation Environment
-# Runs on NVIDIA Jetson host with GPU support
-# Includes X11 server and VNC/noVNC for remote display
-# Automatically starts X server via startup script
+# Base config -- works on any host.
+# For NVIDIA GPU passthrough, also use docker-compose-gpu.yml.
 # --------------------------------------------------------------------------------------------
 
 services:
@@ -15,18 +14,12 @@ services:
     container_name: gazebo-sim
     user: trickfire
 
-    runtime: nvidia
-
     environment:
-      DISPLAY: ":1"
+      DISPLAY: "${DISPLAY:-:0}"
       VNC_PORT: "5900"
       NOVNC_PORT: "6080"
       QT_X11_NO_MITSHM: "1"
-      NVIDIA_VISIBLE_DEVICES: all
-      NVIDIA_DRIVER_CAPABILITIES: graphics,display,compute,utility
-      __EGL_VENDOR_LIBRARY_FILENAMES: /usr/share/glvnd/egl_vendor.d/10_nvidia.json
-      
-      PROMPT_ENV: ${HOSTNAME:-nvidia}-sim
+      PROMPT_ENV: ${HOSTNAME:-VNC}-sim
       TZ: ${TZ:-UTC}
 
     volumes:

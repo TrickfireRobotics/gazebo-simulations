@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------------------------------
-# ssh-nvidia.sh
-# --------------------------------------------------------------------------------------------
-# SSHes into a named NVIDIA PC with a labelled prompt.
-#
-# Usage:
-#   ./scripts/ssh-nvidia.sh <target>
+# ssh-pc.sh
+# SSHes into a named remote PC with a labelled prompt.
 # --------------------------------------------------------------------------------------------
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../nvidia-pcs.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote-pcs.sh"
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then
