@@ -6,10 +6,10 @@
 # Runs a health check on one specific remote PC and reports power mode,
 # CPU/GPU state, fan, thermals, network, and service status with colour-coded output.
 #
-# ./health_check_remote.sh <target>  # check specific target defined in remote-pcs.sh
+# ./health_check_remote.sh <target>  # check specific target defined in remote_pcs.sh
 # --------------------------------------------------------------------------------------------
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote-pcs.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote_pcs.sh"
 
 # colours
 RED='\033[0;31m'

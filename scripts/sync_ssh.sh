@@ -15,7 +15,7 @@ set -euo pipefail
 REMOTE_USER="trickfire"
 REMOTE_PATH="/home/trickfire/gazebo-simulations"
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote-pcs.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote_pcs.sh"
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then

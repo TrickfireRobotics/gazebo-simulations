@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # --------------------------------------------------------------------------------------------
-# remote-pcs.sh
+# remote_pcs.sh
 # Registry of remote PCs reachable over the network.
 # Sourced by scripts that need to resolve PC names to IPs.
 # --------------------------------------------------------------------------------------------

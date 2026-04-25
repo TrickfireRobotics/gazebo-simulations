@@ -4,7 +4,7 @@
 # SSHes into a named remote PC with a labelled prompt.
 # --------------------------------------------------------------------------------------------
 
-source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote-pcs.sh"
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../remote_pcs.sh"
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then
