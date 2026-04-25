@@ -8,10 +8,7 @@
 #   ./scripts/ssh-nvidia.sh <target>
 # --------------------------------------------------------------------------------------------
 
-declare -A NVIDIA_PCS=(
-	[orin]="192.168.0.211"
-	[xavier]="192.168.0.205"
-)
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../nvidia-pcs.sh"
 
 TARGET="${1:-}"
 if [[ -z "$TARGET" ]]; then

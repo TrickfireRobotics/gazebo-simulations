@@ -11,10 +11,7 @@
 #   ./health-check-nvidia.sh xavier    # check a specific PC
 # --------------------------------------------------------------------------------------------
 
-NVIDIA_PCS=(
-	"orin|192.168.0.211"
-	"xavier|192.168.0.205"
-)
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../nvidia-pcs.sh"
 
 # colours
 RED='\033[0;31m'
@@ -179,26 +176,15 @@ check_pc() {
 
 # --- Main ---
 if [[ -n "${1:-}" ]]; then
-	found=0
-	for entry in "${NVIDIA_PCS[@]}"; do
-		IFS='|' read -r name ip <<<"$entry"
-		if [[ "$name" == "$1" ]]; then
-			check_pc "$name" "$ip"
-			found=1
-			break
-		fi
-	done
-	if [[ $found -eq 0 ]]; then
+	if [[ -v NVIDIA_PCS[$1] ]]; then
+		check_pc "$1" "${NVIDIA_PCS[$1]}"
+	else
 		echo "Unknown PC: $1"
-		echo "Known PCs:$(for e in "${NVIDIA_PCS[@]}"; do
-			IFS='|' read -r n _ <<<"$e"
-			printf ' %s' "$n"
-		done)"
+		echo "Known PCs: ${!NVIDIA_PCS[*]}"
 		exit 1
 	fi
 else
-	for entry in "${NVIDIA_PCS[@]}"; do
-		IFS='|' read -r name ip <<<"$entry"
-		check_pc "$name" "$ip"
+	for name in "${!NVIDIA_PCS[@]}"; do
+		check_pc "$name" "${NVIDIA_PCS[$name]}"
 	done
 fi
