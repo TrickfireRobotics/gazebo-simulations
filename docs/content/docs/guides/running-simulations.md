@@ -97,7 +97,7 @@ The log captures all terminal output with ANSI color codes stripped.
 ## Troubleshooting
 
 **Build fails with cryptic errors:**
-Run `./scripts/ros-clean.sh` to delete `build/`, `install/`, and `log/` directories, then try again. Stale build artifacts are the most common cause of unexplained build failures.
+Run `./scripts/ros_clean.sh` to delete `build/`, `install/`, and `log/` directories, then try again. Stale build artifacts are the most common cause of unexplained build failures.
 
 **Gazebo window doesn't appear:**
 Make sure the X server is running (`./scripts/start_x_server.sh`) and you're connected via your VNC viewer. You can verify the display works by running `xeyes` in the container -- if the eyes appear on the VNC desktop, the display is fine and the issue is elsewhere.

@@ -46,6 +46,8 @@ export default defineConfig({
                     label: 'Guides',
                     items: [
                         { label: 'Getting Started', slug: 'guides/getting-started' },
+                        { label: 'Jetson Quick Start', slug: 'guides/jetson-quickstart' },
+                        { label: 'Running on a Jetson', slug: 'guides/jetson-setup' },
                         { label: 'Running Simulations', slug: 'guides/running-simulations' },
                         { label: 'Moving Joints', slug: 'guides/moving-joints' },
                         { label: 'Adding a New Robot', slug: 'guides/adding-robots' },

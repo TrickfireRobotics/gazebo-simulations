@@ -6,7 +6,7 @@ description: How the container is configured, the multi-stage Dockerfile, standa
 The entire simulation environment runs inside a Docker container. There are two ways to use it:
 
 1. **Dev Container** (VS Code) -- uses the `dev` stage of the Dockerfile with dev tooling pre-installed. This is the primary workflow for development.
-2. **Standalone container** (docker-compose) -- uses the `runtime` stage for running simulations on headless NVIDIA hosts (Jetsons, etc.) without VS Code.
+2. **Standalone container** (docker-compose) -- uses the `runtime` stage for running simulations on any host without VS Code. NVIDIA GPU passthrough is enabled automatically when hardware is detected.
 
 ## Multi-stage Dockerfile
 
@@ -113,57 +113,13 @@ The `devcontainer.json` configures how VS Code opens the container:
 
 **Privileged mode:** The container runs with `--privileged` and device access for hardware interaction (USB, CAN bus).
 
-**Post-create command:** `scripts/ros-clean.sh` runs automatically to clear stale build artifacts.
+**Post-create command:** `scripts/ros_clean.sh` runs automatically to clear stale build artifacts.
 
 **X11 forwarding:** On Linux, `/tmp/.X11-unix` is mounted into the container so the host's X server can be used directly.
 
 **VS Code extensions:** Pre-installs Python, C++, ROS, URDF, Docker, formatting, and docs (Astro/MDX) extensions.
 
-## Standalone container (docker-compose)
-
-For running simulations on headless NVIDIA hosts without VS Code, use `docker-compose.yml`:
-
-```bash title="Host terminal"
-./scripts/nvidia-container.sh
-```
-
-This script auto-detects NVIDIA hardware and drivers:
-
-- **NVIDIA GPU detected:** Uses both `docker-compose.yml` and `docker-compose-local.yml`. Mounts the host X11 socket and renders directly to the host display.
-- **No NVIDIA GPU:** Uses `docker-compose.yml` only. Starts the VNC/noVNC headless display (accessible at `localhost:6080`).
-
-The compose files live in `docker/`:
-
-| File | Purpose |
-| --- | --- |
-| `docker-compose.yml` | Base config: builds `runtime` target, NVIDIA runtime, VNC ports, auto-starts X server |
-| `docker-compose-local.yml` | Override for local GPU: mounts X11 socket, keeps container alive for shell attach |
-
-### First-time Jetson setup
-
-Before running `nvidia-container.sh` on a new Jetson, run the one-time setup:
-
-```bash title="Host terminal"
-./scripts/setup_jetson.sh
-```
-
-This installs the NVIDIA Container Toolkit, configures the Docker nvidia runtime, and adds your user to the docker group.
-
-## Headless display system
-
-Since Docker containers have no monitor, we use a virtual X11 server so Gazebo and RViz can render.
-
-### GPU auto-detection
-
-The `start_x_server.sh` script automatically selects the best X11 backend:
-
-| Condition | Backend | Config |
-| --- | --- | --- |
-| Jetson/Tegra (no `/dev/dri`) | Xvfb | `xorg.nvidia.conf` |
-| Desktop NVIDIA GPU | Xorg with nvidia driver | `xorg.nvidia.conf` |
-| No GPU (default) | Xorg with dummy driver | `xorg.dummy.conf` |
-
-### Architecture
+## X-server Display Architecture
 
 ```
 Xorg/Xvfb  →  x11vnc  →  websockify  →  Browser
@@ -172,6 +128,48 @@ Xorg/Xvfb  →  x11vnc  →  websockify  →  Browser
     ↑                                   (port 6080)
  Gazebo / RViz
 ```
+
+### Why this approach?
+
+Alternatives like Xvfb don't support GLX properly, which means Gazebo's 3D rendering fails. Using Xorg with a dummy driver + Mesa software rendering gives us full OpenGL support without needing a real GPU. The VNC + noVNC layer makes it accessible from any browser. On Jetsons, we fall back to Xvfb because there's no `/dev/dri`, but GPU rendering still works via EGL through injected Tegra libs.
+
+### Environment variables
+
+| Variable | Value | Set in |
+| --- | --- | --- |
+| `DISPLAY` | Host-dependent | `launch.sh` (devcontainer) or `docker-compose.yml` (standalone) |
+| `VNC_PORT` | `5900` | Dockerfile |
+| `NOVNC_PORT` | `6080` | Dockerfile |
+
+## Standalone container (docker-compose)
+
+For running simulations without VS Code, use `start_container.sh`:
+
+```bash title="Host terminal"
+./scripts/start_container.sh
+```
+
+This script auto-detects NVIDIA hardware:
+
+- **NVIDIA GPU detected:** Uses both `docker-compose.yml` and `docker-compose-gpu.yml`. Adds `runtime: nvidia`, mounts the host X11 socket, and renders directly to the host display.
+- **No GPU:** Uses `docker-compose.yml` only. Starts the VNC/noVNC headless display (accessible at `localhost:6080`).
+
+The compose files live in `docker/`:
+
+| File | Purpose |
+| --- | --- |
+| `docker-compose.yml` | Base config: builds `runtime` target, VNC ports, auto-starts X server. Works on any host. |
+| `docker-compose-gpu.yml` | NVIDIA override: adds `runtime: nvidia`, GPU env vars, X11 socket mount, overrides command to `sleep infinity` |
+
+### First-time Jetson setup
+
+Before running `start_container.sh` on a new Jetson, run the one-time setup:
+
+```bash title="Host terminal"
+./scripts/setup_jetson.sh
+```
+
+This installs the NVIDIA Container Toolkit, configures the Docker nvidia runtime, sets up Jetson performance services (MAXN power mode, max clocks, full fan speed, WiFi powersave disabled), configures the GNOME desktop, installs the kitty terminal, and reboots. See the [setup_jetson.sh reference](/gazebo-simulations/reference/scripts/#setup_jetsonsh) for the full list.
 
 ### Xorg configs
 
@@ -183,22 +181,10 @@ Two configs live in `docker/` and are copied to `/etc/X11/` during the build:
 
 Both set 1920x1080 resolution at 24-bit color depth.
 
-### Environment variables
-
-| Variable | Value | Set in |
-| --- | --- | --- |
-| `DISPLAY` | Host-dependent | `launch.sh` (devcontainer) or `docker-compose.yml` (standalone) |
-| `VNC_PORT` | `5900` | Dockerfile |
-| `NOVNC_PORT` | `6080` | Dockerfile |
-
-### Why this approach?
-
-Alternatives like Xvfb don't support GLX properly, which means Gazebo's 3D rendering fails. Using Xorg with a dummy driver + Mesa software rendering gives us full OpenGL support without needing a real GPU. The VNC + noVNC layer makes it accessible from any browser. On Jetsons, we fall back to Xvfb because there's no `/dev/dri`, but GPU rendering still works via EGL through injected Tegra libs.
-
 ## Extending the container
 
 To add system packages, edit `docker/Dockerfile` and rebuild. For Python packages, add them to the `pip3 install` section in the appropriate stage (`runtime` for things needed at simulation time, `dev` for development-only tools).
 
 After changing the Dockerfile:
 - **Dev Container:** Use **Dev Containers: Rebuild Container** in VS Code's Command Palette
-- **Standalone:** Run `./scripts/nvidia-container.sh` again (it rebuilds automatically with `--build`)
+- **Standalone:** Run `./scripts/start_container.sh` again (it rebuilds automatically with `--build`)

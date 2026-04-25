@@ -82,7 +82,7 @@ Here is a flowchart showing how the arm simulation works end-to-end:
 
 ## Troubleshooting
 
-**Unexplained build errors:** Run `./scripts/ros-clean.sh` and rebuild. This fixes the majority of mysterious failures.
+**Unexplained build errors:** Run `./scripts/ros_clean.sh` and rebuild. This fixes the majority of mysterious failures.
 
 **Package not found at runtime:** Make sure you sourced the workspace (`source install/setup.bash`). Opening a new terminal in VS Code doesn't automatically source it.
 
