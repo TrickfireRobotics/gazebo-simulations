@@ -49,7 +49,7 @@ Shell scripts used to manage the Dev Container and simulation:
 | `launch_sim.sh` | Launch the simulation |
 | `attach_to_container.sh` | Attach a shell to the running container |
 | `start_x_server.sh` | Start the X display server (Linux/WSL) |
-| `clean_build.sh` | Full clean and rebuild of the ROS workspace |
+| `ros_clean.sh` | Full clean and rebuild of the ROS workspace |
 
 ## Dev setup
 

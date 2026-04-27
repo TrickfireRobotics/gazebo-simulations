@@ -60,8 +60,6 @@ After building, `robot-sim/` contains three generated directories:
 | `install/` | Installed packages (what ROS 2 uses at runtime) |
 | `log/` | Build logs |
 
-All three are gitignored. Run `./scripts/clean_build.sh` to delete them.
-
 ## Adding or modifying packages
 
 When you add or change a package:
@@ -84,7 +82,7 @@ Here is a flowchart showing how the arm simulation works end-to-end:
 
 ## Troubleshooting
 
-**Unexplained build errors:** Run `./scripts/clean_build.sh` and rebuild. This fixes the majority of mysterious failures.
+**Unexplained build errors:** Run `./scripts/ros_clean.sh` and rebuild. This fixes the majority of mysterious failures.
 
 **Package not found at runtime:** Make sure you sourced the workspace (`source install/setup.bash`). Opening a new terminal in VS Code doesn't automatically source it.
 

@@ -1,13 +1,16 @@
 // DOCUMENTATION: https://containers.dev/implementors/json_reference/
 {
-    "context": "../",
-    "dockerFile": "Dockerfile",
+    "build": {
+        "context": "../",
+        "dockerfile": "../docker/Dockerfile",
+        "target": "dev"
+    },
     "containerUser": "trickfire",
     "remoteUser": "trickfire",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
     "initializeCommand": ".devcontainer/launch.sh",
-    "postCreateCommand": "scripts/clean_build.sh",
+    "postCreateCommand": "scripts/ros_clean.sh",
     "forwardPorts": [6080, 5900],
     "runArgs": [
         "--privileged",
@@ -48,6 +51,7 @@
                 "DotJoshJohnson.xml",
                 "tamasfe.even-better-toml",
                 "github.vscode-github-actions",
+                "mkhl.shfmt",
                 // --- Docs ---
                 "unifiedjs.vscode-mdx",
                 "esbenp.prettier-vscode",

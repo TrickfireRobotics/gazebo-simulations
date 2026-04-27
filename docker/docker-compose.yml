@@ -1,0 +1,39 @@
+# --------------------------------------------------------------------------------------------
+# Gazebo Simulation Environment
+# Base config -- works on any host.
+# For NVIDIA GPU passthrough, also use docker-compose-gpu.yml.
+# --------------------------------------------------------------------------------------------
+
+services:
+  sim:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: runtime
+    image: gazebo-simulations:latest
+    container_name: gazebo-sim
+    user: trickfire
+
+    environment:
+      DISPLAY: "${DISPLAY:-:0}"
+      VNC_PORT: "5900"
+      NOVNC_PORT: "6080"
+      QT_X11_NO_MITSHM: "1"
+      PROMPT_ENV: ${HOSTNAME:-VNC}-sim
+      TZ: ${TZ:-UTC}
+
+    volumes:
+      - ..:/home/trickfire/gazebo-simulations
+
+    working_dir: /home/trickfire/gazebo-simulations
+
+    ports:
+      - "5900:5900"
+      - "6080:6080"
+
+    privileged: true
+
+    command: scripts/start_x_server.sh
+
+    stdin_open: true
+    tty: true

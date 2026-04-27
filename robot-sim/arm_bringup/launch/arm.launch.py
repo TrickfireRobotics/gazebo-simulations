@@ -7,7 +7,7 @@ import os
 import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, TimerAction
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -140,10 +140,12 @@ def generate_launch_description():
         output="screen",
     )
 
+    spawn_robot_delayed = TimerAction(period=5.0, actions=[spawn_robot])
+
     return LaunchDescription(
         [
             gz_sim,
-            spawn_robot,
+            spawn_robot_delayed,
             robot_state_publisher,
             DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),
             DeclareLaunchArgument("gui", default_value="true", description="Open Joint GUI."),

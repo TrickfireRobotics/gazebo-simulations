@@ -267,7 +267,7 @@ class JointGui:
         # Swap discovery label for controls + move status label to bottom
         self._status_label.pack_forget()
         self._controls.pack(fill=tk.BOTH, expand=True)
-        self.status_var.set(f"Ready — {len(joints)} joints on {len(topics)} topic(s)")
+        self.status_var.set(f"Ready - {len(joints)} joints on {len(topics)} topic(s)")
         tk.Label(self.root, textvariable=self.status_var, fg="gray").pack(pady=(0, 8))
 
     # ------------------------------------------------------------------

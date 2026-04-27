@@ -35,14 +35,14 @@ The launch file orchestrates several components with specific ordering dependenc
    ↓ (waits for broadcaster to finish)
 4. Joint Trajectory Controller
    Accepts trajectory commands and drives joints
-   
+
 5. ROS-Gazebo Bridge, RViz, Joint GUI (parallel)
    - Bridge /clock between Gazebo and ROS
    - Open RViz with saved config
    - Open Joint GUI with URDF file
 ```
 
-Steps 3 and 4 use `RegisterEventHandler` with `OnProcessExit` to enforce ordering -- the trajectory controller can't start until the state broadcaster is ready, and the broadcaster can't start until the robot is spawned.
+The robot spawn uses a `TimerAction` with a 5-second delay to give Gazebo time to fully initialize before the model is spawned. Steps 3 and 4 use `RegisterEventHandler` with `OnProcessExit` to enforce ordering -- the trajectory controller can't start until the state broadcaster is ready, and the broadcaster can't start until the robot is spawned.
 
 ## Components
 

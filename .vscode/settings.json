@@ -3,6 +3,8 @@
     // LANGUAGE FORMATTING
     // ================================
 
+    "files.eol": "\n",
+
     "[dockerfile]": {
         "editor.defaultFormatter": "ms-azuretools.vscode-containers",
         "editor.formatOnSave": true
