@@ -30,6 +30,8 @@ REPO_ROOT="$(cd "${BASH_SOURCE[0]%/*}/.." && pwd)"
 printf "\e[0;35m${REMOTE_USER}@${REMOTE_IP}\e[0m : \e[0;32m${REMOTE_PATH}\e[0m\n"
 
 rsync -az \
+	--recursive \
+	--delete \
 	--out-format='%n' \
 	--filter=':- .gitignore' \
 	--exclude='.git/' \
