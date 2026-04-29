@@ -78,6 +78,7 @@ def _generate_control_xacro(robot_name: str, joints: list) -> str:
     ]
 
     for name, lower, upper in joints:
+        initial_value = (lower + upper) / 2 if lower < upper else 0.0
         lines += [
             "",
             f'        <joint name="{name}">',
@@ -87,7 +88,7 @@ def _generate_control_xacro(robot_name: str, joints: list) -> str:
             "            </command_interface>",
             "",
             '            <state_interface name="position">',
-            '                <param name="initial_value">1.0</param>',
+            f'                <param name="initial_value">{initial_value:.2f}</param>',
             "            </state_interface>",
             '            <state_interface name="velocity"/>',
             '            <state_interface name="effort"/>',
