@@ -47,6 +47,7 @@ if $NVIDIA_GPU; then
 	echo "[INFO] NVIDIA GPU mode: rendering to host display ${DISPLAY}"
 	xhost +local:docker
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose-gpu.yml up -d --build
+	echo "Using host display ${DISPLAY} for rendering and GPU acceleration."
 else
 	docker compose -f docker/docker-compose.yml up -d --build
 	HOST_IP="$(hostname -I 2>/dev/null | awk '{print $1}' || echo '')"
