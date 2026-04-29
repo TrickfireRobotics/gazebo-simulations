@@ -1,0 +1,370 @@
+<?xml version="1.0" ?>
+<!-- Generated using onshape-to-robot -->
+<!-- Onshape document_id: fc2c9f06a678801d77ce900d / workspace_id: 3174861c9ae36101feac1882 -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="chassis">
+    <!-- XACRO -->
+    <xacro:property name="mesh_path" value="package://chassis_description/meshes"/>
+    <xacro:arg name="controller_config" default=""/>
+
+    <!-- Link base_link -->
+    <link name="base_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+    </link>
+    <!-- Link ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion -->
+    <link name="ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion">
+        <inertial>
+            <origin xyz="-0.0175694 0.299241 0.335367" rpy="0 0 0"/>
+            <mass value="5.53999"/>
+            <inertia ixx="0.13364" ixy="0.000381827" ixz="0.00303419" iyy="0.200942" iyz="-0.000321789" izz="0.308485"/>
+        </inertial>
+        <!-- Part ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion -->
+        <visual>
+            <origin xyz="-0.2921 0.453321 0.338441" rpy="-0 0 1.5708"/>
+            <geometry>
+                <mesh filename="${mesh_path}/ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion.stl"/>
+            </geometry>
+            <material name="ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion_material">
+                <color rgba="0.901961 0.901961 0.901961 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="-0.2921 0.453321 0.338441" rpy="-0 0 1.5708"/>
+            <geometry>
+                <mesh filename="${mesh_path}/ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Link top__mid__arm -->
+    <link name="top__mid__arm">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part top__mid__arm -->
+        <visual>
+            <origin xyz="0 0 0.232" rpy="1.5708 0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/top__mid__arm.stl"/>
+            </geometry>
+            <material name="top__mid__arm_material">
+                <color rgba="0.647059 0.647059 0.647059 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.232" rpy="1.5708 0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/top__mid__arm.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Link front_arm -->
+    <link name="front_arm">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part front_arm -->
+        <visual>
+            <origin xyz="0.203 -0.0843698 0.232" rpy="1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/front_arm.stl"/>
+            </geometry>
+            <material name="front_arm_material">
+                <color rgba="0.231373 0.380392 0.705882 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.203 -0.0843698 0.232" rpy="1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/front_arm.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Link part_1 -->
+    <link name="part_1">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_1 -->
+        <visual>
+            <origin xyz="0 0 0" rpy="1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+            <material name="part_1_material">
+                <color rgba="0.615686 0.811765 0.929412 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Joint from front_arm to part_1 -->
+    <joint name="fl_wheel" type="continuous">
+        <origin xyz="-0.239393 0.140393 -0.038" rpy="0 -0 0"/>
+        <parent link="front_arm"/>
+        <child link="part_1"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <!-- Link part_1_2 -->
+    <link name="part_1_2">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_1_2 -->
+        <visual>
+            <origin xyz="0 0 0" rpy="1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+            <material name="part_1_2_material">
+                <color rgba="0.615686 0.811765 0.929412 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Joint from front_arm to part_1_2 -->
+    <joint name="ml_wheel" type="continuous">
+        <origin xyz="0.237354 0.137101 -0.038" rpy="0 -0 0"/>
+        <parent link="front_arm"/>
+        <child link="part_1_2"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <!-- Joint from top__mid__arm to front_arm -->
+    <joint name="left_rocker" type="revolute">
+        <origin xyz="-0.207404 0.0842831 0" rpy="0 0 0"/>
+        <parent link="top__mid__arm"/>
+        <child link="front_arm"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10" lower="-0.698132" upper="0.698132"/>
+    </joint>
+    <!-- Link part_1_3 -->
+    <link name="part_1_3">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_1_3 -->
+        <visual>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+            <material name="part_1_3_material">
+                <color rgba="0.615686 0.811765 0.929412 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Joint from top__mid__arm to part_1_3 -->
+    <joint name="bl_wheel" type="continuous">
+        <origin xyz="0.473222 0.237894 -0.038" rpy="0 0 0"/>
+        <parent link="top__mid__arm"/>
+        <child link="part_1_3"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <!-- Joint from ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion to top__mid__arm -->
+    <joint name="left_upper_arm" type="revolute">
+        <origin xyz="-0.0686 0.069325 0.324819" rpy="-1.5708 -0 0"/>
+        <parent link="ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion"/>
+        <child link="top__mid__arm"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10" lower="-0.698132" upper="0.698132"/>
+    </joint>
+    <!-- Link part_3 -->
+    <link name="part_3">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_3 -->
+        <visual>
+            <origin xyz="0 0 0.232" rpy="-1.5708 -0 -0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_3.stl"/>
+            </geometry>
+            <material name="part_3_material">
+                <color rgba="0.647059 0.647059 0.647059 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.232" rpy="-1.5708 -0 -0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_3.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Link part_4 -->
+    <link name="part_4">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_4 -->
+        <visual>
+            <origin xyz="0.203 0.0843698 0.232" rpy="-1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_4.stl"/>
+            </geometry>
+            <material name="part_4_material">
+                <color rgba="0.231373 0.380392 0.705882 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.203 0.0843698 0.232" rpy="-1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_4.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Link part_1_4 -->
+    <link name="part_1_4">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_1_4 -->
+        <visual>
+            <origin xyz="0 0 -0.06" rpy="-1.5708 0 -0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+            <material name="part_1_4_material">
+                <color rgba="0.615686 0.811765 0.929412 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.06" rpy="-1.5708 0 -0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Joint from part_4 to part_1_4 -->
+    <joint name="fr_wheel" type="continuous">
+        <origin xyz="-0.239393 -0.140393 -0.038" rpy="-0 -0 0"/>
+        <parent link="part_4"/>
+        <child link="part_1_4"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <!-- Link part_1_5 -->
+    <link name="part_1_5">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_1_5 -->
+        <visual>
+            <origin xyz="0 -0 -0.06" rpy="-1.5708 0 1.5708"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+            <material name="part_1_5_material">
+                <color rgba="0.615686 0.811765 0.929412 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 -0 -0.06" rpy="-1.5708 0 1.5708"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Joint from part_4 to part_1_5 -->
+    <joint name="mr_wheel" type="continuous">
+        <origin xyz="0.237354 -0.137101 -0.038" rpy="-0 -0 0"/>
+        <parent link="part_4"/>
+        <child link="part_1_5"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <!-- Joint from part_3 to part_4 -->
+    <joint name="right_rocker" type="revolute">
+        <origin xyz="-0.207404 -0.0842831 0" rpy="0 -0 -0"/>
+        <parent link="part_3"/>
+        <child link="part_4"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10" lower="-0.698132" upper="0.698132"/>
+    </joint>
+    <!-- Link part_1_6 -->
+    <link name="part_1_6">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1e-09"/>
+            <inertia ixx="1e-09" ixy="0" ixz="0" iyy="1e-09" iyz="0" izz="1e-09"/>
+        </inertial>
+        <!-- Part part_1_6 -->
+        <visual>
+            <origin xyz="0 0 -0.06" rpy="-1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+            <material name="part_1_6_material">
+                <color rgba="0.615686 0.811765 0.929412 1"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.06" rpy="-1.5708 -0 0"/>
+            <geometry>
+                <mesh filename="${mesh_path}/part_1.stl"/>
+            </geometry>
+        </collision>
+    </link>
+    <!-- Joint from part_3 to part_1_6 -->
+    <joint name="br_wheel" type="continuous">
+        <origin xyz="0.473222 -0.237894 -0.038" rpy="-0 -0 -0"/>
+        <parent link="part_3"/>
+        <child link="part_1_6"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <!-- Joint from ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion to part_3 -->
+    <joint name="right_upper_arm" type="revolute">
+        <origin xyz="-0.0686 0.526675 0.324819" rpy="1.5708 0 0"/>
+        <parent link="ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion"/>
+        <child link="part_3"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10" lower="-0.698132" upper="0.698132"/>
+    </joint>
+    <!-- Joint from base_link to ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion -->
+    <joint name="base_link_to_ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion" type="fixed">
+        <origin xyz="0 0 0" rpy="0 -0 0"/>
+        <parent link="base_link"/>
+        <child link="ttb_0094_ttb_0095_2x1_grid_pattern_aluminum_extrusion"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="10" velocity="10"/>
+    </joint>
+    <xacro:include filename="$(find chassis_description)/urdf/chassis_control.urdf.xacro"/>
+</robot>
