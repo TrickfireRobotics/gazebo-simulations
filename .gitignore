@@ -36,7 +36,4 @@ dist/
 .astro/
 
 ### MacOS native ###
-macos/*
-!macos/env.lock.yml
-!macos/versions.env
-!macos/
+.macos/

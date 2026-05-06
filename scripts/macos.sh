@@ -18,8 +18,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-MACOS_DIR="$REPO_DIR/macos"
 WORKSPACE_DIR="$REPO_DIR/robot-sim"
+MACOS_SOURCE_FILES="$WORKSPACE_DIR/sim-common/macos"
+MACOS_DIR="$REPO_DIR/macos"
 
 [ "$(uname)" = "Darwin" ] || {
 	printf 'This script is macOS-only.\n' >&2
@@ -27,9 +28,9 @@ WORKSPACE_DIR="$REPO_DIR/robot-sim"
 }
 
 # shellcheck disable=SC1090,SC1091
-[ -f "$MACOS_DIR/versions.env" ] && source "$MACOS_DIR/versions.env"
+[ -f "$MACOS_SOURCE_FILES/versions.env" ] && source "$MACOS_SOURCE_FILES/versions.env"
 
-ENV_LOCK="$MACOS_DIR/env.lock.yml"
+ENV_LOCK="$MACOS_SOURCE_FILES/env.lock.yml"
 ENV_PREFIX="$MACOS_DIR/envs/ros_env"
 MAMBA_ROOT_PREFIX="$MACOS_DIR/mamba"
 ROS_BASE_PREFIX="$MACOS_DIR/ros_base"

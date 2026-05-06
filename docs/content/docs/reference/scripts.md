@@ -49,7 +49,7 @@ One-shot native macOS setup for the ROS 2 Humble + Gazebo Harmonic stack.
 ```
 
 This script:
-1. Creates or reuses the `ros_env` micromamba environment from `.macos/env.lock.yml`
+1. Creates or reuses the `ros_env` micromamba environment from `./robot-sim/sim-common/macos/env.lock.yml`
 2. Applies the macOS-specific patches inline during setup
 3. Builds `ros_gz`, `gz_ros2_control`, and the repository workspace
 4. Prints the two-terminal launch sequence for `launch_sim.sh` and `macos_gui.sh`
