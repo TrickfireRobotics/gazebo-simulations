@@ -1,0 +1,7 @@
+macos/
+robot-sim/build/
+robot-sim/install/
+robot-sim/log/
+docs/node_modules/
+docs/dist/
+docs/.astro/
