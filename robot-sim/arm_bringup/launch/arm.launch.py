@@ -3,11 +3,18 @@ Launch script for the Gazebo arm simulation
 """
 
 import os
+import sys
 
 import xacro
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, RegisterEventHandler, TimerAction
+from launch.actions import (
+    DeclareLaunchArgument,
+    ExecuteProcess,
+    IncludeLaunchDescription,
+    RegisterEventHandler,
+    TimerAction,
+)
 from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -31,20 +38,27 @@ def generate_launch_description():
 
     robot_desc = xacro.process_file(
         urdf_file,
-        mappings={"controller_config": controller_config},
+        mappings={
+            "controller_config": controller_config,
+            "plugin_extension": ".dylib" if sys.platform == "darwin" else ".so",
+        },
     ).toxml()
 
     # ----------------------------------------------
     # Gazebo launch arguments
     # ----------------------------------------------
 
-    gz_sim = IncludeLaunchDescription(
+    gz_server = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
         ),
-        launch_arguments={
-            "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config])
-        }.items(),
+        launch_arguments={"gz_args": " ".join(["-r", "-s", world_file])}.items(),
+    )
+
+    gz_gui = ExecuteProcess(
+        cmd=["gz", "sim", "--force-version", "8", "-g", "--gui-config", gz_gui_config],
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("gui")),
     )
 
     # ----------------------------------------------
@@ -141,10 +155,12 @@ def generate_launch_description():
     )
 
     spawn_robot_delayed = TimerAction(period=5.0, actions=[spawn_robot])
+    gz_gui_delayed = TimerAction(period=2.0, actions=[gz_gui])
 
     return LaunchDescription(
         [
-            gz_sim,
+            gz_server,
+            gz_gui_delayed,
             spawn_robot_delayed,
             robot_state_publisher,
             DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),

@@ -40,6 +40,44 @@ The main entry point for running simulations. Builds the ROS 2 workspace and lau
 
 ---
 
+## macos_setup.sh
+
+One-shot native macOS setup for the ROS 2 Humble + Gazebo Harmonic stack.
+
+```bash title="Host terminal"
+./scripts/macos_setup.sh [env|patches|ros_gz|control|workspace|all]
+```
+
+This script:
+1. Creates or reuses the `ros_env` micromamba environment from `.macos/env.lock.yml`
+2. Applies the macOS-specific patches inline during setup
+3. Builds `ros_gz`, `gz_ros2_control`, and the repository workspace
+4. Prints the two-terminal launch sequence for `launch_sim.sh` and `macos_gui.sh`
+
+To remove the native macOS setup, delete the `macos/` directory and the `robot-sim/build`, `robot-sim/install`, and `robot-sim/log` folders.
+
+**Use it with:** the macOS setup guide at [macOS Native Setup](../../guides/macos-native-setup/).
+
+---
+
+## macos_gui.sh
+
+Launches the Gazebo GUI for the native macOS workflow after the simulator server is already running.
+
+```bash title="Host terminal"
+./scripts/macos_gui.sh
+```
+
+This script:
+1. Sources the `ros_gz` workspace at `.macos/ros_gz_ws`
+2. Sources the repository workspace overlay at `robot-sim/install/setup.bash`
+3. Sets `GZ_SIM_RESOURCE_PATH` so Gazebo can find world and model assets
+4. Starts `gz sim --force-version 8 -g` with the repo's GUI config
+
+**Use it with:** the macOS setup guide at [macOS Native Setup](../../guides/macos-native-setup/).
+
+---
+
 ## start_x_server.sh
 
 Starts a headless X11 desktop inside the container so Gazebo, RViz, and other GUI apps can render. Automatically detects the GPU environment and selects the appropriate backend.

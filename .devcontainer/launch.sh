@@ -22,12 +22,13 @@ log_error() { echo "[ERROR] $*" >&2; }
 OS="$(uname)"
 log_info "Detected host OS: $OS"
 
-declare -A ENV_VARS_ARRAY
+ENV_DISPLAY=""
+ENV_PROMPT_ENV=""
 
 case "$OS" in
 Darwin)
 	log_info "Configuring environment for MacOS"
-	ENV_VARS_ARRAY["DISPLAY"]=":0"
+	ENV_DISPLAY=":0"
 	;;
 Linux)
 	# If $DISPLAY is set and its socket exists, use it directly.
@@ -48,11 +49,11 @@ Linux)
 			log_warn "No X11 socket found, falling back to default :0"
 		fi
 	fi
-	ENV_VARS_ARRAY["DISPLAY"]="${DETECTED_DISPLAY:-:0}"
+	ENV_DISPLAY="${DETECTED_DISPLAY:-:0}"
 	;;
 MINGW* | CYGWIN* | MSYS*)
 	log_info "Configuring environment for Windows WSL"
-	ENV_VARS_ARRAY["DISPLAY"]="${DISPLAY:-:0}"
+	ENV_DISPLAY="${DISPLAY:-:0}"
 	;;
 *)
 	log_warn "Unknown OS: $OS. No OS-specific environment variables set."
@@ -62,29 +63,23 @@ esac
 # Bash prompt setup
 if [ -f /etc/nv_tegra_release ]; then
 	log_info "Detected Jetson host - setting PROMPT_ENV=${HOSTNAME}-dev"
-	ENV_VARS_ARRAY["PROMPT_ENV"]="${HOSTNAME}-dev"
+	ENV_PROMPT_ENV="${HOSTNAME}-dev"
 else
 	log_info "Detected local host - setting PROMPT_ENV=local-dev"
-	ENV_VARS_ARRAY["PROMPT_ENV"]="local-dev"
+	ENV_PROMPT_ENV="local-dev"
 fi
 
 # Write env vars into the launch.env file
 log_info "Initializing environment file at $LAUNCH_ENV_FILE..."
 rm -f "$LAUNCH_ENV_FILE"
-touch "$LAUNCH_ENV_FILE"
 
-if [[ ${#ENV_VARS_ARRAY[@]} -gt 0 ]]; then
-	>"$LAUNCH_ENV_FILE"
-	for var in "${!ENV_VARS_ARRAY[@]}"; do
-		echo "$var=${ENV_VARS_ARRAY[$var]}" >>"$LAUNCH_ENV_FILE"
-	done
+{
+	echo "DISPLAY=${ENV_DISPLAY}"
+	echo "PROMPT_ENV=${ENV_PROMPT_ENV}"
+} >"$LAUNCH_ENV_FILE"
 
-	log_info "Environment file $LAUNCH_ENV_FILE configured successfully with the following variables:"
-	echo "--------------------------------------------------"
-	for var in "${!ENV_VARS_ARRAY[@]}"; do
-		echo "$var=${ENV_VARS_ARRAY[$var]}"
-	done
-	echo "--------------------------------------------------"
-else
-	log_warn "No environment variables were set"
-fi
+log_info "Environment file $LAUNCH_ENV_FILE configured successfully with the following variables:"
+echo "--------------------------------------------------"
+echo "DISPLAY=${ENV_DISPLAY}"
+echo "PROMPT_ENV=${ENV_PROMPT_ENV}"
+echo "--------------------------------------------------"

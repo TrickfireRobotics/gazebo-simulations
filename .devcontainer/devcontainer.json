@@ -9,7 +9,7 @@
     "remoteUser": "trickfire",
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
-    "initializeCommand": ".devcontainer/launch.sh",
+    "initializeCommand": ["bash", ".devcontainer/launch.sh"],
     "postCreateCommand": "scripts/ros_clean.sh",
     "forwardPorts": [6080, 5900],
     "runArgs": [
@@ -38,7 +38,7 @@
                 "ms-vscode.cpptools",
                 "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cmake-tools",
-                "twxs.cmake",
+                "josetr.cmake-language-support-vscode",
                 // --- Robotics / ROS / URDF / meshes ---
                 "Ranch-Hand-Robotics.rde-ros-2",
                 "smilerobotics.urdf",
