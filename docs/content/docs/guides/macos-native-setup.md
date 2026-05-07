@@ -8,7 +8,7 @@ description: Optional native macOS instructions for running ROS 2 + Gazebo (micr
 This repository includes an optional, opt-in native macOS setup that installs a micromamba-based ROS 2 + Gazebo environment and builds required upstream components from source.
 
 - **Non-destructive:** This is strictly optional and does not replace or modify existing Linux or containerized workflows.
-- **Location:** The macOS helpers live at `./robot-sim/sim-common/macos/env.lock.yml` and `./robot-sim/sim-common/macos/versions.env`.
+- **Location:** The macOS helpers live at `./robot-sim/sim_common/macos/env.lock.yml` and `./robot-sim/sim_common/macos/versions.env`.
 - **Entry points:** Use `scripts/macos_setup.sh` for setup and `scripts/macos_gui.sh` for the GUI.
 
 Prerequisites

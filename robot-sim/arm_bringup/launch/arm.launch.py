@@ -3,6 +3,8 @@ Launch script for the Gazebo arm simulation
 """
 
 import os
+import shutil
+import subprocess
 import sys
 
 import xacro
@@ -21,6 +23,25 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from sim_common.launch_utils import get_asset
+
+
+def _gz_supports_sim_command():
+    """Return True when `gz` exists and exposes the `sim` subcommand."""
+    if shutil.which("gz") is None:
+        return False
+
+    try:
+        result = subprocess.run(
+            ["gz", "--commands"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return False
+
+    commands = result.stdout.splitlines()
+    return any(line.strip() == "sim" for line in commands)
 
 
 def generate_launch_description():
@@ -48,11 +69,18 @@ def generate_launch_description():
     # Gazebo launch arguments
     # ----------------------------------------------
 
+    use_split_gui = _gz_supports_sim_command()
+    gz_server_args = (
+        ["-r", "-s", world_file]
+        if use_split_gui
+        else ["-r", world_file, "--gui-config", gz_gui_config]
+    )
+
     gz_server = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
         ),
-        launch_arguments={"gz_args": " ".join(["-r", "-s", world_file])}.items(),
+        launch_arguments={"gz_args": " ".join(gz_server_args)}.items(),
     )
 
     gz_gui = ExecuteProcess(
@@ -156,11 +184,12 @@ def generate_launch_description():
 
     spawn_robot_delayed = TimerAction(period=5.0, actions=[spawn_robot])
     gz_gui_delayed = TimerAction(period=2.0, actions=[gz_gui])
+    maybe_gui_action = gz_gui_delayed if use_split_gui else None
 
     return LaunchDescription(
         [
             gz_server,
-            gz_gui_delayed,
+            *([maybe_gui_action] if maybe_gui_action is not None else []),
             spawn_robot_delayed,
             robot_state_publisher,
             DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),

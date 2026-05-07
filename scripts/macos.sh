@@ -5,8 +5,8 @@ set -euo pipefail
 # macos.sh - Build and launch the TrickFire robot simulation on macOS
 # ------------------------------------------------------------------------------
 # Automated build and deployment of the TrickFire robot simulation environment
-# using Gazebo and ROS 2 for macOS native. Handles conda environment setup,
-#  dependency management, workspace compilation, and simulation launch.
+# using Gazebo and ROS 2 for macOS natively. Handles conda environment setup,
+# dependency management, workspace compilation, and simulation launch.
 #
 # Usage:
 #   ./scripts/macos.sh [OPTIONS] <robot_name>
@@ -19,8 +19,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKSPACE_DIR="$REPO_DIR/robot-sim"
-MACOS_SOURCE_FILES="$WORKSPACE_DIR/sim-common/macos"
-MACOS_DIR="$REPO_DIR/macos"
+MACOS_SOURCE_FILES="$WORKSPACE_DIR/sim_common/macos"
+MACOS_DIR="$REPO_DIR/.macos"
 
 [ "$(uname)" = "Darwin" ] || {
 	printf 'This script is macOS-only.\n' >&2
@@ -325,7 +325,7 @@ step_control() {
 
 step_workspace() {
 	[ -d "$WORKSPACE_DIR" ] || die "workspace not found: $WORKSPACE_DIR"
-
+	"$SCRIPT_DIR/cmake_clean.sh" --mac || die "Failed to clean workspace with cmake_clean.sh!"
 	activate_env
 	source_ros_base
 	export COLCON_TRACE="${COLCON_TRACE:-}"
@@ -375,36 +375,6 @@ ${GZ_SIM_SYSTEM_PLUGIN_PATH:-}"
 	local sim_pid=$!
 	trap '[[ -n "${sim_pid:-}" ]] && kill "$sim_pid" 2>/dev/null || true' EXIT INT TERM
 	printf '%slog → %s%s\n\n' "$_D" "${log#"$REPO_DIR/"}" "$_X"
-
-	# Close any ephemeral Ogre error windows that sometimes appear empty
-	# (window names beginning with "OgreWidnow"). Run in background so
-	# it does not block the simulator process.
-	if command -v osascript >/dev/null 2>&1; then
-		(
-			sleep 5
-			oosascript <<'AS'
-tell application "System Events"
-	repeat with p in processes
-		try
-			repeat with w in (windows of p)
-				try
-					set wn to name of w
-				on error
-					set wn to ""
-				end try
-				if wn starts with "OgreWidnow" then
-					try
-						click button 1 of w
-					end try
-				end if
-			end repeat
-		end try
-	end repeat
-end tell
-AS
-		) &
-	fi
-
 	wait "$sim_pid" || true
 }
 
