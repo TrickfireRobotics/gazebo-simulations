@@ -7,7 +7,7 @@
     <xacro:arg name="controller_config" default=""/>
 
     <!-- Link base_link -->
-
+    
     <!-- World base link -->
     <link name="world"/>
 
