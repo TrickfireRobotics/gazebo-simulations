@@ -65,7 +65,7 @@ All formatters run automatically on save in VS Code. Install the recommended ext
 |---|---|
 | Python | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`) |
 | Astro | Astro (`astro-build.astro-vscode`) |
-| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) — follow the project's Prettier configuration (including 4-space indentation) |
+| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) - follow the project's Prettier configuration (including 4-space indentation) |
 | XML | XML Tools (`DotJoshJohnson.xml`) |
 | Dockerfile | Docker (`ms-azuretools.vscode-containers`) |
 
