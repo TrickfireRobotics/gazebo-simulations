@@ -43,35 +43,26 @@ export default defineConfig({
             ],
             sidebar: [
                 {
-                    label: 'Getting Started',
-                    items: [{ label: 'Prerequisites & Cloning', slug: 'simulate/getting-started' }]
-                },
-                {
-                    label: 'Running the Simulation',
+                    label: 'Setup',
                     items: [
-                        { label: 'Dev Container', slug: 'simulate/devcontainer' },
-                        { label: 'Nvidia Container', slug: 'simulate/nvidia' },
-                        { label: 'MacOS Native', slug: 'simulate/macos' }
+                        { label: 'Getting Started', slug: 'setup/getting-started' },
+                        { label: 'Dev Container', slug: 'setup/devcontainer' },
+                        { label: 'Nvidia Container', slug: 'setup/nvidia' },
+                        { label: 'MacOS Native', slug: 'setup/macos' }
                     ]
                 },
                 {
-                    label: 'Using the Simulation',
+                    label: 'Simulation',
                     items: [
-                        { label: 'Running Simulations', slug: 'simulate/running-simulations' },
-                        { label: 'Moving Joints', slug: 'simulate/moving-joints' },
-                        { label: 'Adding a New Robot', slug: 'simulate/adding-robots' }
-                    ]
-                },
-                {
-                    label: 'Development',
-                    items: [
-                        { label: 'Dev Guide', slug: 'dev/development' },
-                        { label: 'Dev Notes', slug: 'dev/dev-notes' }
+                        { label: 'Running Simulations', slug: 'guides/running-simulations' },
+                        { label: 'Moving Joints', slug: 'guides/moving-joints' },
+                        { label: 'Adding a New Robot', slug: 'guides/adding-robots' }
                     ]
                 },
                 {
                     label: 'Deep Dives',
                     items: [
+                        { label: 'Dev Notes', slug: 'reference/dev-notes' },
                         { label: 'ROS Workspace', slug: 'reference/ros-workspace' },
                         { label: 'Docker Environment', slug: 'reference/docker-environment' },
                         { label: 'Launch System', slug: 'reference/launch-system' },

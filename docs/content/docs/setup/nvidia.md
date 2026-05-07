@@ -41,7 +41,7 @@ You can now move onto the [Running Simulations](../running-simulations/) to laun
 To first time setup a Jetson computer for simulation, run this in the Jetson's shell:
 
 ```bash title="Jetson terminal"
-bash -c $(curl -fsSL https://raw.githubusercontent.com/TrickFireRobotics/gazebo-simulations/scripts/setup_jetson.sh)
+bash -c $(curl -fsSL https://raw.githubusercontent.com/TrickfireRobotics/gazebo-simulations/refs/heads/main/scripts/setup_jetson.sh)
 ```
 
 This script:

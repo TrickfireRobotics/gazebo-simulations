@@ -51,6 +51,12 @@ A pair of eyes should appear in the VNC desktop. Leave the X server script runni
 For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in your browser. Note that noVNC doesn't forward modifier keys (Alt, Super, etc.) correctly, so a native VNC viewer is better for regular use.
 :::
 
+## 3. Launch the sim
+
+Once the display is running, head to [Running Simulations](../running-simulations/) to launch your first sim.
+
+---
+
 ## External terminals
 
 If you do not like using the VSCode built in terminal for the container shell, you can attach from any terminal of your choice. There is a script for convenience, you can call it using:
@@ -60,7 +66,3 @@ If you do not like using the VSCode built in terminal for the container shell, y
 ```
 
 This finds the running Dev Container and drops you into a shell as the `trickfire` user. Run the `exit` command if you want to exit the environment back to your host shell.
-
-## Next step
-
-Once the display is running, head to [Running Simulations](../running-simulations/) to launch your first sim.
