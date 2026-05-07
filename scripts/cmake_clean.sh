@@ -5,8 +5,8 @@ set -e
 # cmake_clean.sh
 # Deletes CMake artifacts built on the wrong platform.
 # Usage: cmake_clean.sh [--mac|--linux]
-#   --mac    running on macOS — remove Linux/devcontainer artifacts
-#   --linux  running on Linux — remove macOS-native artifacts
+#   --mac    running on macOS - remove Linux/devcontainer artifacts
+#   --linux  running on Linux - remove macOS-native artifacts
 # Defaults to auto-detecting the current OS when no flag is given.
 # ------------------------------------------------------------------------------
 
