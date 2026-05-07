@@ -43,29 +43,42 @@ export default defineConfig({
             ],
             sidebar: [
                 {
-                    label: 'Guides',
+                    label: 'Getting Started',
+                    items: [{ label: 'Prerequisites & Cloning', slug: 'simulate/getting-started' }]
+                },
+                {
+                    label: 'Running the Simulation',
                     items: [
-                        { label: 'Getting Started', slug: 'guides/getting-started' },
-                        { label: 'Jetson Quick Start', slug: 'guides/jetson-quickstart' },
-                        { label: 'Running on a Jetson', slug: 'guides/jetson-setup' },
-                        { label: 'macOS Native Setup', slug: 'guides/macos-native-setup' },
-                        { label: 'Running Simulations', slug: 'guides/running-simulations' },
-                        { label: 'Moving Joints', slug: 'guides/moving-joints' },
-                        { label: 'Adding a New Robot', slug: 'guides/adding-robots' }
+                        { label: 'Dev Container', slug: 'simulate/devcontainer' },
+                        { label: 'Nvidia Container', slug: 'simulate/nvidia' },
+                        { label: 'MacOS Native', slug: 'simulate/macos' }
                     ]
                 },
                 {
-                    label: 'Reference',
+                    label: 'Using the Simulation',
                     items: [
-                        { label: 'ROS Workspace', slug: 'reference/ros-workspace' },
-                        { label: 'Scripts', slug: 'reference/scripts' },
-                        { label: 'Genbot', slug: 'reference/genbot' },
-                        { label: 'Joint GUI', slug: 'reference/joint-gui' },
-                        { label: 'Launch System', slug: 'reference/launch-system' },
-                        { label: 'Docker Environment', slug: 'reference/docker-environment' }
+                        { label: 'Running Simulations', slug: 'simulate/running-simulations' },
+                        { label: 'Moving Joints', slug: 'simulate/moving-joints' },
+                        { label: 'Adding a New Robot', slug: 'simulate/adding-robots' }
                     ]
                 },
-                { label: 'Dev Notes', autogenerate: { directory: 'dev' } }
+                {
+                    label: 'Development',
+                    items: [
+                        { label: 'Dev Guide', slug: 'dev/development' },
+                        { label: 'Dev Notes', slug: 'dev/dev-notes' }
+                    ]
+                },
+                {
+                    label: 'Deep Dives',
+                    items: [
+                        { label: 'ROS Workspace', slug: 'reference/ros-workspace' },
+                        { label: 'Docker Environment', slug: 'reference/docker-environment' },
+                        { label: 'Launch System', slug: 'reference/launch-system' },
+                        { label: 'Genbot', slug: 'reference/genbot' },
+                        { label: 'Joint GUI', slug: 'reference/joint-gui' }
+                    ]
+                }
             ],
             components: {
                 SocialIcons: './components/SocialIcons.astro'
