@@ -82,7 +82,10 @@
         // Astro website
         "docs/.astro": true,
         "docs/node_modules": true,
-        "docs/dist": true
+        "docs/dist": true,
+
+        // MacOS native build files
+        ".macos/": true
     },
 
     // ================================

@@ -9,7 +9,22 @@ def load_robots_json() -> list:
     """Load the robot registry"""
     if not ROBOTS_JSON.exists():
         return []
-    return json.loads(ROBOTS_JSON.read_text())
+    raw = ROBOTS_JSON.read_text().strip()
+    if not raw:
+        save_robots_json([])
+        return []
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        save_robots_json([])
+        return []
+
+    if not isinstance(data, list):
+        save_robots_json([])
+        return []
+
+    return data
 
 
 def save_robots_json(data: list) -> None:

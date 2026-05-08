@@ -159,7 +159,7 @@ if [[ -f "$WALLPAPER_SRC" ]]; then
 	run_as_user gsettings set org.gnome.desktop.background picture-uri-dark "file://${WALLPAPER_DEST}" 2>/dev/null || true
 	echo "[OK] Wallpaper set."
 else
-	echo "[WARN] Wallpaper not found at $WALLPAPER_SRC — skipping."
+	echo "[WARN] Wallpaper not found at $WALLPAPER_SRC - skipping."
 fi
 
 # --------------------------------------------------------------------------------------------
@@ -170,7 +170,7 @@ echo "[INFO] Configuring GNOME desktop..."
 # Dark mode
 run_as_user gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
 
-# Hide desktop icons — disable the ding extension and zero out all its show-* keys so
+# Hide desktop icons - disable the ding extension and zero out all its show-* keys so
 # the setting survives if the extension is re-enabled later.
 run_as_user gnome-extensions disable ding@rastersoft.com 2>/dev/null || true
 run_as_user gsettings set org.gnome.shell.extensions.ding show-home false 2>/dev/null || true

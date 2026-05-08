@@ -57,6 +57,10 @@ LOG_DIR="$WORKSPACE_DIR/log"
 LOG_PATH="$LOG_DIR/${ROBOT_NAME}-gazebo-$(date +'%Y-%m-%d_%H-%M').log"
 cd "$WORKSPACE_DIR"
 
+if [ "$BUILD" = true ]; then
+	"$SCRIPT_DIR/cmake_clean.sh" --linux
+fi
+
 # Validate required resources
 BRINGUP_PKG="${ROBOT_NAME}_bringup"
 DESCRIPTION_PKG="${ROBOT_NAME}_description"
@@ -104,6 +108,11 @@ fi
 
 # Source ROS2
 echo "[INFO] Sourcing ROS2 environment..."
+if [ ! -f "install/setup.bash" ]; then
+	echo "[Error] Missing install/setup.bash."
+	echo "        Run without --no-build once to generate install artifacts."
+	exit 1
+fi
 # shellcheck disable=SC1091
 source install/setup.bash
 

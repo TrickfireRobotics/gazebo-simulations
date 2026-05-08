@@ -9,7 +9,7 @@ hero:
     html: '<img src="/gazebo-simulations/logo-small.png" alt="TrickFire Robotics Logo" class="hero-logo">'
   actions:
     - text: Get Started
-      link: /gazebo-simulations/guides/getting-started/
+      link: /gazebo-simulations/setup/getting-started/
       icon: right-arrow
     - text: View on GitHub
       link: https://github.com/TrickfireRobotics/gazebo-simulations
@@ -22,8 +22,8 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 <CardGrid>
   <LinkCard
     title="Getting Started"
-    description="Clone the repo, open in a Dev Container, start the X server, and launch your first simulation."
-    href="/gazebo-simulations/guides/getting-started/"
+    description="Clone the repo and pick your environment - Docker, macOS native, or Jetson."
+    href="/gazebo-simulations/setup/getting-started/"
   />
   <LinkCard
     title="Running Simulations"
@@ -36,8 +36,8 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
     href="/gazebo-simulations/guides/adding-robots/"
   />
   <LinkCard
-    title="Reference"
-    description="Deep dives into genbot, the launch system, scripts, the Docker environment, and the ROS workspace layout."
+    title="Deep Dives"
+    description="Architecture deep dives into genbot, the launch system, the Docker environment, and the ROS workspace layout."
     href="/gazebo-simulations/reference/ros-workspace/"
   />
 </CardGrid>
