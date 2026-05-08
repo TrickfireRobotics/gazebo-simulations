@@ -1,3 +1,11 @@
+[project]
+name = "sim"
+version = "1.0.0"
+description = "A simulation environment manager"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
@@ -5,21 +13,13 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["cli"]
 
-[project]
-name = "sim"
-version = "0.1.0"
-requires-python = ">=3.10"
-dependencies = ["rich"]
-
 [project.scripts]
-sim = "cli.main:main"
+sim = "cli.cli:main"
 
 [tool.ruff]
 exclude = ["robot-sim/build", "robot-sim/log", "robot-sim/install"]
-
 line-length = 100
 indent-width = 4
-
 target-version = "py310"
 
 [tool.ruff.lint]
@@ -29,13 +29,8 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.format]
 quote-style = "double"
-
 indent-style = "space"
-
 skip-magic-trailing-comma = false
-
 line-ending = "auto"
-
 docstring-code-format = true
-
 docstring-code-line-length = "dynamic"

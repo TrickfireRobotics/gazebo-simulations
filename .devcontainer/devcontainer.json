@@ -1,4 +1,3 @@
-// DOCUMENTATION: https://containers.dev/implementors/json_reference/
 {
     "build": {
         "context": "../",
@@ -10,7 +9,11 @@
     "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
     "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
     "initializeCommand": ["bash", ".devcontainer/launch.sh"],
-    "postCreateCommand": "scripts/ros_clean.sh",
+    "postCreateCommand": [
+        "bash",
+        "-c",
+        "set -e; rm -f \"$HOME/.local/bin/sim\"; pipx install /home/trickfire/gazebo-simulations --force"
+    ],
     "forwardPorts": [6080, 5900],
     "runArgs": [
         "--privileged",
