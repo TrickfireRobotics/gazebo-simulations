@@ -139,7 +139,6 @@ RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl
 # --------------------------------------------------------------------------------------------
 # CLI
 RUN pip3 install -e /home/trickfire/gazebo-simulations
-ENV PATH="/home/trickfire/.local/bin:$PATH"
 
 
 USER trickfire
