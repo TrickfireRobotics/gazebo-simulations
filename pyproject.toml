@@ -11,7 +11,10 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["cli"]
+packages = ["cli", "cli.native", "cli.docker"]
+
+[tool.setuptools.package-data]
+"cli.native" = ["shell/*.sh"]
 
 [project.scripts]
 sim = "cli.cli:main"
