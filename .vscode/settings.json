@@ -73,6 +73,8 @@
         "**/.ruff_cache": true,
         "**/.mypy_cache": true,
         "**/__pycache__": true,
+        "**/*.egg-info": true,
+        "build/": true,
 
         // Robot Dev extension stuff
         ".vscode/browse.vc.db": true,
