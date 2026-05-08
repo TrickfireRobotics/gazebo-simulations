@@ -5,3 +5,4 @@ robot-sim/log/
 docs/node_modules/
 docs/dist/
 docs/.astro/
+.egg-info/

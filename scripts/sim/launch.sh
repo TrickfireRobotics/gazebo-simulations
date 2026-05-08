@@ -50,7 +50,7 @@ fi
 
 # Setup paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 WORKSPACE_DIR="$PROJECT_DIR/robot-sim"
 SIM_COMMON_DIR="$PROJECT_DIR/robot-sim/sim_common/sim_common/"
 LOG_DIR="$WORKSPACE_DIR/log"
@@ -58,7 +58,7 @@ LOG_PATH="$LOG_DIR/${ROBOT_NAME}-gazebo-$(date +'%Y-%m-%d_%H-%M').log"
 cd "$WORKSPACE_DIR"
 
 if [ "$BUILD" = true ]; then
-	"$SCRIPT_DIR/cmake_clean.sh" --linux
+	"$SCRIPT_DIR/../cmake_clean.sh" --linux
 fi
 
 # Validate required resources
