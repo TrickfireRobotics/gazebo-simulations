@@ -38,3 +38,6 @@ dist/
 ### MacOS native ###
 .macos/
 !robot-sim/sim_common/macos/versions.env
+
+### Pip ###
+*.egg-info/

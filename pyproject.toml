@@ -1,3 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["cli"]
+
+[project]
+name = "sim"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = ["rich"]
+
+[project.scripts]
+sim = "cli.main:main"
+
 [tool.ruff]
 exclude = ["robot-sim/build", "robot-sim/log", "robot-sim/install"]
 
@@ -6,9 +22,10 @@ indent-width = 4
 
 target-version = "py310"
 
-lint.fixable = ["ALL"]
-lint.unfixable = []
-lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+[tool.ruff.lint]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.format]
 quote-style = "double"

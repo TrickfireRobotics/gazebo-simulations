@@ -37,3 +37,6 @@ fi
 
 source /opt/ros/"${ROS_DISTRO}"/setup.bash
 source ~/gazebo-simulations/docker/shell/prompt.sh
+
+export PATH="$HOME/.local/bin:$PATH"
+pip3 install -e ~/gazebo-simulations --user --quiet 2>/dev/null || true

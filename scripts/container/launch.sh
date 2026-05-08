@@ -17,7 +17,7 @@ CONTAINER_NAME="gazebo-sim"
 USER_NAME="trickfire"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 cd "$PROJECT_DIR"
 
@@ -33,9 +33,9 @@ fi
 if docker ps -q --filter "name=^${CONTAINER_NAME}$" | grep -q .; then
 	echo "[INFO] Stopping running container..."
 	if $NVIDIA_GPU; then
-		docker compose -f docker/docker-compose.yml -f docker/docker-compose-gpu.yml down
+		docker compose -f ./docker/docker-compose.yml -f ./docker/docker-compose-gpu.yml down
 	else
-		docker compose -f docker/docker-compose.yml down
+		docker compose -f ./docker/docker-compose.yml down
 	fi
 fi
 
@@ -45,10 +45,10 @@ docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 echo "[INFO] Starting container..."
 if $NVIDIA_GPU; then
 	xhost +local:docker
-	docker compose -f docker/docker-compose.yml -f docker/docker-compose-gpu.yml up -d --build
+	docker compose -f ./docker/docker-compose.yml -f ./docker/docker-compose-gpu.yml up -d --build
 	echo "[INFO] NVIDIA GPU mode: rendering to host display ${DISPLAY}"
 else
-	docker compose -f docker/docker-compose.yml up -d --build
+	docker compose -f ./docker/docker-compose.yml up -d --build
 	HOST_IP="$(hostname -I 2>/dev/null | awk '{print $1}' || echo '')"
 	DISPLAY=":0"
 	echo ""
