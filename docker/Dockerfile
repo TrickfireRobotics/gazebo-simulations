@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-ros-ign-bridge \
     ros-humble-ros2-controllers \
     python3-tk \
+    pipx \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -135,10 +136,5 @@ RUN pip3 install open3d --ignore-installed blinker
 RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
     -o /usr/local/bin/shfmt && \
     chmod +x /usr/local/bin/shfmt
-
-# --------------------------------------------------------------------------------------------
-# CLI
-RUN pip3 install -e /home/trickfire/gazebo-simulations
-
 
 USER trickfire
