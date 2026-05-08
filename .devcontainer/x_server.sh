@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 set -eo pipefail
-
-# --------------------------------------------------------------------------------------------
-# start_x_server.sh
 # --------------------------------------------------------------------------------------------
 # Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
 # Intended for running GUI apps (Gazebo) in Docker.
