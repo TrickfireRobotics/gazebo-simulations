@@ -26,6 +26,7 @@ LINUX_DIR = REPO_DIR / ".linux"
 LINUX_BIN = LINUX_DIR / "bin"
 LINUX_ENVS = LINUX_DIR / "envs"
 LINUX_ENV_PREFIX = LINUX_ENVS / "ros_env"
+LINUX_CONTROL_WS = LINUX_DIR / "gz_ros2_control_ws"
 
 
 MACOS_SOURCE_FILES = WORKSPACE_DIR / "sim_common" / "macos"
