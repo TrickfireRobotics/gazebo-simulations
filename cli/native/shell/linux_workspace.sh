@@ -8,9 +8,11 @@ ENV_PREFIX="$2"
 WORKSPACE_DIR="$3"
 
 eval "$($MAMBA_EXE shell hook --shell bash)"
-micromamba activate "$ENV_PREFIX"
 
+set +u
+micromamba activate "$ENV_PREFIX"
 source "$ENV_PREFIX/setup.bash"
+set -u
 
 cd "$WORKSPACE_DIR"
 colcon build --cmake-args -DBUILD_TESTING=OFF
