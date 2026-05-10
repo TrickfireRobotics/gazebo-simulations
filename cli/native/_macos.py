@@ -282,12 +282,12 @@ def build_and_launch(robot: str, build_only: bool = False, no_build: bool = Fals
     mamba_exe = get_mamba_exe(MACOS_BIN)
 
     print("Building macOS environment...")
-
+   
     run_step("Prerequisites", _step_prereqs)
     run_step("Conda environment", lambda: _step_conda_env(mamba_exe))
     run_step("macOS patches", _step_patches)
     run_step("ROS base packages", lambda: _step_ros_base(mamba_exe))
-
+    
     ros_gz_sha = _VERSIONS.get("ROS_GZ_SHA", "unknown")[:9]
     run_step(f"ros_gz ({ros_gz_sha}…)", lambda: _step_ros_gz(mamba_exe))
 

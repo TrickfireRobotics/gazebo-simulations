@@ -11,6 +11,9 @@ CONTROL_WS="$5"
 WORKSPACE_DIR="$6"
 ROBOT="$7"
 
+#Check macos_workspace.sh for explanation
+set +u
+
 eval "$($MAMBA_EXE shell hook --shell bash)"
 micromamba activate "$ENV_PREFIX"
 
@@ -18,6 +21,7 @@ source "$ROS_BASE/setup.bash"
 source "$ROS_GZ_WS/install/setup.bash"
 source "$CONTROL_WS/install/setup.bash"
 source "$WORKSPACE_DIR/install/setup.bash"
+set -u
 
 export GZ_SIM_RESOURCE_PATH="$WORKSPACE_DIR/install/sim_worlds/share:$WORKSPACE_DIR/install/${ROBOT}_description/share"
 export GZ_SIM_SYSTEM_PLUGIN_PATH="$CONTROL_WS/install/gz_ros2_control/lib:$CONTROL_WS/install/ign_ros2_control/lib"
