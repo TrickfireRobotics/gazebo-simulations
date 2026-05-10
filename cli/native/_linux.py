@@ -28,6 +28,7 @@ _load_versions()
 
 LINUX_EXTRA_PKGS = [
     "ros-humble-ros-gz",
+    "gz-harmonic",
     "colcon-common-extensions",
     "colcon-ros",
     "libcap",
