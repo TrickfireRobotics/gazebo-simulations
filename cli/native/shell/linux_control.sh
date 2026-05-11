@@ -7,12 +7,12 @@ MAMBA_EXE="$1"
 ENV_PREFIX="$2"
 CONTROL_WS="$3"
 
+set +u
 eval "$($MAMBA_EXE shell hook --shell bash)"
 micromamba activate "$ENV_PREFIX"
 
-set +u
 source "$ENV_PREFIX/setup.bash"
-set -u
+set +u
 
 export PATH="$ENV_PREFIX/bin:$PATH"
 export GZ_VERSION=harmonic

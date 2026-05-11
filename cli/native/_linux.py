@@ -27,7 +27,7 @@ _load_versions()
 
 
 LINUX_EXTRA_PKGS = [
-    "ros-humble-ros-gz",
+    "ros-humble-ros-gz-bridge",
     "colcon-common-extensions",
     "colcon-ros",
     "libcap",
@@ -64,6 +64,8 @@ def _step_conda_env(mamba_exe: str) -> None:
             mamba_exe,
             "create",
             "-y",
+            "--no-rc",
+            "--override-channels",
             "-p",
             str(LINUX_ENV_PREFIX),
             "-c",
