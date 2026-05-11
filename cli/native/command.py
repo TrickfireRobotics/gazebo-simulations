@@ -99,8 +99,15 @@ def cmake_clean(platform: str | None = None) -> None:
             and generated_by
             and any(p in generated_by for p in ("/workspace", "/root/", "/home/"))
         )
+        # Check whether any cmake tool paths recorded in the cache no longer exist.
+        _TOOL_KEYS = ("CMAKE_COMMAND:INTERNAL=", "CMAKE_C_COMPILER:FILEPATH=", "CMAKE_CXX_COMPILER:FILEPATH=")
+        broken_tools = any(
+            not pathlib.Path(line.split("=", 1)[1].strip()).exists()
+            for line in lines
+            if any(line.startswith(k) for k in _TOOL_KEYS) and line.split("=", 1)[1].strip()
+        )
 
-        if wrong_path or wrong_platform:
+        if wrong_path or wrong_platform or broken_tools:
             rel = (
                 cache_file.parent.relative_to(WORKSPACE_DIR)
                 if cache_file.parent.is_relative_to(WORKSPACE_DIR)

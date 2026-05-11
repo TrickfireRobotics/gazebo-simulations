@@ -28,4 +28,4 @@ export GZ_SIM_SYSTEM_PLUGIN_PATH="$CONTROL_WS/install/gz_ros2_control/lib:$CONTR
 
 mkdir -p "$WORKSPACE_DIR/log"
 cd "$WORKSPACE_DIR"
-ros2 launch "${ROBOT}_bringup" "${ROBOT}.launch.py"
+exec ros2 launch "${ROBOT}_bringup" "${ROBOT}.launch.py"

@@ -87,7 +87,7 @@
         "docs/dist": true,
 
         // MacOS native build files
-        ".macos/": true
+        ".native/": true
     },
 
     // ================================

@@ -38,5 +38,5 @@ dist/
 .astro/
 
 ### MacOS native ###
-.macos/
+.native/
 !robot-sim/sim_common/macos/versions.env

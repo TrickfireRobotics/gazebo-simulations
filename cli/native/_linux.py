@@ -6,10 +6,10 @@ from pathlib import Path
 
 from ..output import die, info, run_step, warn
 from ..paths import (
-    LINUX_BIN,
-    LINUX_CONTROL_WS,
-    LINUX_DIR,
-    LINUX_ENV_PREFIX,
+    NATIVE_BUILD_DIR,
+    NATIVE_BIN,
+    NATIVE_CONTROL_WS,
+    NATIVE_ENV_PREFIX,
     MACOS_VERSIONS_FILE,
     WORKSPACE_DIR,
 )
@@ -38,12 +38,12 @@ LINUX_EXTRA_PKGS = [
 def _step_prereqs() -> None:
     if subprocess.run(["which", "git"], capture_output=True, check=False).returncode != 0:
         die("git is not installed")
-    if not (LINUX_BIN / "micromamba").exists():
-        install_micromamba(LINUX_BIN)
+    if not (NATIVE_BIN / "micromamba").exists():
+        install_micromamba(NATIVE_BIN)
 
 
 def _step_conda_env(mamba_exe: str) -> None:
-    python_exe = LINUX_ENV_PREFIX / "bin" / "python"
+    python_exe = NATIVE_ENV_PREFIX / "bin" / "python"
     if python_exe.exists():
         result = subprocess.run(
             [
@@ -57,13 +57,13 @@ def _step_conda_env(mamba_exe: str) -> None:
         )
         if result.returncode == 0 and result.stdout.strip() != "3.12":
             warn(f"Recreating ros_env (Python {result.stdout.strip()}, expected 3.12)")
-            shutil.rmtree(LINUX_ENV_PREFIX)
+            shutil.rmtree(NATIVE_ENV_PREFIX)
 
-    if LINUX_ENV_PREFIX.exists():
+    if NATIVE_ENV_PREFIX.exists():
         _ensure_gz_harmonic(mamba_exe)
         return
 
-    LINUX_DIR.mkdir(parents=True, exist_ok=True)
+    NATIVE_BUILD_DIR.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             mamba_exe,
@@ -72,7 +72,7 @@ def _step_conda_env(mamba_exe: str) -> None:
             "--no-rc",
             "--override-channels",
             "-p",
-            str(LINUX_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             "-c",
             "robostack-humble",
             "-c",
@@ -86,7 +86,7 @@ def _step_conda_env(mamba_exe: str) -> None:
 
 
 def _ensure_gz_harmonic(mamba_exe: str) -> None:
-    if (LINUX_ENV_PREFIX / "include" / "gz" / "sim8").exists():
+    if (NATIVE_ENV_PREFIX / "include" / "gz" / "sim8").exists():
         return
     info("Installing gz-harmonic into existing ros_env")
     subprocess.run(
@@ -95,7 +95,7 @@ def _ensure_gz_harmonic(mamba_exe: str) -> None:
             "install",
             "-y",
             "-p",
-            str(LINUX_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             "-c",
             "robostack-humble",
             "-c",
@@ -115,20 +115,20 @@ def _step_control(mamba_exe: str, versions: dict[str, str]) -> None:
             "Missing GZ_ROS2_CONTROL_REPO, GZ_ROS2_CONTROL_BRANCH, or GZ_ROS2_CONTROL_SHA in versions file"
         )
 
-    src = LINUX_CONTROL_WS / "src" / "gz_ros2_control"
+    src = NATIVE_CONTROL_WS / "src" / "gz_ros2_control"
     src.parent.mkdir(parents=True, exist_ok=True)
     sync_repo(repo, branch, sha, src)
 
-    marker = LINUX_CONTROL_WS / ".built_sha"
+    marker = NATIVE_CONTROL_WS / ".built_sha"
     if (
         marker.exists()
         and marker.read_text().strip() == sha
-        and (LINUX_CONTROL_WS / "install" / "setup.bash").exists()
+        and (NATIVE_CONTROL_WS / "install" / "setup.bash").exists()
     ):
         return
 
     run_script(
-        _SHELL_DIR / "linux_control.sh", mamba_exe, str(LINUX_ENV_PREFIX), str(LINUX_CONTROL_WS)
+        _SHELL_DIR / "linux_control.sh", mamba_exe, str(NATIVE_ENV_PREFIX), str(NATIVE_CONTROL_WS)
     )
     marker.write_text(sha)
 
@@ -137,7 +137,7 @@ def _step_workspace(mamba_exe: str) -> None:
     if not WORKSPACE_DIR.exists():
         die(f"Workspace not found: {WORKSPACE_DIR}")
     run_script(
-        _SHELL_DIR / "linux_workspace.sh", mamba_exe, str(LINUX_ENV_PREFIX), str(WORKSPACE_DIR)
+        _SHELL_DIR / "linux_workspace.sh", mamba_exe, str(NATIVE_ENV_PREFIX), str(WORKSPACE_DIR)
     )
 
 
@@ -151,8 +151,8 @@ def _launch_sim(mamba_exe: str, robot: str) -> None:
             "bash",
             str(_SHELL_DIR / "linux_launch.sh"),
             mamba_exe,
-            str(LINUX_ENV_PREFIX),
-            str(LINUX_CONTROL_WS),
+            str(NATIVE_ENV_PREFIX),
+            str(NATIVE_CONTROL_WS),
             str(WORKSPACE_DIR),
             robot,
         ]
@@ -161,7 +161,7 @@ def _launch_sim(mamba_exe: str, robot: str) -> None:
 
 def build_and_launch(robot: str, build_only: bool = False, no_build: bool = False) -> None:
     versions = load_versions(MACOS_VERSIONS_FILE)
-    mamba_exe = get_mamba_exe(LINUX_BIN)
+    mamba_exe = get_mamba_exe(NATIVE_BIN)
 
     run_step("Prerequisites", _step_prereqs)
     run_step("Conda environment", lambda: _step_conda_env(mamba_exe))

@@ -7,12 +7,12 @@ from pathlib import Path
 
 from ..output import die, info, run_step, warn
 from ..paths import (
-    MACOS_BIN,
-    MACOS_CONTROL_WS,
-    MACOS_DIR,
+    NATIVE_BUILD_DIR,
+    NATIVE_BIN,
+    NATIVE_CONTROL_WS,
+    NATIVE_ENV_PREFIX,
+    NATIVE_ENVS,
     MACOS_ENV_LOCK,
-    MACOS_ENV_PREFIX,
-    MACOS_ENVS,
     MACOS_ROS_BASE,
     MACOS_ROS_GZ_WS,
     MACOS_VERSIONS_FILE,
@@ -37,12 +37,12 @@ def _step_prereqs() -> None:
         die("git is not installed")
     if subprocess.run(["xcode-select", "-p"], capture_output=True, check=False).returncode != 0:
         die("Xcode Command Line Tools missing — run: xcode-select --install")
-    if not (MACOS_BIN / "micromamba").exists():
-        install_micromamba(MACOS_BIN)
+    if not (NATIVE_BIN / "micromamba").exists():
+        install_micromamba(NATIVE_BIN)
 
 
 def _step_conda_env(mamba_exe: str) -> None:
-    python_exe = MACOS_ENV_PREFIX / "bin" / "python"
+    python_exe = NATIVE_ENV_PREFIX / "bin" / "python"
     if python_exe.exists():
         result = subprocess.run(
             [
@@ -56,19 +56,19 @@ def _step_conda_env(mamba_exe: str) -> None:
         )
         if result.returncode == 0 and result.stdout.strip() != "3.12":
             warn(f"Recreating ros_env (Python {result.stdout.strip()}, expected 3.12)")
-            shutil.rmtree(MACOS_ENV_PREFIX)
+            shutil.rmtree(NATIVE_ENV_PREFIX)
 
-    if MACOS_ENV_PREFIX.exists():
+    if NATIVE_ENV_PREFIX.exists():
         return
 
-    MACOS_ENVS.mkdir(parents=True, exist_ok=True)
+    NATIVE_ENVS.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             mamba_exe,
             "create",
             "-y",
             "-p",
-            str(MACOS_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             "-f",
             str(MACOS_ENV_LOCK),
             "python=3.12",
@@ -80,7 +80,7 @@ def _step_conda_env(mamba_exe: str) -> None:
 def _step_patches() -> None:
     # Patch rosidl_generator_rs to not error on undefined symbols on macOS.
     rust_gen = (
-        MACOS_ENV_PREFIX
+        NATIVE_ENV_PREFIX
         / "share/rosidl_generator_rs/cmake/rosidl_generator_rs_generate_interfaces.cmake"
     )
     if rust_gen.exists():
@@ -105,7 +105,7 @@ def _step_patches() -> None:
         ("CPPZMQ::CPPZMQ", "cppzmq"),
         ("find_package(CPPZMQ", "find_package(cppzmq CONFIG"),
     ]
-    for cmake_dir in (MACOS_ENV_PREFIX / "lib" / "cmake", MACOS_ENV_PREFIX / "share" / "cmake"):
+    for cmake_dir in (NATIVE_ENV_PREFIX / "lib" / "cmake", NATIVE_ENV_PREFIX / "share" / "cmake"):
         if not cmake_dir.is_dir():
             continue
         for fpath in cmake_dir.rglob("*.cmake"):
@@ -123,7 +123,7 @@ def _step_patches() -> None:
 def _step_ros_base(mamba_exe: str) -> None:
     cmd = "install" if (MACOS_ROS_BASE / "setup.bash").exists() else "create"
     if cmd == "create":
-        MACOS_DIR.mkdir(parents=True, exist_ok=True)
+        NATIVE_BUILD_DIR.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             mamba_exe,
@@ -163,7 +163,7 @@ def _step_ros_gz(mamba_exe: str, versions: dict[str, str]) -> None:
     run_script(
         _SHELL_DIR / "macos_ros_gz.sh",
         mamba_exe,
-        str(MACOS_ENV_PREFIX),
+        str(NATIVE_ENV_PREFIX),
         str(MACOS_ROS_BASE),
         str(MACOS_ROS_GZ_WS),
     )
@@ -179,25 +179,25 @@ def _step_control(mamba_exe: str, versions: dict[str, str]) -> None:
             "Missing GZ_ROS2_CONTROL_REPO, GZ_ROS2_CONTROL_BRANCH, or GZ_ROS2_CONTROL_SHA in versions file"
         )
 
-    src = MACOS_CONTROL_WS / "src" / "gz_ros2_control"
+    src = NATIVE_CONTROL_WS / "src" / "gz_ros2_control"
     src.parent.mkdir(parents=True, exist_ok=True)
     sync_repo(repo, branch, sha, src)
 
-    marker = MACOS_CONTROL_WS / ".built_sha"
+    marker = NATIVE_CONTROL_WS / ".built_sha"
     if (
         marker.exists()
         and marker.read_text().strip() == sha
-        and (MACOS_CONTROL_WS / "install" / "setup.bash").exists()
+        and (NATIVE_CONTROL_WS / "install" / "setup.bash").exists()
     ):
         return
 
     run_script(
         _SHELL_DIR / "macos_control.sh",
         mamba_exe,
-        str(MACOS_ENV_PREFIX),
+        str(NATIVE_ENV_PREFIX),
         str(MACOS_ROS_BASE),
         str(MACOS_ROS_GZ_WS),
-        str(MACOS_CONTROL_WS),
+        str(NATIVE_CONTROL_WS),
     )
     marker.write_text(sha)
 
@@ -209,10 +209,10 @@ def _step_workspace(mamba_exe: str) -> None:
     run_script(
         _SHELL_DIR / "macos_workspace.sh",
         mamba_exe,
-        str(MACOS_ENV_PREFIX),
+        str(NATIVE_ENV_PREFIX),
         str(MACOS_ROS_BASE),
         str(MACOS_ROS_GZ_WS),
-        str(MACOS_CONTROL_WS),
+        str(NATIVE_CONTROL_WS),
         str(WORKSPACE_DIR),
     )
 
@@ -227,10 +227,10 @@ def _launch_sim(mamba_exe: str, robot: str) -> None:
             "bash",
             str(_SHELL_DIR / "macos_launch.sh"),
             mamba_exe,
-            str(MACOS_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             str(MACOS_ROS_BASE),
             str(MACOS_ROS_GZ_WS),
-            str(MACOS_CONTROL_WS),
+            str(NATIVE_CONTROL_WS),
             str(WORKSPACE_DIR),
             robot,
         ]
@@ -240,7 +240,7 @@ def _launch_sim(mamba_exe: str, robot: str) -> None:
 def build_and_launch(robot: str, build_only: bool = False, no_build: bool = False) -> None:
     """Build the native executable for the specified robot and launch it"""
     versions = load_versions(MACOS_VERSIONS_FILE)
-    mamba_exe = get_mamba_exe(MACOS_BIN)
+    mamba_exe = get_mamba_exe(NATIVE_BIN)
 
     run_step("Prerequisites", _step_prereqs)
     run_step("Conda environment", lambda: _step_conda_env(mamba_exe))

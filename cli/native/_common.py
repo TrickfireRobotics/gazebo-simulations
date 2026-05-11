@@ -104,17 +104,27 @@ def sync_repo(repo: str, branch: str, sha: str, dest: Path) -> None:
 
 def launch_process(cmd: list[str]) -> None:
     """Run a process and block until it exits, cleanly handling Ctrl+C."""
-    proc = subprocess.Popen(cmd)
+    import os
+    import signal
+
+    # Isolate the child in its own process group so Ctrl+C (SIGINT to the
+    # terminal's foreground group) does not reach it automatically. Python
+    # catches the KeyboardInterrupt and then drives the shutdown explicitly,
+    # which lets us wait for ros2 launch to finish killing all its nodes
+    # before we return — ensuring cleanup messages appear before the prompt.
+    # The launch scripts use `exec ros2 launch`, so proc.pid IS ros2 launch.
+    proc = subprocess.Popen(cmd, preexec_fn=os.setpgrp)
     try:
         proc.wait()
     except KeyboardInterrupt:
-        # bash and ros2 launch already received SIGINT from the terminal (same
-        # process group). Don't send an additional SIGTERM — that would kill bash
-        # immediately and orphan ros2 launch, causing its child-process cleanup
-        # messages to appear after the shell prompt. Instead, re-enter wait() so
-        # Python blocks until ros2 launch finishes shutting down all its nodes.
+        try:
+            os.killpg(proc.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
         try:
             proc.wait(timeout=15)
         except subprocess.TimeoutExpired:
-            proc.kill()
-        print(flush=True)  # blank line so the shell prompt starts cleanly
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
