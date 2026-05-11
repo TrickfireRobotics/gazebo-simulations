@@ -58,7 +58,7 @@ def _step_prereqs() -> None:
 
 
 def _step_conda_env(mamba_exe: str) -> None:
-    python_exe = MACOS_ENV_PREFIX / "bin" / "python"
+    python_exe = NATIVE_ENV_PREFIX / "bin" / "python"
     if python_exe.exists():
         result = subprocess.run(
             [
@@ -76,17 +76,17 @@ def _step_conda_env(mamba_exe: str) -> None:
 
             shutil.rmtree(MACOS_ENV_PREFIX)
 
-    if MACOS_ENV_PREFIX.exists():
+    if NATIVE_ENV_PREFIX.exists():
         return
 
-    MACOS_ENVS.mkdir(parents=True, exist_ok=True)
+    NATIVE_ENVS.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             mamba_exe,
             "create",
             "-y",
             "-p",
-            str(MACOS_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             "-f",
             str(MACOS_ENV_LOCK),
             "python=3.12",
@@ -134,7 +134,7 @@ def _step_patches() -> None:
 def _step_ros_base(mamba_exe: str) -> None:
     cmd = "install" if (MACOS_ROS_BASE / "setup.bash").exists() else "create"
     if cmd == "create":
-        MACOS_DIR.mkdir(parents=True, exist_ok=True)
+        NATIVE_BUILD_DIR.mkdir(parents=True, exist_ok=True)
     subprocess.run(
         [
             mamba_exe,
@@ -186,7 +186,7 @@ def _step_ros_gz(mamba_exe: str) -> None:
     _run_script(
         "macos_ros_gz.sh",
         mamba_exe,
-        str(MACOS_ENV_PREFIX),
+        str(NATIVE_ENV_PREFIX),
         str(MACOS_ROS_BASE),
         str(MACOS_ROS_GZ_WS),
     )
@@ -210,7 +210,7 @@ def _step_control(mamba_exe: str) -> None:
         subprocess.run(["git", "-C", str(src), "fetch", "--quiet", "origin"], check=False)
     subprocess.run(["git", "-C", str(src), "checkout", "--quiet", gz_sha], check=True)
 
-    marker = MACOS_CONTROL_WS / ".built_sha"
+    marker = NATIVE_CONTROL_WS / ".built_sha"
     if (
         marker.exists()
         and marker.read_text().strip() == gz_sha
@@ -221,10 +221,10 @@ def _step_control(mamba_exe: str) -> None:
     _run_script(
         "macos_control.sh",
         mamba_exe,
-        str(MACOS_ENV_PREFIX),
+        str(NATIVE_ENV_PREFIX),
         str(MACOS_ROS_BASE),
         str(MACOS_ROS_GZ_WS),
-        str(MACOS_CONTROL_WS),
+        str(NATIVE_CONTROL_WS),
     )
     marker.write_text(gz_sha)
 
@@ -238,10 +238,10 @@ def _step_workspace(
     _run_script(
         "macos_workspace.sh",
         mamba_exe,
-        str(MACOS_ENV_PREFIX),
+        str(NATIVE_ENV_PREFIX),
         str(MACOS_ROS_BASE),
         str(MACOS_ROS_GZ_WS),
-        str(MACOS_CONTROL_WS),
+        str(NATIVE_CONTROL_WS),
         str(WORKSPACE_DIR),
     )
 
@@ -258,10 +258,10 @@ def _launch_sim(mamba_exe: str, robot: str) -> None:
             "bash",
             str(_SHELL_DIR / "macos_launch.sh"),
             mamba_exe,
-            str(MACOS_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             str(MACOS_ROS_BASE),
             str(MACOS_ROS_GZ_WS),
-            str(MACOS_CONTROL_WS),
+            str(NATIVE_CONTROL_WS),
             str(WORKSPACE_DIR),
             robot,
         ]

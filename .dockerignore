@@ -1,5 +1,5 @@
 # MacOS native
-.macos/
+.native/
 
 # ROS build
 robot-sim/build/

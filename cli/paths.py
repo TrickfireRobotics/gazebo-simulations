@@ -1,3 +1,5 @@
+"""Paths to various files and directories used by the CLI"""
+
 from pathlib import Path
 
 
@@ -20,22 +22,16 @@ REPO_DIR = _find_repo_root()
 WORKSPACE_DIR = REPO_DIR / "robot-sim"
 DOCKER_DIR = REPO_DIR / "docker"
 
-# macOS-specific directories
-MACOS_DIR = REPO_DIR / ".macos"
-LINUX_DIR = REPO_DIR / ".linux"
-LINUX_BIN = LINUX_DIR / "bin"
-LINUX_ENVS = LINUX_DIR / "envs"
-LINUX_ENV_PREFIX = LINUX_ENVS / "ros_env"
-LINUX_CONTROL_WS = LINUX_DIR / "gz_ros2_control_ws"
-
+NATIVE_BUILD_DIR = REPO_DIR / ".native"
+NATIVE_BIN = NATIVE_BUILD_DIR / "bin"
+NATIVE_ENVS = NATIVE_BUILD_DIR / "envs"
+NATIVE_ENV_PREFIX = NATIVE_ENVS / "ros_env"
+NATIVE_CONTROL_WS = NATIVE_BUILD_DIR / "gz_ros2_control_ws"
 
 MACOS_SOURCE_FILES = WORKSPACE_DIR / "sim_common" / "macos"
-MACOS_BIN = MACOS_DIR / "bin"
-MACOS_ENVS = MACOS_DIR / "envs"
-MACOS_MAMBA_ROOT = MACOS_DIR / "mamba"
-MACOS_ROS_BASE = MACOS_DIR / "ros_base"
-MACOS_ROS_GZ_WS = MACOS_DIR / "ros_gz_ws"
-MACOS_CONTROL_WS = MACOS_DIR / "gz_ros2_control_ws"
+MACOS_MAMBA_ROOT = NATIVE_BUILD_DIR / "mamba"
+MACOS_ROS_BASE = NATIVE_BUILD_DIR / "ros_base"
+MACOS_ROS_GZ_WS = NATIVE_BUILD_DIR / "ros_gz_ws"
+MACOS_CONTROL_WS = NATIVE_CONTROL_WS
 MACOS_ENV_LOCK = MACOS_SOURCE_FILES / "env.lock.yml"
-MACOS_ENV_PREFIX = MACOS_ENVS / "ros_env"
 MACOS_VERSIONS_FILE = MACOS_SOURCE_FILES / "versions.env"

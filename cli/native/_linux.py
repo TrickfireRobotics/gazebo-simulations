@@ -28,6 +28,7 @@ _load_versions()
 
 LINUX_EXTRA_PKGS = [
     "ros-humble-ros-gz-bridge",
+    "ros-humble-ros-gz-sim",
     "colcon-common-extensions",
     "colcon-ros",
     "libcap",
@@ -43,7 +44,7 @@ def _step_prereqs() -> None:
 
 
 def _step_conda_env(mamba_exe: str) -> None:
-    python_exe = LINUX_ENV_PREFIX / "bin" / "python"
+    python_exe = NATIVE_ENV_PREFIX / "bin" / "python"
     if python_exe.exists():
         result = subprocess.run(
             [str(python_exe), "-c",
@@ -67,7 +68,7 @@ def _step_conda_env(mamba_exe: str) -> None:
             "--no-rc",
             "--override-channels",
             "-p",
-            str(LINUX_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             "-c",
             "robostack-humble",
             "-c",
@@ -84,19 +85,19 @@ def _ensure_linux_pkgs(mamba_exe: str) -> None:
     # gz-harmonic was added after some envs were already created; install if missing.
     if (LINUX_ENV_PREFIX / "include" / "gz" / "sim8").exists():
         return
-    info("Installing gz-harmonic into existing ros_env")
+    info(f"Installing missing packages into ros_env: {', '.join(missing)}")
     subprocess.run(
         [
             mamba_exe,
             "install",
             "-y",
             "-p",
-            str(LINUX_ENV_PREFIX),
+            str(NATIVE_ENV_PREFIX),
             "-c",
             "robostack-humble",
             "-c",
             "conda-forge",
-            "gz-harmonic",
+            *missing,
         ],
         check=True,
     )
@@ -121,7 +122,7 @@ def _step_control(mamba_exe: str) -> None:
         subprocess.run(["git", "-C", str(src), "fetch", "--quiet", "origin"], check=False)
     subprocess.run(["git", "-C", str(src), "checkout", "--quiet", gz_sha], check=True)
 
-    marker = LINUX_CONTROL_WS / ".built_sha"
+    marker = NATIVE_CONTROL_WS / ".built_sha"
     if (
         marker.exists()
         and marker.read_text().strip() == gz_sha
@@ -173,8 +174,8 @@ def _launch_sim(mamba_exe: str, robot: str) -> None:
             "bash",
             str(_SHELL_DIR / "linux_launch.sh"),
             mamba_exe,
-            str(LINUX_ENV_PREFIX),
-            str(LINUX_CONTROL_WS),
+            str(NATIVE_ENV_PREFIX),
+            str(NATIVE_CONTROL_WS),
             str(WORKSPACE_DIR),
             robot,
         ]

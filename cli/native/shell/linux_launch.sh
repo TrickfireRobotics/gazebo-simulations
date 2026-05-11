@@ -23,4 +23,4 @@ export GZ_SIM_RESOURCE_PATH="$WORKSPACE_DIR/install/sim_worlds/share:$WORKSPACE_
 
 mkdir -p "$WORKSPACE_DIR/log"
 cd "$WORKSPACE_DIR"
-ros2 launch "${ROBOT}_bringup" "${ROBOT}.launch.py"
+exec ros2 launch "${ROBOT}_bringup" "${ROBOT}.launch.py"

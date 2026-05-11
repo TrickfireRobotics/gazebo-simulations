@@ -29,10 +29,10 @@ _patch_cmake() {
 
 for _dir in "$ENV_PREFIX/lib/cmake" "$ENV_PREFIX/share/cmake"; do
 	[ -d "$_dir" ] || continue
-	_patch_cmake "TINYXML2::TINYXML2"    "tinyxml2::tinyxml2"           "$_dir"
+	_patch_cmake "TINYXML2::TINYXML2" "tinyxml2::tinyxml2" "$_dir"
 	_patch_cmake "find_package(TINYXML2" "find_package(tinyxml2 CONFIG" "$_dir"
-	_patch_cmake "CPPZMQ::CPPZMQ"        "cppzmq"                       "$_dir"
-	_patch_cmake "find_package(CPPZMQ"   "find_package(cppzmq CONFIG"   "$_dir"
+	_patch_cmake "CPPZMQ::CPPZMQ" "cppzmq" "$_dir"
+	_patch_cmake "find_package(CPPZMQ" "find_package(cppzmq CONFIG" "$_dir"
 done
 
 PY_EXE="$ROS_BASE/bin/python3"

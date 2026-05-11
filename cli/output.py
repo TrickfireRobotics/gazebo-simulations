@@ -26,26 +26,21 @@ def info(msg: str) -> None:
 
 
 def warn(msg: str) -> None:
-    """Non-fatal warning - print message to stderr"""
     print(f"{_Y}[WARN]{_X}  {msg}", file=sys.stderr)
 
 
 def die(msg: str) -> NoReturn:
-    """Fatal error - print message and exit with code 1"""
     print(f"\n{_R}[FATAL]{_X}  {msg}\n", file=sys.stderr)
     sys.exit(1)
 
 
 def run_step(label: str, fn: Callable[[], None]) -> None:
-    """Run a step with a label, showing progress and handling exceptions"""
     print(f"{_P}[STEP]{_X} {label}")
     if _TTY:
-        # Save cursor position
         print("\0337", end="", flush=True)
     try:
         fn()
         if _TTY:
-            # Restore cursor and clear from cursor to end of line
             print("\0338\033[J", end="", flush=True)
     except KeyboardInterrupt:
         sys.exit(130)
