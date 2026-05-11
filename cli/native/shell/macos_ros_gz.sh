@@ -13,7 +13,7 @@ micromamba activate "$ENV_PREFIX"
 
 set +u
 source "$ROS_BASE/setup.bash"
-set -u
+set +u
 export PATH="$ENV_PREFIX/bin:$PATH"
 export GZ_VERSION=harmonic
 export CMAKE_PREFIX_PATH="$ENV_PREFIX:$ROS_BASE"
