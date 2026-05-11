@@ -1,6 +1,11 @@
-import sys
+"""Commands for building and launching native executables for Gazebo robots"""
+
 import pathlib
+import shutil
+import subprocess
+import sys
 from typing import Literal
+
 from . import _macos, _linux
 from ..output import die, warn
 
@@ -13,6 +18,7 @@ def _is_wsl() -> bool:
 
 
 def get_platform() -> Literal["macos", "linux", "wsl", "windows"]:
+    """Detect the current platform, distinguishing between native Linux and WSL"""
     if sys.platform == "darwin":
         return "macos"
     if sys.platform == "win32":
@@ -21,145 +27,91 @@ def get_platform() -> Literal["macos", "linux", "wsl", "windows"]:
 
 
 def cmake_clean(platform: str | None = None) -> None:
+    """Remove CMake build artifacts that may have been generated on a different platform"""
+    from ..paths import WORKSPACE_DIR
+
     if platform is None:
         platform = get_platform()
-
-    from ..paths import WORKSPACE_DIR
 
     build_dir = WORKSPACE_DIR / "build"
     install_dir = WORKSPACE_DIR / "install"
 
-    if platform == "linux" or platform == "wsl":
-        saw_foreign = False
-        for scan_dir in [build_dir, install_dir]:
-            if not scan_dir.exists():
-                continue
-            try:
-                import subprocess
+    if platform in ("linux", "wsl"):
+        foreign_pattern, foreign_label = "/Users/", "macOS-native"
+        grep_args: list[str] = []
+    else:
+        foreign_pattern, foreign_label = (
+            r"/workspace|/workspaces/|/root/|/home/",
+            "Linux/devcontainer",
+        )
+        grep_args = ["-E"]
 
-                result = subprocess.run(
-                    ["grep", "-Rqs", "/Users/", str(scan_dir)],
-                    capture_output=True,
-                    check=False,
-                )
-                if result.returncode == 0:
-                    saw_foreign = True
-                    break
-            except Exception:  # pylint: disable=broad-except
-                pass
+    for scan_dir in (build_dir, install_dir):
+        if not scan_dir.exists():
+            continue
+        result = subprocess.run(
+            ["grep", "-Rqs", *grep_args, foreign_pattern, str(scan_dir)],
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            warn(
+                f"Detected {foreign_label} artifacts — removing build/ and install/ for a clean rebuild"
+            )
+            shutil.rmtree(build_dir, ignore_errors=True)
+            shutil.rmtree(install_dir, ignore_errors=True)
+            break
 
-        if saw_foreign:
-            warn("Detected macOS-native artifacts in Linux/WSL workspace.")
-            print("[INFO] Removing build/ and install/ for a clean Linux rebuild...")
-            import shutil
-
-            if build_dir.exists():
-                shutil.rmtree(build_dir)
-            if install_dir.exists():
-                shutil.rmtree(install_dir)
-
-    elif platform == "macos":
-        # On macOS: remove Linux/devcontainer artifacts
-        saw_foreign = False
-        for scan_dir in [build_dir, install_dir]:
-            if not scan_dir.exists():
-                continue
-            try:
-                import subprocess
-
-                result = subprocess.run(
-                    [
-                        "grep",
-                        "-Rqs",
-                        "-E",
-                        "/workspace|/workspaces/|/root/|/home/",
-                        str(scan_dir),
-                    ],
-                    capture_output=True,
-                    check=False,
-                )
-                if result.returncode == 0:
-                    saw_foreign = True
-                    break
-            except Exception:  # pylint: disable=broad-except
-                pass
-
-        if saw_foreign:
-            warn("Detected Linux/devcontainer artifacts in macOS workspace.")
-            print("[INFO] Removing build/ and install/ for a clean macOS rebuild...")
-            import shutil
-
-            if build_dir.exists():
-                shutil.rmtree(build_dir)
-            if install_dir.exists():
-                shutil.rmtree(install_dir)
-
-    # Check for stale CMake caches based on CMakeCache.txt contents
     if not build_dir.exists():
         return
 
-    import subprocess
-    import shutil
+    for cache_file in build_dir.rglob("CMakeCache.txt"):
+        try:
+            content = cache_file.read_text(encoding="utf-8")
+        except OSError:
+            continue
 
-    stale_dirs = set()
-
-    try:
-        find_result = subprocess.run(
-            ["find", str(build_dir), "-name", "CMakeCache.txt", "-type", "f"],
-            capture_output=True,
-            text=True,
-            check=False,
+        lines = content.splitlines()
+        expected_dir = next(
+            (
+                line.removeprefix("# For build in directory:").strip()
+                for line in lines
+                if line.startswith("# For build in directory:")
+            ),
+            None,
         )
-        for cache_file in find_result.stdout.strip().split("\n"):
-            if not cache_file:
-                continue
-
-            cache_path = pathlib.Path(cache_file)
-            cache_dir = cache_path.parent
-
-            try:
-                cache_content = cache_path.read_text(encoding="utf-8")
-            except Exception:  # pylint: disable=broad-except
-                continue
-
-            # Check for "For build in directory" and "It was generated by CMake" lines
-            expected_dir = None
-            generated_by = None
-
-            for line in cache_content.split("\n"):
-                if line.startswith("# For build in directory:"):
-                    expected_dir = line.replace("# For build in directory:", "").strip()
-                elif line.startswith("# It was generated by CMake:"):
-                    generated_by = line.replace("# It was generated by CMake:", "").strip()
-
-            if expected_dir and expected_dir != str(cache_dir):
-                stale_dirs.add(cache_dir)
-                continue
-
-            if platform == "linux" or platform == "wsl":
-                if generated_by and ("/Users/" in generated_by or "/macos/" in generated_by):
-                    stale_dirs.add(cache_dir)
-            elif platform == "macos":
-                if generated_by and (
-                    "/workspace" in generated_by
-                    or "/root/" in generated_by
-                    or "/home/" in generated_by
-                ):
-                    stale_dirs.add(cache_dir)
-    except Exception:  # pylint: disable=broad-except
-        pass
-
-    for stale_dir in sorted(stale_dirs):
-        rel_path = (
-            stale_dir.relative_to(WORKSPACE_DIR)
-            if stale_dir.is_relative_to(WORKSPACE_DIR)
-            else stale_dir
+        generated_by = next(
+            (
+                line.removeprefix("# It was generated by CMake:").strip()
+                for line in lines
+                if line.startswith("# It was generated by CMake:")
+            ),
+            None,
         )
-        print(f"[INFO] Removing stale build directory: {rel_path}")
-        shutil.rmtree(stale_dir)
+
+        wrong_path = expected_dir and expected_dir != str(cache_file.parent)
+        wrong_platform = (
+            platform in ("linux", "wsl")
+            and generated_by
+            and ("/Users/" in generated_by or "/macos/" in generated_by)
+        ) or (
+            platform == "macos"
+            and generated_by
+            and any(p in generated_by for p in ("/workspace", "/root/", "/home/"))
+        )
+
+        if wrong_path or wrong_platform:
+            rel = (
+                cache_file.parent.relative_to(WORKSPACE_DIR)
+                if cache_file.parent.is_relative_to(WORKSPACE_DIR)
+                else cache_file.parent
+            )
+            warn(f"Removing stale build directory: {rel}")
+            shutil.rmtree(cache_file.parent)
 
 
 def build_and_launch(robot: str, build_only: bool = False, no_build: bool = False) -> None:
+    """Build the native executable for the specified robot and launch it"""
     platform = get_platform()
 
     if platform == "windows":
@@ -167,5 +119,5 @@ def build_and_launch(robot: str, build_only: bool = False, no_build: bool = Fals
 
     if platform == "macos":
         _macos.build_and_launch(robot, build_only, no_build)
-    else:  # linux or wsl
+    else:
         _linux.build_and_launch(robot, build_only, no_build)

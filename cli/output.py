@@ -7,22 +7,23 @@ try:
 except Exception:  # pylint: disable=broad-except
     _is_tty = False
 if _is_tty:
-    _B = "\033[1m"  # bold
+    _B = "\033[1m"     # bold
+    _C = "\033[1;36m"  # cyan  (info)
     _G = "\033[1;32m"  # green
-    _Y = "\033[1;33m"  # yellow
-    _R = "\033[1;31m"  # red
-    _P = "\033[1;35m"  # purple
-    _D = "\033[2m"  # dim
-    _X = "\033[0m"  # reset
+    _Y = "\033[1;33m"  # yellow (warn)
+    _R = "\033[1;31m"  # red    (fatal)
+    _P = "\033[1;35m"  # purple (step)
+    _D = "\033[2m"     # dim
+    _X = "\033[0m"     # reset
     _TTY = True
 else:
-    _B = _G = _Y = _R = _P = _D = _X = ""
+    _B = _C = _G = _Y = _R = _P = _D = _X = ""
     _TTY = False
 
 
 def info(msg: str) -> None:
     """Informational message - print to stdout"""
-    print(f"{_B}[INFO]{_X}  {msg}")
+    print(f"{_C}[INFO]{_X}  {msg}")
 
 
 def warn(msg: str) -> None:
