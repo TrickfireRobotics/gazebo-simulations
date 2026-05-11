@@ -77,7 +77,7 @@ if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; 
 	exit 1
 fi
 
-# Set in the .devcontainer Dockerfile & launch.env
+# Set in the Dockerfile and docker compose.
 : "${DISPLAY:?DISPLAY is not set}"
 : "${VNC_PORT:?VNC_PORT is not set}"
 : "${NOVNC_PORT:?NOVNC_PORT is not set}"

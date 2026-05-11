@@ -13,7 +13,6 @@ Icon
 !.vscode/extensions.json
 
 ### Devcontainer ###
-.devcontainer/launch.env
 
 ### Python ###
 .mypy_cache
