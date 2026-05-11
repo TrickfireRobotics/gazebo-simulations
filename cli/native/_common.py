@@ -2,9 +2,9 @@ import pathlib
 import subprocess
 import tempfile
 from pathlib import Path
+
 from ..output import die, info
 
-# ROS Humble packages installed via conda/robostack on both macOS and Linux.
 ROS_BASE_PKGS = [
     "ros-humble-ros-base",
     "ros-humble-actuator-msgs",
@@ -20,6 +20,20 @@ ROS_BASE_PKGS = [
     "ros-humble-xacro",
     "ros-humble-rviz2",
 ]
+
+
+def load_versions(path: Path) -> dict[str, str]:
+    """Parse a shell-style KEY=value env file, ignoring blanks and comments."""
+    if not path.exists():
+        die(f"Versions file not found: {path}")
+    out: dict[str, str] = {}
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        out[k.strip()] = v.strip().strip('"').strip("'")
+    return out
 
 
 def install_micromamba(bin_dir: Path) -> None:
@@ -72,3 +86,35 @@ def get_mamba_exe(bin_dir: Path) -> str:
     if not mamba.exists():
         install_micromamba(bin_dir)
     return str(mamba)
+
+
+def run_script(script: Path, *args: str) -> None:
+    """Run a shell script with bash."""
+    subprocess.run(["bash", str(script), *args], check=True)
+
+
+def sync_repo(repo: str, branch: str, sha: str, dest: Path) -> None:
+    """Clone or fetch a git repo and check out the given commit."""
+    if not dest.exists():
+        subprocess.run(["git", "clone", "--branch", branch, repo, str(dest)], check=True)
+    else:
+        subprocess.run(["git", "-C", str(dest), "fetch", "--quiet", "origin"], check=False)
+    subprocess.run(["git", "-C", str(dest), "checkout", "--quiet", sha], check=True)
+
+
+def launch_process(cmd: list[str]) -> None:
+    """Run a process and block until it exits, cleanly handling Ctrl+C."""
+    proc = subprocess.Popen(cmd)
+    try:
+        proc.wait()
+    except KeyboardInterrupt:
+        # bash and ros2 launch already received SIGINT from the terminal (same
+        # process group). Don't send an additional SIGTERM — that would kill bash
+        # immediately and orphan ros2 launch, causing its child-process cleanup
+        # messages to appear after the shell prompt. Instead, re-enter wait() so
+        # Python blocks until ros2 launch finishes shutting down all its nodes.
+        try:
+            proc.wait(timeout=15)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        print(flush=True)  # blank line so the shell prompt starts cleanly
