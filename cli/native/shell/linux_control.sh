@@ -17,6 +17,14 @@ set +u
 export PATH="$ENV_PREFIX/bin:$PATH"
 export GZ_VERSION=harmonic
 export CMAKE_PREFIX_PATH="$ENV_PREFIX${CMAKE_PREFIX_PATH:+:$CMAKE_PREFIX_PATH}"
+export LIBRARY_PATH="$ENV_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+export LD_LIBRARY_PATH="$ENV_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+LINKER_FLAGS="-Wl,-rpath,$ENV_PREFIX/lib -L$ENV_PREFIX/lib"
 
 cd "$CONTROL_WS"
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+colcon build --symlink-install --cmake-args \
+  -DCMAKE_BUILD_TYPE=Release \
+  "-DCMAKE_SHARED_LINKER_FLAGS=$LINKER_FLAGS" \
+  "-DCMAKE_MODULE_LINKER_FLAGS=$LINKER_FLAGS" \
+  "-DCMAKE_EXE_LINKER_FLAGS=$LINKER_FLAGS"
