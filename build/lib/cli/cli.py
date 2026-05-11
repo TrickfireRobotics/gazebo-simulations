@@ -1,39 +1,23 @@
+"""Main CLI entry point for sim command"""
+
 import argparse
 import sys
-from .native import command as native_command
-from .docker import command as docker_command
+from . import docker as docker_command
 from .paths import WORKSPACE_DIR
 from .output import die
 
 
 def main() -> None:
+    """Main entry point for sim command"""
     parser = argparse.ArgumentParser(
         prog="sim",
         description="TrickFire robot simulation launcher",
     )
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
-    # native command
-    native_parser = subparsers.add_parser(
-        "native",
-        help="Launch simulation natively (macOS/Linux/WSL)",
-    )
-    native_parser.add_argument("robot", help="Robot name (e.g., arm, gripper)")
-    native_parser.add_argument(
-        "--build-only",
-        action="store_true",
-        help="Build only, don't launch simulation",
-    )
-    native_parser.add_argument(
-        "--no-build",
-        action="store_true",
-        help="Skip build, use existing install/",
-    )
-
-    # docker command
     docker_parser = subparsers.add_parser(
         "docker",
-        help="Launch simulation in Docker",
+        help="Build and launch a robot simulation",
     )
     docker_parser.add_argument("robot", help="Robot name (e.g., arm, gripper)")
     docker_parser.add_argument(
@@ -47,23 +31,20 @@ def main() -> None:
         help="Skip build, use existing install/",
     )
 
-    # clean command
     subparsers.add_parser(
         "clean",
         help="Delete build artifacts (build/, install/, log/)",
     )
 
-    args = parser.parse_args()
+    argv = sys.argv[1:]
+    if argv and not argv[0].startswith("-") and argv[0] not in {"clean", "docker"}:
+        argv = ["docker", *argv]
+
+    args = parser.parse_args(argv)
 
     try:
-        if args.command == "native":
-            native_command.build_and_launch(
-                args.robot,
-                build_only=args.build_only,
-                no_build=args.no_build,
-            )
-        elif args.command == "docker":
-            docker_command.launch(
+        if args.command == "docker":
+            docker_command.build_and_launch(
                 args.robot,
                 build_only=args.build_only,
                 no_build=args.no_build,

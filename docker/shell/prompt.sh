@@ -7,10 +7,10 @@
 #
 # The prompt label and color are driven by $PROMPT_ENV:
 #
-#   local-dev    (blue)    - devcontainer on the local machine  [set by launch.sh → launch.env]
+#   local-dev    (blue)    - devcontainer on the local machine  [set by docker compose]
 #   <name>-host  (orange)   - SSH shell on a remote host        [set by ssh.sh]
-#   <name>-dev   (green)   - devcontainer on a remote host      [set by launch.sh → launch.env]
-#   <name>-sim   (magenta) - gazebo-sim container               [set by .devcontainer/docker-compose.yml]
+#   <name>-dev   (green)   - devcontainer on a remote host      [set by docker compose]
+#   <name>-sim   (magenta) - gazebo-sim container               [set by docker compose]
 # --------------------------------------------------------------------------------------------
 
 # --- Colors (256-color ANSI escape sequences, wrapped for PS1 safety) ---

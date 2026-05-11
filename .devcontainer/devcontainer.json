@@ -1,33 +1,13 @@
 {
-    "build": {
-        "context": "../",
-        "dockerfile": "../docker/Dockerfile",
-        "target": "dev"
-    },
-    "containerUser": "trickfire",
-    "remoteUser": "trickfire",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
-    "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
-    "initializeCommand": ["bash", ".devcontainer/launch.sh"],
-    "postCreateCommand": [
-        "bash",
-        "-c",
-        "set -e; rm -f \"$HOME/.local/bin/sim\"; pipx install /home/trickfire/gazebo-simulations --force"
+    "dockerComposeFile": [
+        "../docker/docker-compose.yml",
+        "../docker/docker-compose-dev.yml"
     ],
+    "service": "sim",
+    "runServices": ["sim"],
+    "overrideCommand": false,
+    "workspaceFolder": "/home/trickfire/gazebo-simulations",
     "forwardPorts": [6080, 5900],
-    "runArgs": [
-        "--privileged",
-        "--cap-add=SYS_PTRACE",
-        "--device=/dev",
-        "--security-opt",
-        "seccomp=unconfined",
-        "--env-file",
-        ".devcontainer/launch.env",
-        "-e",
-        "QT_X11_NO_MITSHM=1",
-        "-v",
-        "/tmp/.X11-unix:/tmp/.X11-unix"
-    ],
     "customizations": {
         "vscode": {
             "extensions": [
