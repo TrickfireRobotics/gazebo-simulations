@@ -31,6 +31,7 @@ LINUX_EXTRA_PKGS = [
     "colcon-common-extensions",
     "colcon-ros",
     "libcap",
+    "gz-harmonic",
 ]
 
 
@@ -55,6 +56,7 @@ def _step_conda_env(mamba_exe: str) -> None:
             shutil.rmtree(LINUX_ENV_PREFIX)
 
     if LINUX_ENV_PREFIX.exists():
+        _ensure_linux_pkgs(mamba_exe)
         return
     LINUX_DIR.mkdir(parents=True, exist_ok=True)
     subprocess.run(
@@ -71,6 +73,28 @@ def _step_conda_env(mamba_exe: str) -> None:
             "python=3.12",
             *ROS_BASE_PKGS,
             *LINUX_EXTRA_PKGS,
+        ],
+        check=True,
+    )
+
+
+def _ensure_linux_pkgs(mamba_exe: str) -> None:
+    # gz-harmonic was added after some envs were already created; install if missing.
+    if (LINUX_ENV_PREFIX / "include" / "gz" / "sim8").exists():
+        return
+    info("Installing gz-harmonic into existing ros_env")
+    subprocess.run(
+        [
+            mamba_exe,
+            "install",
+            "-y",
+            "-p",
+            str(LINUX_ENV_PREFIX),
+            "-c",
+            "robostack-humble",
+            "-c",
+            "conda-forge",
+            "gz-harmonic",
         ],
         check=True,
     )
