@@ -82,6 +82,13 @@ fi
 : "${VNC_PORT:?VNC_PORT is not set}"
 : "${NOVNC_PORT:?NOVNC_PORT is not set}"
 
+# Normalize DISPLAY: ensure it starts with a leading colon (":N")
+# Some environments export DISPLAY as a plain number (e.g. "1").
+if [[ "${DISPLAY}" != :* ]]; then
+	export DISPLAY=":${DISPLAY}"
+	log "[X11] Normalized DISPLAY to ${DISPLAY}"
+fi
+
 # Check if DISPLAY is already in use
 if xdpyinfo -display "$DISPLAY" &>/dev/null; then
 	log "[ERROR] Display $DISPLAY is already in use!"
