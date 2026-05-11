@@ -28,6 +28,7 @@ _SHELL_DIR = Path(__file__).parent / "shell"
 
 LINUX_EXTRA_PKGS = [
     "ros-humble-ros-gz-bridge",
+    "ros-humble-ros-gz-sim",
     "colcon-common-extensions",
     "colcon-ros",
     "libcap",
@@ -60,7 +61,7 @@ def _step_conda_env(mamba_exe: str) -> None:
             shutil.rmtree(NATIVE_ENV_PREFIX)
 
     if NATIVE_ENV_PREFIX.exists():
-        _ensure_gz_harmonic(mamba_exe)
+        _ensure_pkgs(mamba_exe)
         return
 
     NATIVE_BUILD_DIR.mkdir(parents=True, exist_ok=True)
@@ -85,10 +86,19 @@ def _step_conda_env(mamba_exe: str) -> None:
     )
 
 
-def _ensure_gz_harmonic(mamba_exe: str) -> None:
-    if (NATIVE_ENV_PREFIX / "include" / "gz" / "sim8").exists():
+def _ensure_pkgs(mamba_exe: str) -> None:
+    missing: list[str] = []
+    if not (NATIVE_ENV_PREFIX / "include" / "gz" / "sim8").exists():
+        missing.append("gz-harmonic")
+    ros_gz_sim_marker = (
+        NATIVE_ENV_PREFIX / "opt" / "ros" / "humble" / "share" / "ament_index"
+        / "resource_index" / "packages" / "ros_gz_sim"
+    )
+    if not ros_gz_sim_marker.exists():
+        missing.append("ros-humble-ros-gz-sim")
+    if not missing:
         return
-    info("Installing gz-harmonic into existing ros_env")
+    info(f"Installing missing packages into ros_env: {', '.join(missing)}")
     subprocess.run(
         [
             mamba_exe,
@@ -100,7 +110,7 @@ def _ensure_gz_harmonic(mamba_exe: str) -> None:
             "robostack-humble",
             "-c",
             "conda-forge",
-            "gz-harmonic",
+            *missing,
         ],
         check=True,
     )
