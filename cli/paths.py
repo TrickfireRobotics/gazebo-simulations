@@ -4,11 +4,9 @@ from pathlib import Path
 
 
 def _find_repo_root() -> Path:
-    # Walk up from cwd looking for the repo (has both robot-sim/ and pyproject.toml)
     for candidate in [Path.cwd(), *Path.cwd().parents]:
         if (candidate / "robot-sim").is_dir() and (candidate / "pyproject.toml").is_file():
             return candidate
-    # Fallback: __file__-based path (works for editable installs run from repo root)
     pkg_root = Path(__file__).parent.parent
     if (pkg_root / "robot-sim").is_dir():
         return pkg_root
