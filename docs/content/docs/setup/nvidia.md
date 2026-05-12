@@ -11,24 +11,23 @@ If you are using a Nvidia Jetson, this guide assumes it has been set up. If the 
 
 ## 1. Setup the codebase
 
-First you're going to need to get your codebase onto the Jetson. You can do that by cloning the repo using `git`, but it is usually better to use the provided file sync script, as that will replicate the excact state of the codebase you have on your machine. You need to rerun the sync script everytime you change code on your machine.
-
-```bash title="Dev machine terminal"
-./scripts/sync_ssh.sh <target>
-```
-
-Where `<target>` is the name of the Jetson configured in `remote_pcs.sh`. This will use `rsync` to transfer your local code changes to the Jetson, which you can then run inside the container.
-
-## 2. Launch the Nvidia container
-
-From the Jetson terminal, start the simulation container:
+Clone the repository on the Jetson using `git`:
 
 ```bash title="Jetson terminal"
-cd ~/gazebo-simulations
-./scripts/start_container.sh
+git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
+cd gazebo-simulations
 ```
 
-The script detects the NVIDIA GPU, starts the container with GPU passthrough, and drops you into a shell inside the container. There should be a log message confirming the GPU is detected and the container is running. If the log says "No NVIDIA GPU detected, starting in VNC mode" instead, see the troubleshooting section below, something is wrong. You can check the passthrough works by running `xeyes` inside the container, you should see a native window pop up on the Jetson desktop with eyes following your mouse cursor.
+## 2. Launch the simulation with GPU support
+
+Use the `sim` CLI to build and launch the simulation with GPU passthrough:
+
+```bash title="Jetson terminal"
+cd gazebo-simulations
+sim docker <robot-name>
+```
+
+The container detects the NVIDIA GPU and automatically enables GPU passthrough. You should see the container start and drop you into a shell.
 
 ## 3. Launch the simulation
 
@@ -38,24 +37,25 @@ You can now move onto the [Running Simulations](../running-simulations/) to laun
 
 # How to set up a Jetson
 
-To first time setup a Jetson computer for simulation, run this in the Jetson's shell:
+To set up a Jetson computer for Docker GPU support:
 
-```bash title="Jetson terminal"
-bash -c $(curl -fsSL https://raw.githubusercontent.com/TrickfireRobotics/gazebo-simulations/refs/heads/main/scripts/setup_jetson.sh)
-```
+1. **Install NVIDIA Container Toolkit:**
 
-This script:
-- Installs the NVIDIA Container Toolkit so Docker can access the GPU
-- Makes the Jetson use maximum performance, ignoring power. This will:
-   - Switch to the highest power mode
-   - Disables Wi-Fi power management
-   - Sets fans to **full** mode, making them spin on max always
-- Configures the GNOME desktop (dark mode, TrickFire wallpaper, kitty terminal)
-- **Reboots the host at the end**
+   ```bash title="Jetson terminal"
+   curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+   distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+     && curl -fsSL https://nvidia.github.io/libnvidia-container/libnvidia-container.list | \
+     sed 's/^deb /deb [signed-by=\/usr\/share\/keyrings\/nvidia-container-toolkit-keyring.gpg] /' | \
+     sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+   sudo nvidia-ctk runtime configure --runtime=docker
+   sudo systemctl restart docker
+   ```
 
-Wait for the Jetson to finish rebooting before continuing. If you want to check the power changes have applied, and that your Jetson is being throttled, you can run `health_check_remote.sh` and check the power mode and WiFi status. This has to be ran from another machine with ssh access to the Jetson, since the Jetson will be headless after this step: (target again reffers to the Jetson defined in `remote_pcs.sh`)
+2. **Configure Jetson for max performance (optional but recommended):**
 
-```bash title="User terminal"
-./scripts/health_check_remote.sh <target>
-```
-You should now be ready to run the simulation container on the Jetson with GPU passthrough. Go back [to the top](#1-setup-the-codebase) and continue.
+   - Switch to maximum power mode (MAXN)
+   - Set fans to full speed
+   - Disable WiFi power management
+
+You should now be ready to run the simulation container on the Jetson with GPU passthrough.
