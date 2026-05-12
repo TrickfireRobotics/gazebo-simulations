@@ -7,7 +7,7 @@ from pathlib import Path
 from .output import die, info, warn
 from .paths import REPO_DIR
 
-_AGE_FILE = REPO_DIR / "onshape.env.age"
+_AGE_FILE = REPO_DIR / "cli" / "onshape.env.age"
 _ONSHAPE_ENV = REPO_DIR / "cli" / "onshape.env"
 
 _SSH_KEY_CANDIDATES = [
@@ -19,6 +19,7 @@ _SSH_KEY_CANDIDATES = [
 
 
 def login() -> None:
+    """Decrypt onshape.env.age using age and save to onshape.env"""
     info("Checking for age...")
     if not shutil.which("age"):
         die(
@@ -59,6 +60,7 @@ def login() -> None:
             ["age", "--decrypt", "--identity", str(ssh_key), str(_AGE_FILE)],
             capture_output=True,
             text=True,
+            check=False,
         )
         if result.returncode == 0:
             _ONSHAPE_ENV.write_text(result.stdout)
