@@ -24,22 +24,14 @@ Running `sim create` locally requires your GitHub username to be listed in
 If you're not listed, ask a repo admin to add you. There are also some local package requirements:
 
 :::note[note]
-You have to run this outside of the container, as it uses a GitHub's `ssh` key. You must also have Github setup through `ssh` not through `https`. You will need to install the sim cli locally, and also need the `age` CLI for decryption.
+The container mounts your `ssh` keys, as this method uses your GitHub `ssh` key. Make sure it is set up.
 :::
 
 ```bash title="Host terminal"
-brew install pipx           # macOS
-sudo apt-get install pipx   # Linux
-
-pipx install -e <repo-root-path>
-
-brew install age            # macOS
-sudo apt-get install age    # Linux
-
 sim auth
 ```
 
-Then run inside the Dev Container:
+Then you can create the robot using:
 
 ```bash title="Inside devcontainer"
 sim create <robot_name> <onshape_url>

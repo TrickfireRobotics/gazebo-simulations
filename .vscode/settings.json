@@ -75,6 +75,7 @@
         "**/__pycache__": true,
         "**/*.egg-info": true,
         "build/": true,
+        "**/.venv": true,
 
         // Robot Dev extension stuff
         ".vscode/browse.vc.db": true,
@@ -106,6 +107,7 @@
     // PYTHON SETTINGS
     // ================================
 
+    "python.terminal.activateEnvironment": false,
     "python.analysis.extraPaths": [
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages",

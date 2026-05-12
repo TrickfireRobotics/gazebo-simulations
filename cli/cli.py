@@ -13,6 +13,7 @@ from .paths import WORKSPACE_DIR
 
 
 def main() -> None:
+    """Main method for sim CLI"""
     parser = argparse.ArgumentParser(
         prog="sim",
         description="TrickFire robot simulation launcher",
@@ -64,8 +65,12 @@ def main() -> None:
         action="store_true",
         help="Generate packages from a local URDF instead of downloading from OnShape",
     )
-    create_parser.add_argument("--urdf", default=None, help="Path to local robot.urdf (used with --local)")
-    create_parser.add_argument("--assets", default=None, help="Path to local assets/ directory (used with --local)")
+    create_parser.add_argument(
+        "--urdf", default=None, help="Path to local robot.urdf (used with --local)"
+    )
+    create_parser.add_argument(
+        "--assets", default=None, help="Path to local assets/ directory (used with --local)"
+    )
     create_parser.add_argument(
         "--output-dir",
         default=None,
@@ -95,9 +100,7 @@ def main() -> None:
         "update",
         help="Update existing robot URDF and meshes from OnShape",
     )
-    update_parser.add_argument(
-        "robot", help="Robot name to update (must exist in robots.json)"
-    )
+    update_parser.add_argument("robot", help="Robot name to update (must exist in robots.json)")
     update_parser.add_argument(
         "--output-dir",
         default=None,

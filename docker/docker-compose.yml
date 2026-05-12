@@ -34,10 +34,5 @@ services:
 
     privileged: true
 
-    command: >-
-      bash -lc 'set -e;
-      pipx install -e /home/trickfire/gazebo-simulations --force;
-      exec bash .devcontainer/x_server.sh'
-
     stdin_open: true
     tty: true

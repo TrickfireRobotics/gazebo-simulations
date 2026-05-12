@@ -22,5 +22,5 @@ services:
 
     command: >-
       bash -lc 'set -e;
-      pipx install -e /home/trickfire/gazebo-simulations --force;
+      python3 -m venv .venv && source .venv/bin/activate && pip install -e . && \
       exec sleep infinity'

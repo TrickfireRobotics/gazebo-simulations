@@ -5,8 +5,12 @@
     ],
     "service": "sim",
     "runServices": ["sim"],
-    "overrideCommand": false,
     "workspaceFolder": "/home/trickfire/gazebo-simulations",
+    "postCreateCommand": "[ -d .venv ] || (python3 -m venv --copies .venv && . .venv/bin/activate && pip install -e .)",
+    "postStartCommand": "bash -c 'bash .devcontainer/x_server.sh &'",
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+    ],
     "forwardPorts": [6080, 5900],
     "customizations": {
         "vscode": {

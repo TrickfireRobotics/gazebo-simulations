@@ -42,8 +42,7 @@ jobs:
               run: |
                   pip install onshape-to-robot
                   pip3 install open3d --ignore-installed blinker
-                  pip install pipx
-                  pipx install .
+                  pip install -e .
 
             - name: Validate inputs
               run: |
