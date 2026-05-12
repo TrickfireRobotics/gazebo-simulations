@@ -23,7 +23,7 @@ _ONSHAPE_ENV = REPO_DIR / "cli" / "onshape.env"
 def auth() -> None:
     """Check if user has access to Onshape credentials by trying to decrypt with local SSH keys"""
     if _ONSHAPE_ENV.exists():
-        info(f"Using local override: cli/onshape.env — skipping auth check")
+        info("Using local override: cli/onshape.env — skipping auth check")
         return
 
     info("Checking for age...")
