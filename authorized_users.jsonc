@@ -1,0 +1,5 @@
+// GitHub usernames with access to Onshape credentials.
+// Add a username, push to main — CI re-encrypts onshape.env.age automatically.
+// New users then run: sim login
+
+["matejstastny"]
