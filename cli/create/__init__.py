@@ -35,7 +35,7 @@ def create(
     attach_to_world: bool | None = None,
 ) -> None:
     _load_credentials()
-    from .commands import cmd_create  # pylint: disable=import-outside-toplevel
+    from .commands import cmd_create
 
     info(f"Creating robot packages for '{robot}' from OnShape...")
 
@@ -65,7 +65,7 @@ def update(
     no_reduce: bool = False,
 ) -> None:
     _load_credentials()
-    from .commands import cmd_update  # pylint: disable=import-outside-toplevel
+    from .commands import cmd_update
 
     info(f"Updating robot packages for '{robot}'...")
     cmd_update(

@@ -7,6 +7,7 @@ from ..output import die as err
 
 
 def get_credentials() -> dict:
+    """Get OnShape API credentials from environment variables or onshape.env file"""
     key = os.environ.get("ONSHAPE_API_KEY")
     secret = os.environ.get("ONSHAPE_API_SECRET")
 
@@ -20,7 +21,7 @@ def get_credentials() -> dict:
 
         for env_file in possible_paths:
             if env_file.exists():
-                with open(env_file) as f:
+                with open(env_file, encoding="utf-8") as f:
                     for line in f:
                         line = line.strip()
                         if not line or line.startswith("#"):
