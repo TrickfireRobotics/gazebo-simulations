@@ -118,8 +118,6 @@ alias rws='cd "$TF_ROBOT_WS"'
 alias rs='tf_source_env'
 alias rsource='tf_source_env'
 
-alias genbot='env $(grep -v "^#" .github/genbot/onshape.env 2>/dev/null | xargs 2>/dev/null) PYTHONPATH=.github python3 -m genbot'
-
 # ---------- helper functions ----------
 ros-clean() {
 	if [ -z "${TF_ROBOT_WS:-}" ]; then

@@ -25,8 +25,8 @@ robot-sim/install
 robot-sim/build
 robot-sim/log
 
-### Genbot ###
-.github/genbot/tests
+### sim create tests ###
+cli/create/tests
 
 ### env ###
 **/*.env

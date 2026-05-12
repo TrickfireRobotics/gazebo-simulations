@@ -4,14 +4,18 @@ version = "1.0.0"
 description = "A simulation environment manager"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["open3d", "onshape-to-robot"]
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["cli"]
+packages = ["cli", "cli.create"]
+
+[tool.setuptools.package-data]
+"cli" = ["onshape.env"]
+"cli.create" = ["templates/**/*"]
 
 [project.scripts]
 sim = "cli.cli:main"

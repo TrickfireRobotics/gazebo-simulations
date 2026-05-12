@@ -1,4 +1,4 @@
-"""Onshape API integration"""
+"""OnShape API integration"""
 
 import json
 import os
@@ -8,8 +8,8 @@ import tempfile
 from pathlib import Path
 from urllib.parse import urlparse
 
-from genbot.credentials import get_credentials
-from genbot.log import err, info
+from ..output import die as err, info
+from .credentials import get_credentials
 
 _ONSHAPE_URL_RE = re.compile(
     r"documents/([0-9a-f]+)/[wv]/([0-9a-f]+)/e/([0-9a-f]+)",
@@ -18,11 +18,10 @@ _ONSHAPE_URL_RE = re.compile(
 
 
 def parse_onshape_url(url: str) -> tuple:
-    """Return (api_url, documentId, workspaceId, elementId) from an Onshape URL"""
     m = _ONSHAPE_URL_RE.search(url)
     if not m:
         err(
-            f"Could not parse Onshape URL: {url}\n"
+            f"Could not parse OnShape URL: {url}\n"
             "  Expected format: https://<host>/documents/<docId>/w/<wsId>/e/<elId>"
         )
     parsed = urlparse(url)
@@ -33,7 +32,6 @@ def parse_onshape_url(url: str) -> tuple:
 def run_onshape_to_robot(
     doc_id: str, ws_id: str, el_id: str, api_url: str, creds: dict, workdir: Path
 ) -> None:
-    """Write config.json and invoke onshape-to-robot in workdir"""
     config = {
         "documentId": doc_id,
         "workspaceId": ws_id,
@@ -57,9 +55,8 @@ def run_onshape_to_robot(
 
 
 def download(robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str) -> Path:
-    """Run onshape-to-robot and return the working directory"""
     creds = get_credentials()
-    tmpdir = Path(tempfile.mkdtemp(prefix="genbot_"))
+    tmpdir = Path(tempfile.mkdtemp(prefix="sim_"))
     workdir = tmpdir / robot
     workdir.mkdir()
     info("Running onshape-to-robot...")

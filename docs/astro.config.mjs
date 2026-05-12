@@ -66,7 +66,7 @@ export default defineConfig({
                         { label: 'ROS Workspace', slug: 'reference/ros-workspace' },
                         { label: 'Docker Environment', slug: 'reference/docker-environment' },
                         { label: 'Launch System', slug: 'reference/launch-system' },
-                        { label: 'Genbot', slug: 'reference/genbot' },
+                        { label: 'Robot Packages', slug: 'reference/robot-packages' },
                         { label: 'Joint GUI', slug: 'reference/joint-gui' }
                     ]
                 }

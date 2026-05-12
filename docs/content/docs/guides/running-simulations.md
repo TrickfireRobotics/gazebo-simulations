@@ -8,19 +8,13 @@ All simulations are launched through the `sim` CLI. It builds the workspace, set
 ## Basic usage
 
 ```bash title="Inside devcontainer"
-sim <robot_name>
-```
-
-Or use the explicit `docker` command:
-
-```bash title="Inside devcontainer"
 sim docker <robot_name>
 ```
 
 For example, to run the arm simulation:
 
 ```bash title="Inside devcontainer"
-sim arm
+sim docker arm
 ```
 
 ## Options
@@ -32,10 +26,10 @@ sim arm
 
 ```bash title="Inside devcontainer"
 # Skip building (already built)
-sim arm --no-build
+sim docker arm --no-build
 
 # Only build, don't launch
-sim arm --build-only
+sim docker arm --build-only
 ```
 
 ## Cleaning the workspace
