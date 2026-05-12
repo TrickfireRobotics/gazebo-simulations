@@ -19,6 +19,7 @@ Icon
 __pycache__
 *.egg-info/
 build/
+**/.venv
 
 ### ROS2 ###
 robot-sim/install

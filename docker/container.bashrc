@@ -43,6 +43,11 @@ if TF_REPO_DIR="$(_tf_find_repo)"; then
 	export TF_ROBOT_WS="$TF_REPO_DIR/robot-sim"
 fi
 
+# ---------- venv ----------
+if [ -f "${TF_REPO_DIR}/.venv/bin/activate" ]; then
+	source "${TF_REPO_DIR}/.venv/bin/activate"
+fi
+
 # ---------- display ----------
 if [[ -n "${DISPLAY:-}" && "${DISPLAY}" != :* ]]; then
 	export DISPLAY=":${DISPLAY}"
