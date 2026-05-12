@@ -1,6 +1,3 @@
-# MacOS native
-.native/
-
 # ROS build
 robot-sim/build/
 robot-sim/install/
