@@ -4,6 +4,11 @@ case "$-" in
 *) return ;;
 esac
 
+case ":$PATH:" in
+*":$HOME/.local/bin:"*) ;;
+*) export PATH="$HOME/.local/bin:$PATH" ;;
+esac
+
 # ---------- shell behavior ----------
 export HISTCONTROL=ignoreboth:erasedups
 export HISTSIZE=10000
