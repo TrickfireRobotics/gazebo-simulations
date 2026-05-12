@@ -14,7 +14,7 @@ The Dockerfile at `docker/Dockerfile` has two stages:
 
 ```dockerfile
 FROM ros:humble-ros-base AS runtime   # simulation + VNC/display stack
-FROM runtime AS dev                   # + dev tooling (ruff, genbot, shfmt)
+FROM runtime AS dev                   # + dev tooling (ruff, onshape-to-robot, shfmt)
 ```
 
 ### Runtime stage
@@ -64,7 +64,7 @@ Adds on top of runtime:
 | Package            | Purpose                                 |
 | ------------------ | --------------------------------------- |
 | `ruff`             | Python linter                           |
-| `onshape-to-robot` | CAD-to-URDF conversion (used by genbot) |
+| `onshape-to-robot` | CAD-to-URDF conversion (used by `sim create`) |
 | `open3d`           | STL mesh decimation                     |
 | `shfmt`            | Shell script formatter                  |
 

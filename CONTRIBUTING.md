@@ -44,10 +44,11 @@ Content pages live in `docs/content/docs/` and follow the existing directory str
 
 Python package providing the `sim` CLI command:
 
-- `cli.py` - Main entry point for the `sim` command
-- `docker.py` - Docker build and launch logic
+- `cli.py` - Main entry point and argument parsing
+- `docker.py` - `sim docker` build and launch logic
+- `create/` - `sim create` / `sim update` implementation (OnShape download, URDF processing, package scaffolding)
 - `paths.py` - Workspace path utilities
-- `output.py` - Terminal output helpers
+- `output.py` - Terminal output helpers (`info`, `warn`, `die`)
 
 ## Dev setup
 

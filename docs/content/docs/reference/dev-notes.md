@@ -19,7 +19,7 @@ The `_description` / `_bringup` split is a ROS convention:
 - **`_description`** contains the robot model (URDF + meshes) -- things that change when the CAD changes
 - **`_bringup`** contains runtime config (launch files, controller YAML, RViz config) -- things you tweak during development
 
-This separation means `genbot update` can safely replace the description without touching your launch customizations.
+This separation means `sim update` can safely replace the description without touching your launch customizations.
 
 ## Useful CLI commands
 

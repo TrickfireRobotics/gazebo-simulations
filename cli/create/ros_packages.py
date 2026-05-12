@@ -1,11 +1,11 @@
-"""ROS2 package generation and updating"""
+"""ROS 2 package generation and updating"""
 
 import shutil
 from pathlib import Path
 
-from genbot import TEMPLATES
-from genbot.log import err, info
-from genbot.template import write_template
+from . import TEMPLATES
+from ..output import die as err, info
+from .template import write_template
 
 
 def generate_description_pkg(
@@ -15,8 +15,6 @@ def generate_description_pkg(
     meshes_src: Path,
     out_dir: Path,
 ) -> None:
-    """Create <robot>_description package"""
-
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
     meshes_dir = pkg_dir / "meshes"
@@ -43,9 +41,7 @@ def generate_description_pkg(
 
 
 def generate_bringup_pkg(robot: str, joints: list, links: list, out_dir: Path) -> None:
-    """Create <robot>_bringup package"""
     pkg_dir = out_dir / f"{robot}_bringup"
-
     tmpl = TEMPLATES / "bringup"
 
     write_template(tmpl / "CMakeLists.txt", pkg_dir / "CMakeLists.txt", robot)
@@ -89,14 +85,12 @@ def generate_bringup_pkg(robot: str, joints: list, links: list, out_dir: Path) -
 def update_description_pkg(
     robot: str, geometry_urdf: str, generated_meshes_src: Path, out_dir: Path
 ) -> None:
-    """Update only the URDF and meshes in an existing <robot>_description package"""
-
     pkg_dir = out_dir / f"{robot}_description"
     urdf_dir = pkg_dir / "urdf"
     meshes_dir = pkg_dir / "meshes"
 
     if not pkg_dir.exists():
-        err(f"Package {pkg_dir} does not exist. Use 'create' mode first.")
+        err(f"Package {pkg_dir} does not exist. Use 'sim create' first.")
 
     (urdf_dir / f"{robot}.urdf").write_text(geometry_urdf)
 

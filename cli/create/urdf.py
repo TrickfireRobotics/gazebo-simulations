@@ -6,14 +6,12 @@ from pathlib import Path
 
 
 def _ensure_xacro_ns(urdf_text: str) -> str:
-    """Add xmlns:xacro to <robot> tag if missing"""
     if "xmlns:xacro" in urdf_text:
         return urdf_text
     return urdf_text.replace("<robot ", '<robot xmlns:xacro="http://www.ros.org/wiki/xacro" ', 1)
 
 
 def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
-    """Insert xacro property and arg declarations after the <robot> opening tag"""
     props = (
         "\n"
         "  <!-- XACRO -->\n"
@@ -25,7 +23,6 @@ def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
 
 
 def _rewrite_mesh_paths(urdf_text: str) -> str:
-    """Replace filename="assets/foo.stl" with filename="${mesh_path}/foo.stl" """
     return re.sub(
         r'filename="package://assets/([^"]+)"',
         r'filename="${mesh_path}/\1"',
@@ -34,7 +31,6 @@ def _rewrite_mesh_paths(urdf_text: str) -> str:
 
 
 def _strip_xacro_for_parsing(urdf_text: str) -> str:
-    """Strip xacro tags/attrs so ElementTree can parse the URDF."""
     cleaned = re.sub(r"<xacro:[^>]*/?>", "", urdf_text)
     cleaned = re.sub(r"</xacro:[^>]*>", "", cleaned)
     cleaned = re.sub(r'xmlns:xacro="[^"]*"', "", cleaned)
@@ -43,16 +39,11 @@ def _strip_xacro_for_parsing(urdf_text: str) -> str:
 
 
 def _extract_links(urdf_text: str) -> list:
-    """Parse and return list of link names from the URDF."""
     root = ET.fromstring(_strip_xacro_for_parsing(urdf_text))
     return [link.get("name") for link in root.findall("link") if link.get("name")]
 
 
 def _extract_revolute_joints(urdf_text: str) -> list:
-    """
-    Parse and return list of (name, lower_limit, upper_limit) for all revolute joints.
-    Uses ElementTree on a cleaned copy (xacro tags stripped).
-    """
     root = ET.fromstring(_strip_xacro_for_parsing(urdf_text))
     joints = []
     for j in root.findall("joint"):
@@ -65,7 +56,6 @@ def _extract_revolute_joints(urdf_text: str) -> list:
 
 
 def _generate_control_xacro(robot_name: str, joints: list) -> str:
-    """Return a complete xacro string with ros2_control block + gazebo plugin block"""
     lines = [
         '<?xml version="1.0" ?>',
         f'<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="{robot_name}_control">',
@@ -119,7 +109,6 @@ def _generate_control_xacro(robot_name: str, joints: list) -> str:
 
 
 def _inject_world_base_link(urdf_text: str) -> str:
-    """Insert a world link and fixed world_to_base_link joint before the first <link> tag."""
     snippet = (
         "\n"
         "  <!-- World base link -->\n"
@@ -140,7 +129,6 @@ def _inject_world_base_link(urdf_text: str) -> str:
 
 
 def _inject_control_include(urdf_text: str, robot_name: str) -> str:
-    """Append xacro:include for control xacro before </robot>"""
     include = (
         f'  <xacro:include filename="$(find {robot_name}_description)'
         f'/urdf/{robot_name}_control.urdf.xacro"/>\n'
@@ -149,10 +137,6 @@ def _inject_control_include(urdf_text: str, robot_name: str) -> str:
 
 
 def _reindent(text: str, from_spaces: int = 2, to_spaces: int = 4) -> str:
-    """
-    Convert indentation units in an XML file.
-    Default is from 2 to 4 spaces.
-    """
     result = []
     for line in text.splitlines(keepends=True):
         stripped = line.lstrip(" ")
@@ -163,11 +147,10 @@ def _reindent(text: str, from_spaces: int = 2, to_spaces: int = 4) -> str:
 
 
 def postprocess(raw_urdf_path: str | Path, robot_name: str, world_base_link: bool = False) -> tuple:
-    """Read raw URDF, apply all transforms.
+    """Read raw URDF and apply all transforms.
 
     Returns (geometry_urdf_string, control_xacro_string, joint_list, link_list).
     joint_list items are (name, lower_limit, upper_limit).
-    If world_base_link is True, a fixed world→base_link joint is prepended.
     """
     text = Path(raw_urdf_path).read_text(encoding="utf-8")
     text = _ensure_xacro_ns(text)

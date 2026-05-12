@@ -4,36 +4,30 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from genbot import REPO_ROOT
-from genbot.log import err, info, warn
-from genbot.onshape import download, parse_onshape_url
-from genbot.reduce_stl import batch_process_directory
-from genbot.registry import load_robots_json, save_robots_json
-from genbot.ros_packages import (
+from . import PACKAGE_DIR, REPO_ROOT
+from ..output import die as err, info, warn
+from .onshape import download, parse_onshape_url
+from .reduce_stl import batch_process_directory
+from .registry import load_robots_json, save_robots_json
+from .ros_packages import (
     generate_bringup_pkg,
     generate_description_pkg,
     update_description_pkg,
 )
-from genbot.urdf import postprocess
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+from .urdf import postprocess
 
 
 def _prompt_yes_no(question: str) -> bool:
-    """Ask a yes/no question, return True for yes."""
     while True:
-        answer = input(f"[genbot] {question} [y/n]: ").strip().lower()
+        answer = input(f"[sim] {question} [y/n]: ").strip().lower()
         if answer in ("y", "yes"):
             return True
         if answer in ("n", "no"):
             return False
-        print("[genbot] Please answer y or n.")
+        print("[sim] Please answer y or n.")
 
 
 def _reduce_meshes(meshes_dir: Path, no_reduce: bool) -> None:
-    """Reduce STL triangle counts in-place unless --no-reduce was passed"""
     if no_reduce:
         info("Skipping STL reduction")
         return
@@ -46,7 +40,6 @@ def _reduce_meshes(meshes_dir: Path, no_reduce: bool) -> None:
 def _scaffold_packages(
     robot: str, urdf_path: Path, meshes_src: Path, out_dir: Path, world_base_link: bool = False
 ) -> None:
-    """Post-process URDF and write _description + _bringup packages"""
     if not meshes_src.exists():
         warn(f"Meshes directory {meshes_src} was not created")
     elif not any(meshes_src.iterdir()):
@@ -73,13 +66,7 @@ def _scaffold_packages(
     info(f" └─ {robot}_bringup/")
 
 
-# ---------------------------------------------------------------------------
-# Subcommands
-# ---------------------------------------------------------------------------
-
-
 def cmd_create(args) -> None:
-    """Create subcommand"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
@@ -107,7 +94,6 @@ def cmd_create(args) -> None:
     _reduce_meshes(workdir / "assets", args.no_reduce)
     _scaffold_packages(robot, urdf_path, workdir / "assets", out_dir, world_base_link)
 
-    # Register in robots.json
     registry = load_robots_json()
     registry = [e for e in registry if e["name"] != robot]
     registry.append({"name": robot, "url": args.onshape_url, "world_base_link": world_base_link})
@@ -116,10 +102,9 @@ def cmd_create(args) -> None:
 
 
 def cmd_local(args) -> None:
-    """Local subcommand"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
-    raw_default = REPO_ROOT / ".github" / "genbot" / "tests" / robot
+    raw_default = PACKAGE_DIR / "tests" / robot  # cli/create/tests/<robot>/
     urdf_path = Path(args.urdf) if args.urdf else raw_default / "robot.urdf"
     meshes_src = Path(args.assets) if args.assets else urdf_path.parent / "assets"
 
@@ -148,7 +133,6 @@ def cmd_local(args) -> None:
 
 
 def cmd_raw(args) -> None:
-    """Raw subcommand"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
@@ -180,12 +164,11 @@ def cmd_raw(args) -> None:
     info(f"  {dest}/robot.urdf")
     info(f"  {dest}/assets/")
     info("")
-    info("Use with genbot local:")
-    info(f"  python3 -m genbot local {robot} {dest}/robot.urdf --assets {dest}/assets/")
+    info("Re-run without hitting OnShape again:")
+    info(f"  sim local {robot} --urdf {dest}/robot.urdf --assets {dest}/assets/")
 
 
 def cmd_update(args) -> None:
-    """Update mode: replace only URDF and meshes in existing _description package"""
     robot = args.robot_name
     out_dir = Path(args.output_dir)
 
@@ -198,7 +181,7 @@ def cmd_update(args) -> None:
         err(
             f"Robot '{robot}' not found in robots.json.\n"
             f"  Available robots: {names}\n"
-            "  Use 'create' mode to add a new robot."
+            "  Use 'sim create' to add a new robot."
         )
 
     api_url, doc_id, ws_id, el_id = parse_onshape_url(entry["url"])
