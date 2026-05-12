@@ -11,17 +11,21 @@ def _o3d():
     try:
         import open3d as o3d  # type: ignore
         return o3d
-    except ImportError:
+    except ImportError as exc:
         raise SystemExit(
             "open3d is required for STL reduction but is not installed.\n"
-            " └— pip install open3d\n"
+            " └─ pip install open3d\n"
             "    Or skip reduction with --no-reduce"
-        )
+        ) from exc
 
 MIN_TRIANGLES = 200
 
 
 def reduce_file_size(input_file_path: str, output_file_path: str, target_triangles: int) -> list[int]:
+    """
+    Reduce the number of triangles in the STL file to target_triangles and save to output_file_path.
+    Returns original and new file sizes
+    """
     o3d = _o3d()
     og_fsize = os.path.getsize(input_file_path)
     mesh = o3d.io.read_triangle_mesh(input_file_path)
@@ -40,6 +44,7 @@ def reduce_file_size(input_file_path: str, output_file_path: str, target_triangl
 
 
 def batch_process_directory(input_dir: str, output_dir: str, reduction_ratio: float = 0.4) -> None:
+    """Reduce STL files in input_dir and save to output_dir, keeping .part files as is"""
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 

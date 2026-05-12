@@ -124,7 +124,7 @@ USER trickfire
 
 
 # --------------------------------------------------------------------------------------------
-# DEV — adds dev tooling on top of runtime  (devcontainer)
+# DEV - adds dev tooling on top of runtime  (devcontainer)
 
 FROM runtime AS dev
 
