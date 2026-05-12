@@ -35,7 +35,3 @@ robot-sim/log
 node_modules/
 dist/
 .astro/
-
-### MacOS native ###
-.native/
-!robot-sim/sim_common/macos/versions.env
