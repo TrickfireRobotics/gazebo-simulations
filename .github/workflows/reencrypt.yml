@@ -2,7 +2,7 @@ name: Re-encrypt Onshape credentials
 
 on:
     push:
-        branches: [main]
+        branches: [main, "scripts-cli"]
         paths:
             - .github/workflows/reencrypt.yml
             - authorized_users.jsonc
