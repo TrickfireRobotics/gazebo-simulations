@@ -7,13 +7,14 @@ from argparse import Namespace
 from pathlib import Path
 
 from ..output import info
+from ..paths import REPO_DIR
 
 PACKAGE_DIR = Path(__file__).parent
 TEMPLATES = PACKAGE_DIR / "templates"
-REPO_ROOT = PACKAGE_DIR.parent.parent
-ROBOTS_JSON = REPO_ROOT / "robots.json"
+REPO_ROOT = REPO_DIR
+ROBOTS_JSON = REPO_DIR / "robots.json"
 
-_ONSHAPE_ENV = PACKAGE_DIR.parent / "onshape.env"  # cli/onshape.env
+_ONSHAPE_ENV = REPO_DIR / "cli" / "onshape.env"
 
 
 def _load_credentials() -> None:

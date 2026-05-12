@@ -5,14 +5,11 @@ from pathlib import Path
 
 def _find_repo_root() -> Path:
     for candidate in [Path.cwd(), *Path.cwd().parents]:
-        if (candidate / "robot-sim").is_dir() and (candidate / "pyproject.toml").is_file():
+        if (candidate / ".git").exists():
             return candidate
-    pkg_root = Path(__file__).parent.parent
-    if (pkg_root / "robot-sim").is_dir():
-        return pkg_root
     raise RuntimeError(
-        "Could not locate gazebo-simulations repo root (no robot-sim/ directory found). "
-        "Run 'sim' from the repository root directory."
+        "Could not locate repo root (no .git directory found). "
+        "Run 'sim' from within the repository."
     )
 
 
