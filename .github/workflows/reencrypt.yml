@@ -42,13 +42,14 @@ jobs:
                     exit 1
                   fi
 
-                  age "${RECIPIENT_ARGS[@]}" -e -o onshape.env.age "$TMPFILE"
-                  echo "Encrypted for ${#RECIPIENT_ARGS[@]} key(s)"
+                  mkdir -p cli
+                  age "${RECIPIENT_ARGS[@]}" -e -o cli/onshape.env.age "$TMPFILE"
+                  echo "Encrypted for ${#RECIPIENT_ARGS[@]} key(s) -> cli/onshape.env.age"
 
             - name: Commit updated onshape.env.age
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git add onshape.env.age
+                  git add cli/onshape.env.age
                   git diff --staged --quiet || git commit -m "chore: re-encrypt onshape credentials"
                   git push
