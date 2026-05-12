@@ -69,7 +69,7 @@ Only geometry — everything authored by hand is preserved:
 If the generated packages look wrong, inspect what OnShape actually produced before post-processing:
 
 ```bash title="Inside devcontainer"
-sim raw <robot_name> <onshape_url>
+sim create <robot_name> <onshape_url> --raw
 ```
 
 This downloads the raw URDF and assets into `cli/create/tests/<robot_name>/` (gitignored) without running any post-processing. Inspect `robot.urdf` there to see what OnShape produced.
@@ -77,7 +77,7 @@ This downloads the raw URDF and assets into `cli/create/tests/<robot_name>/` (gi
 Once you've identified a fix, re-run the full generation on those local files without hitting OnShape again:
 
 ```bash title="Inside devcontainer"
-sim local <robot_name>
+sim create <robot_name> --local
 ```
 
 ## Code structure

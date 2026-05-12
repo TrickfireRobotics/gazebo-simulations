@@ -165,7 +165,7 @@ def cmd_raw(args) -> None:
     info(f"  {dest}/assets/")
     info("")
     info("Re-run without hitting OnShape again:")
-    info(f"  sim local {robot} --urdf {dest}/robot.urdf --assets {dest}/assets/")
+    info(f"  sim create {robot} --local --urdf {dest}/robot.urdf --assets {dest}/assets/")
 
 
 def cmd_update(args) -> None:

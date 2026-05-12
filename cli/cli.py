@@ -47,7 +47,24 @@ def main() -> None:
         help="Generate robot packages from an OnShape model",
     )
     create_parser.add_argument("robot", help="Robot name (e.g., arm, gripper)")
-    create_parser.add_argument("onshape_url", help="Full OnShape document URL")
+    create_parser.add_argument(
+        "onshape_url",
+        nargs="?",
+        default=None,
+        help="Full OnShape document URL (required unless --local is set)",
+    )
+    create_parser.add_argument(
+        "--raw",
+        action="store_true",
+        help="Download raw OnShape files only, skip post-processing (for debugging)",
+    )
+    create_parser.add_argument(
+        "--local",
+        action="store_true",
+        help="Generate packages from a local URDF instead of downloading from OnShape",
+    )
+    create_parser.add_argument("--urdf", default=None, help="Path to local robot.urdf (used with --local)")
+    create_parser.add_argument("--assets", default=None, help="Path to local assets/ directory (used with --local)")
     create_parser.add_argument(
         "--output-dir",
         default=None,
@@ -85,45 +102,6 @@ def main() -> None:
         help="Skip STL mesh triangle-count reduction",
     )
 
-    # --- raw ---
-    raw_parser = subparsers.add_parser(
-        "raw",
-        help="Download raw OnShape URDF without post-processing (for debugging)",
-    )
-    raw_parser.add_argument("robot", help="Robot name")
-    raw_parser.add_argument("onshape_url", nargs="?", default=None, help="OnShape URL (optional if in robots.json)")
-    raw_parser.add_argument(
-        "--output-dir",
-        default=None,
-        help="Directory to save raw files (default: cli/create/tests/)",
-    )
-
-    # --- local ---
-    local_parser = subparsers.add_parser(
-        "local",
-        help="Generate robot packages from a local URDF (skips OnShape download)",
-    )
-    local_parser.add_argument("robot", help="Robot name")
-    local_parser.add_argument("--urdf", default=None, help="Path to local robot.urdf")
-    local_parser.add_argument("--assets", default=None, help="Path to local assets/ directory")
-    local_parser.add_argument(
-        "--output-dir",
-        default=None,
-        help="Output directory for generated packages (default: robot-sim/)",
-    )
-    local_parser.add_argument(
-        "--no-reduce",
-        action="store_true",
-        help="Skip STL mesh triangle-count reduction",
-    )
-    local_parser.add_argument(
-        "--attach-to-world",
-        dest="attach_to_world",
-        action=argparse.BooleanOptionalAction,
-        default=None,
-        help="Fix robot to world frame (prompts if omitted)",
-    )
-
     args = parser.parse_args()
 
     try:
@@ -137,37 +115,40 @@ def main() -> None:
                     shutil.rmtree(path)
             info("Cleaned")
         elif args.command == "create":
-            robot_create(
-                args.robot,
-                args.onshape_url,
-                output_dir=args.output_dir,
-                no_reduce=args.no_reduce,
-                attach_to_world=args.attach_to_world,
-            )
+            if args.raw:
+                cmd_raw(
+                    argparse.Namespace(
+                        robot_name=args.robot,
+                        onshape_url=args.onshape_url,
+                        output_dir=args.output_dir or str(PACKAGE_DIR / "tests"),
+                    )
+                )
+            elif args.local:
+                cmd_local(
+                    argparse.Namespace(
+                        robot_name=args.robot,
+                        output_dir=args.output_dir or str(REPO_ROOT / "robot-sim"),
+                        urdf=args.urdf,
+                        assets=args.assets,
+                        no_reduce=args.no_reduce,
+                        attach_to_world=args.attach_to_world,
+                    )
+                )
+            else:
+                if not args.onshape_url:
+                    create_parser.error("onshape_url is required unless --local or --raw is set")
+                robot_create(
+                    args.robot,
+                    args.onshape_url,
+                    output_dir=args.output_dir,
+                    no_reduce=args.no_reduce,
+                    attach_to_world=args.attach_to_world,
+                )
         elif args.command == "update":
             robot_update(
                 args.robot,
                 output_dir=args.output_dir,
                 no_reduce=args.no_reduce,
-            )
-        elif args.command == "raw":
-            cmd_raw(
-                argparse.Namespace(
-                    robot_name=args.robot,
-                    onshape_url=args.onshape_url,
-                    output_dir=args.output_dir or str(PACKAGE_DIR / "tests"),
-                )
-            )
-        elif args.command == "local":
-            cmd_local(
-                argparse.Namespace(
-                    robot_name=args.robot,
-                    output_dir=args.output_dir or str(REPO_ROOT / "robot-sim"),
-                    urdf=args.urdf,
-                    assets=args.assets,
-                    no_reduce=args.no_reduce,
-                    attach_to_world=args.attach_to_world,
-                )
             )
         else:
             parser.print_help()
