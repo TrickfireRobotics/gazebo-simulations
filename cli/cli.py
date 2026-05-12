@@ -2,13 +2,14 @@
 
 import argparse
 import sys
-from . import docker as docker_command
+
+from cli.docker import build_and_launch
 from .paths import WORKSPACE_DIR
 from .output import die
 
-
 def main() -> None:
     """Main entry point for sim command"""
+
     parser = argparse.ArgumentParser(
         prog="sim",
         description="TrickFire robot simulation launcher",
@@ -44,11 +45,7 @@ def main() -> None:
 
     try:
         if args.command == "docker":
-            docker_command.build_and_launch(
-                args.robot,
-                build_only=args.build_only,
-                no_build=args.no_build,
-            )
+            build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
         elif args.command == "clean":
             import shutil
             from .output import info

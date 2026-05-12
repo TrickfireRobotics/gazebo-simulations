@@ -43,6 +43,11 @@ if TF_REPO_DIR="$(_tf_find_repo)"; then
 	export TF_ROBOT_WS="$TF_REPO_DIR/robot-sim"
 fi
 
+# ---------- display ----------
+if [[ -n "${DISPLAY:-}" && "${DISPLAY}" != :* ]]; then
+	export DISPLAY=":${DISPLAY}"
+fi
+
 # ---------- ROS/Gazebo environment ----------
 tf_source_env() {
 	if [ -f /opt/ros/humble/setup.bash ]; then
