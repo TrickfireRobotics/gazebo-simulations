@@ -4,7 +4,10 @@ version = "1.0.0"
 description = "A simulation environment manager"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["open3d", "onshape-to-robot"]
+dependencies = ["onshape-to-robot"]
+
+[project.optional-dependencies]
+reduce = ["open3d"]
 
 [build-system]
 requires = ["setuptools"]
