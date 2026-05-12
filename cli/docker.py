@@ -56,6 +56,17 @@ def _clean_workspace() -> None:
             shutil.rmtree(directory_path)
 
 
+def _drop_missing_prefix_paths(env: dict[str, str]) -> None:
+    for key in ("AMENT_PREFIX_PATH", "CMAKE_PREFIX_PATH"):
+        if key not in env:
+            continue
+        live = [p for p in env[key].split(":") if p and Path(p).exists()]
+        if live:
+            env[key] = ":".join(live)
+        else:
+            del env[key]
+
+
 def _run_logged_command(
     command: list[str] | str,
     *,
@@ -110,10 +121,12 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
 
     build = not no_build
     launch = not build_only
+    env = os.environ.copy()
     bringup_pkg, description_pkg, launch_file_name = _validate_robot_layout(robot_name)
 
     if build:
         _clean_workspace()
+        _drop_missing_prefix_paths(env)
 
     log_dir = WORKSPACE_DIR / "log"
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -126,7 +139,6 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     print(f"Log:       {log_path}")
     print("--------------------------------------------------------------")
 
-    env = os.environ.copy()
     setup_bash = WORKSPACE_DIR / "install" / "setup.bash"
 
     if build:

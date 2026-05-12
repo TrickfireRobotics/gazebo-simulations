@@ -22,5 +22,5 @@ services:
 
     command: >-
       bash -lc 'set -e;
-      pipx install --editable /home/trickfire/gazebo-simulations --force;
+      pipx install -e /home/trickfire/gazebo-simulations --force;
       exec sleep infinity'
