@@ -17,7 +17,6 @@ build-backend = "setuptools.build_meta"
 packages = ["cli", "cli.create"]
 
 [tool.setuptools.package-data]
-"cli" = ["onshape.env"]
 "cli.create" = ["templates/**/*"]
 
 [project.scripts]
