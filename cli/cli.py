@@ -7,7 +7,7 @@ import sys
 from .docker import build_and_launch
 from .create import create as robot_create, update as robot_update, PACKAGE_DIR, REPO_ROOT
 from .create.commands import cmd_local, cmd_raw
-from .login import login as cmd_login
+from .auth import auth as cmd_auth
 from .output import die, info
 from .paths import WORKSPACE_DIR
 
@@ -84,10 +84,10 @@ def main() -> None:
         help="Fix robot to world frame (arm/fixed = yes, mobile = no; prompts if omitted)",
     )
 
-    # --- login ---
+    # --- auth ---
     subparsers.add_parser(
-        "login",
-        help="Decrypt Onshape credentials using your SSH key",
+        "auth",
+        help="Verify your SSH key can access Onshape credentials",
     )
 
     # --- update ---
@@ -151,8 +151,8 @@ def main() -> None:
                     no_reduce=args.no_reduce,
                     attach_to_world=args.attach_to_world,
                 )
-        elif args.command == "login":
-            cmd_login()
+        elif args.command == "auth":
+            cmd_auth()
         elif args.command == "update":
             robot_update(
                 args.robot,

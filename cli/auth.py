@@ -1,4 +1,4 @@
-"""sim login - decrypt Onshape credentials using SSH key"""
+"""sim auth - verify local Onshape credential access via SSH key"""
 
 import shutil
 import subprocess
@@ -8,7 +8,6 @@ from .output import die, info, warn
 from .paths import REPO_DIR
 
 _AGE_FILE = REPO_DIR / "cli" / "onshape.env.age"
-_ONSHAPE_ENV = REPO_DIR / "cli" / "onshape.env"
 
 _SSH_KEY_CANDIDATES = [
     Path.home() / ".ssh" / "id_ed25519",
@@ -18,23 +17,30 @@ _SSH_KEY_CANDIDATES = [
 ]
 
 
-def login() -> None:
-    """Decrypt onshape.env.age using age and save to onshape.env"""
+_ONSHAPE_ENV = REPO_DIR / "cli" / "onshape.env"
+
+
+def auth() -> None:
+    """Check if user has access to Onshape credentials by trying to decrypt with local SSH keys"""
+    if _ONSHAPE_ENV.exists():
+        info(f"Using local override: cli/onshape.env — skipping auth check")
+        return
+
     info("Checking for age...")
     if not shutil.which("age"):
         die(
             "age is not installed.\n"
-            " └— macOS:  brew install age\n"
-            " └— Linux:  sudo apt install age\n"
-            " └— Other:  https://github.com/FiloSottile/age#installation"
+            " └─ macOS:  brew install age\n"
+            " └─ Linux:  sudo apt install age\n"
+            " └─ Other:  https://github.com/FiloSottile/age#installation"
         )
     info("age found")
 
     info(f"Looking for {_AGE_FILE.name}...")
     if not _AGE_FILE.exists():
         die(
-            "onshape.env.age not found — credentials haven't been encrypted yet.\n"
-            " └— Add your GitHub username to authorized_users.jsonc and push to main.\n"
+            "onshape.env.age not found! Pull the latest changes.\n"
+            " └─ Add your GitHub username to authorized_users.jsonc and push to main.\n"
             "    CI will encrypt automatically."
         )
     info(f"Found {_AGE_FILE.name}")
@@ -45,7 +51,7 @@ def login() -> None:
     if not present:
         die(
             "No SSH keys found. Checked:\n"
-            + "\n".join(f" └— {k}" for k in _SSH_KEY_CANDIDATES)
+            + "\n".join(f" └─ {k}" for k in _SSH_KEY_CANDIDATES)
             + "\n   Make sure your SSH key exists in ~/.ssh/"
         )
 
@@ -63,8 +69,7 @@ def login() -> None:
             check=False,
         )
         if result.returncode == 0:
-            _ONSHAPE_ENV.write_text(result.stdout)
-            info("Credentials saved to cli/onshape.env — you can now run sim create")
+            info("Access verified - sim create will decrypt credentials automatically")
             return
 
         stderr = result.stderr.strip()
@@ -72,18 +77,18 @@ def login() -> None:
             warn(f"{ssh_key.name}: no access (key not a recipient)")
             no_access = True
         else:
-            warn(f"{ssh_key.name}: decryption failed — {stderr or 'unknown error'}")
+            warn(f"{ssh_key.name}: decryption failed - {stderr or 'unknown error'}")
 
     if no_access:
         die(
-            "Access denied — your SSH key is not an authorized recipient.\n"
-            " └— Make sure your GitHub username is in authorized_users.jsonc\n"
-            " └— Ask a repo admin to push the change so CI re-encrypts\n"
-            " └— Then run sim login again"
+            "Access denied - your SSH key is not an authorized recipient.\n"
+            " └─ Make sure your GitHub username is in authorized_users.jsonc\n"
+            " └─ Ask a repo admin to push the change so CI re-encrypts\n"
+            " └─ Then run sim auth again"
         )
     else:
         die(
-            "Decryption failed for all keys — something went wrong.\n"
-            " └— Check the warnings above for details\n"
-            " └— If the file is corrupt, ask a repo admin to re-run the reencrypt workflow"
+            "Decryption failed for all keys - something went wrong.\n"
+            " └─ Check the warnings above for details\n"
+            " └─ If the file is corrupt, ask a repo admin to re-run the reencrypt workflow"
         )

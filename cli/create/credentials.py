@@ -36,8 +36,9 @@ def get_credentials() -> dict:
 
     if not key or not secret:
         err(
-            "OnShape credentials not found — run: sim login\n"
-            " └— Or set ONSHAPE_API_KEY and ONSHAPE_API_SECRET environment variables"
+            "OnShape credentials not found.\n"
+            " └─ Most users: use Actions → 'Create new robot' workflow instead\n"
+            " └─ Developers: run sim auth to verify local access is set up"
         )
 
     return {"key": key, "secret": secret}
