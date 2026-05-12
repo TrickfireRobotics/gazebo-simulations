@@ -36,9 +36,8 @@ def get_credentials() -> dict:
 
     if not key or not secret:
         err(
-            "OnShape credentials not found!\n"
-            " └— Set ONSHAPE_API_KEY and ONSHAPE_API_SECRET environment variables,\n"
-            "    or create cli/onshape.env with those values."
+            "OnShape credentials not found — run: sim login\n"
+            " └— Or set ONSHAPE_API_KEY and ONSHAPE_API_SECRET environment variables"
         )
 
     return {"key": key, "secret": secret}
