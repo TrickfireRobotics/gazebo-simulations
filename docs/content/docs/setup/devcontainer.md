@@ -17,23 +17,20 @@ The first build downloads the full Docker image with ROS 2 Humble, Gazebo Fortre
 
 Once inside, you'll be the `trickfire` user at `/home/trickfire/gazebo-simulations`.
 
-:::note
-The `postCreateCommand` in `devcontainer.json` automatically runs `scripts/ros_clean.sh` to clear any stale ROS build artifacts from previous sessions.
-:::
-
 ## 2. Start the display
 
 Gazebo and RViz need a display to render their GUIs. Since the container has no physical monitor, we run a virtual X11 server with VNC so you can view the desktop remotely.
 
-:::note
-If your host machine has an X11 server and you've configured X11 forwarding to the container (e.g. via `DISPLAY` and X socket mounting), you can skip this step. Run `xeyes` inside the container to verify - if a pair of eyes appears on your screen, X11 forwarding is already working, and you can skip this step.
-:::
+The Dev Container starts the display stack automatically through Docker Compose, so you can open a terminal and use GUI apps immediately.
+
+If you ever need to restart the display manually, run:
 
 ```bash title="Inside devcontainer"
-./scripts/start_x_server.sh
+./.devcontainer/x_server.sh
 ```
 
 This starts:
+
 1. **Xorg** with a dummy display driver
 2. **Openbox** window manager
 3. **x11vnc** VNC server on port `5900`
@@ -45,7 +42,7 @@ Connect with your VNC viewer at `localhost:5900`. You should see a blank desktop
 xeyes
 ```
 
-A pair of eyes should appear in the VNC desktop. Leave the X server script running in its terminal. It needs to be running at all times when you need to run a GUI (so do not kill it when you're going to need to launch the simulation). If you do not want to open multiple terminals, you can append `&` at the end of the command (`./scripts/start_x_server.sh &`) to make it run in the background.
+A pair of eyes should appear in the VNC desktop. If you restarted the display manually, leave the X server script running in its terminal. It needs to be running at all times when you need to run a GUI (so do not kill it when you're going to need to launch the simulation). If you do not want to open multiple terminals, you can append `&` at the end of the command (`.devcontainer/x_server.sh &`) to make it run in the background.
 
 :::tip
 For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in your browser. Note that noVNC doesn't forward modifier keys (Alt, Super, etc.) correctly, so a native VNC viewer is better for regular use.
@@ -55,14 +52,3 @@ For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in
 
 Once the display is running, head to [Running Simulations](../running-simulations/) to launch your first sim.
 
----
-
-## External terminals
-
-If you do not like using the VSCode built in terminal for the container shell, you can attach from any terminal of your choice. There is a script for convenience, you can call it using:
-
-```bash title="Host terminal"
-./scripts/attach_to_container.sh
-```
-
-This finds the running Dev Container and drops you into a shell as the `trickfire` user. Run the `exit` command if you want to exit the environment back to your host shell.

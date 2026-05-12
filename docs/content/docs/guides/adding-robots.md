@@ -10,7 +10,7 @@ This guide covers the full process of going from a CAD model in OnShape to a run
 The pipeline is:
 
 ```
-OnShape CAD → genbot → ROS 2 packages → launch_sim.sh → Gazebo + RViz
+OnShape CAD → genbot → ROS 2 packages → sim CLI → Gazebo + RViz
 ```
 
 `genbot` handles the heavy lifting: it downloads the URDF and meshes from OnShape, post-processes them for Gazebo (xacro injection, mesh path rewriting, control generation), and scaffolds two ROS 2 packages.
@@ -98,7 +98,7 @@ The robot is also registered in `robots.json` at the repo root with its OnShape 
 ## 4. Launch
 
 ```bash title="Inside devcontainer"
-./scripts/launch_sim.sh <robot_name>
+sim <robot_name>
 ```
 
 ## Updating an existing robot

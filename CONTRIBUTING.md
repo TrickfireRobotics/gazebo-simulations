@@ -7,8 +7,8 @@ Thanks for wanting to contribute to this repo! This guide covers the layout of t
 ```
 gazebo-simulations/
 ├── robot-sim/       # ROS 2 workspace - simulation packages
+├── cli/             # Python CLI for building and launching simulations
 ├── docs/            # Documentation site (Astro / Starlight)
-├── scripts/         # Shell scripts for launching and managing the sim
 ├── robots.json      # Robot configuration registry
 └── pyproject.toml   # Python tooling config
 ```
@@ -40,20 +40,18 @@ npm run build   # production build
 
 Content pages live in `docs/content/docs/` and follow the existing directory structure (`guides/`, `reference/`, etc.).
 
-### `scripts/` - Helper scripts
+### `cli/` - Simulation CLI
 
-Shell scripts used to manage the Dev Container and simulation:
+Python package providing the `sim` CLI command:
 
-| Script | Purpose |
-|---|---|
-| `launch_sim.sh` | Launch the simulation |
-| `attach_to_container.sh` | Attach a shell to the running container |
-| `start_x_server.sh` | Start the X display server (Linux/WSL) |
-| `ros_clean.sh` | Full clean and rebuild of the ROS workspace |
+- `cli.py` - Main entry point for the `sim` command
+- `docker.py` - Docker build and launch logic
+- `paths.py` - Workspace path utilities
+- `output.py` - Terminal output helpers
 
 ## Dev setup
 
-The simulation runs inside a Docker Dev Container. Follow the [Getting Started](https://trickfirerobotics.github.io/gazebo-simulations/guides/getting-started/) guide to set up your environment before making changes to `robot-sim/`.
+The simulation runs inside a Docker Dev Container. Follow the [Getting Started](https://trickfirerobotics.github.io/gazebo-simulations/setup/getting-started/) guide to set up your environment before making changes to `robot-sim/`.
 
 For `docs/` changes, only Node.js is required, no container needed.
 

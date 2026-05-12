@@ -84,8 +84,8 @@ The Dockerfile already enables `universe` for the packages that need it.
 
 **Forgetting to source after build:** ROS 2 can't find packages until you run `source install/setup.bash`. The launch script does this automatically, but if you're running ROS commands manually, you need to source first.
 
-**Stale build artifacts:** If something breaks for no obvious reason, run `./scripts/ros_clean.sh` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
+**Stale build artifacts:** If something breaks for no obvious reason, run `sim clean` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
 
-**X server not running:** Gazebo and RViz will fail silently or crash if the X server isn't started. Always run `./scripts/start_x_server.sh` first.
+**X server not running:** Gazebo and RViz will fail silently or crash if the X server isn't started. The Dev Container starts it automatically, but if you need to restart it manually, run `.devcontainer/x_server.sh`.
 
 **Port conflicts:** If port 6080 or 5900 is already in use, the X server script will fail. Make sure no other VNC sessions or containers are using those ports.
