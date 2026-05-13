@@ -17,7 +17,7 @@ RUN ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
 
 # APT packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl git python3-pip python3.10-venv wget zstd \
+    curl git openssh-client python3-pip python3.10-venv wget zstd \
     python3-rosdep \
     python3-colcon-common-extensions \
     ros-humble-ros2-controllers \
