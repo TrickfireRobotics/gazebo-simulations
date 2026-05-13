@@ -7,7 +7,7 @@ export default defineConfig({
     srcDir: './',
     integrations: [
         starlight({
-            title: 'TrickFire Gazebo Simulations',
+            title: 'TrickFire Robot Simulations',
             head: [
                 {
                     tag: 'script',
@@ -46,9 +46,9 @@ export default defineConfig({
                     label: 'Setup',
                     items: [
                         { label: 'Getting Started', slug: 'setup/getting-started' },
-                        { label: 'Dev Container', slug: 'setup/devcontainer' },
-                        { label: 'Nvidia Container', slug: 'setup/nvidia' },
-                        { label: 'MacOS Native', slug: 'setup/macos' }
+                        { label: 'Native (macOS / Linux)', slug: 'setup/macos' },
+                        { label: 'Docker (VNC)', slug: 'setup/devcontainer' },
+                        { label: 'Nvidia GPU', slug: 'setup/nvidia' }
                     ]
                 },
                 {

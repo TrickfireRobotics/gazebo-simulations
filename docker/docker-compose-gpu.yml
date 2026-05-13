@@ -1,7 +1,6 @@
 # --------------------------------------------------------------------------------------------
-# Gazebo Simulation Environment (NVIDIA GPU override)
-# Extends docker-compose.yml with GPU passthrough and host X11 rendering.
-# Used automatically by start_container.sh when NVIDIA hardware is detected.
+# Extends docker-compose.yml with GPU passthrough and host X11 rendering
+# Used automatically by start_container.sh when NVIDIA hardware is detected
 #
 # Usage:
 #   docker compose -f docker/docker-compose.yml -f docker/docker-compose-gpu.yml up

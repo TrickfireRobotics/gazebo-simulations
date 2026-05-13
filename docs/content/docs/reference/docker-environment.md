@@ -1,124 +1,97 @@
 ---
 title: Docker Environment
-description: How the container is configured, the multi-stage Dockerfile, standalone docker-compose usage, and how the headless display works.
+description: The multi-stage Dockerfile, display stack, and Dev Container configuration.
 ---
 
-The entire simulation environment runs inside a Docker container. There are two ways to use it:
-
-1. **Dev Container** (VS Code) -- uses the `dev` stage of the Dockerfile with dev tooling pre-installed. This is the primary workflow for development.
-2. **Standalone container** (docker-compose) -- uses the `runtime` stage for running simulations on any host without VS Code. NVIDIA GPU passthrough is enabled automatically when hardware is detected.
+The Docker image is used by both `sim docker` and the VS Code Dev Container. It is defined in `docker/Dockerfile`.
 
 ## Multi-stage Dockerfile
 
-The Dockerfile at `docker/Dockerfile` has two stages:
-
-```dockerfile
-FROM ros:humble-ros-base AS runtime   # simulation + VNC/display stack
-FROM runtime AS dev                   # + dev tooling (ruff, onshape-to-robot, shfmt)
+```
+runtime  →  ROS 2 Humble + Genesis + VNC display stack
+dev      →  runtime + ruff + shfmt  (Dev Container target)
 ```
 
 ### Runtime stage
 
-Everything needed to run simulations:
-
-```
-ros:humble-ros-base (Ubuntu Jammy 22.04 + ROS 2 Humble)
-```
+Base: `ros:humble-ros-base` (Ubuntu 22.04 + ROS 2 Humble core)
 
 **Simulation stack:**
 
-| Package                                | Purpose                                         |
-| -------------------------------------- | ----------------------------------------------- |
-| Gazebo Ignition Fortress               | Physics simulation engine                       |
-| `ros-humble-ros-gz-sim`                | ROS 2 / Gazebo integration                      |
-| `ros-humble-ros-ign-bridge`            | Message bridging between ROS and Gazebo         |
-| `ros-humble-ros2-controllers`          | Joint state broadcaster + trajectory controller |
-| `ros-humble-gz-ros2-control`           | Hardware interface for Gazebo                   |
-| `ros-humble-rviz2`                     | Robot visualization                             |
-| `ros-humble-xacro`                     | URDF macro processing                           |
-| `ros-humble-joint-state-publisher-gui` | Joint state publishing GUI                      |
-
-**Display stack (headless GUI):**
-
-| Package                                          | Purpose                                       |
-| ------------------------------------------------ | --------------------------------------------- |
-| `xserver-xorg-core` + `xserver-xorg-video-dummy` | Virtual X server with dummy driver (no GPU)   |
-| `openbox`                                        | Lightweight window manager                    |
-| `x11vnc`                                         | VNC server for remote X11 access              |
-| `novnc` + `websockify`                           | Browser-based VNC client                      |
-| `xvfb`                                           | Virtual framebuffer for Jetson/Tegra (no DRI) |
-| `mesa-utils`, `libgl1-mesa-*`                    | Software OpenGL rendering                     |
-
-**Build tools:**
-
-| Package                            | Purpose                      |
-| ---------------------------------- | ---------------------------- |
+| Package | Purpose |
+| --- | --- |
+| `genesis-world` (pip) | Genesis physics engine |
+| `ros-humble-robot-state-publisher` | TF tree from URDF |
+| `ros-humble-xacro` | URDF macro processing |
+| `ros-humble-rosbridge-suite` | WebSocket bridge for Mission Control |
+| `ros-humble-ros2-controllers` | Joint state broadcaster (kept for compatibility) |
+| `ros-humble-rviz2` | Robot visualization |
 | `python3-colcon-common-extensions` | ROS 2 workspace build system |
-| `python3-rosdep`                   | ROS dependency installer     |
-| `git`                              | Version control              |
+| `python3-tk` | Tkinter for the Joint GUI |
+
+**Display stack (headless GUI over VNC):**
+
+| Package | Purpose |
+| --- | --- |
+| `xserver-xorg-core` + `xserver-xorg-video-dummy` | Virtual X server with dummy driver |
+| `openbox` | Lightweight window manager |
+| `x11vnc` | VNC server for remote X11 access |
+| `novnc` + `websockify` | Browser-based VNC client (port 6080) |
+| `xvfb` | Virtual framebuffer fallback |
+| `mesa-utils`, `libgl1-mesa-*` | Software OpenGL rendering |
 
 ### Dev stage
 
 Adds on top of runtime:
 
-| Package            | Purpose                                 |
-| ------------------ | --------------------------------------- |
-| `ruff`             | Python linter                           |
-| `onshape-to-robot` | CAD-to-URDF conversion (used by `sim create`) |
-| `open3d`           | STL mesh decimation                     |
-| `shfmt`            | Shell script formatter                  |
+| Package | Purpose |
+| --- | --- |
+| `ruff` | Python linter / formatter |
+| `shfmt` | Shell script formatter |
+
+## Display architecture
+
+```
+Xorg (dummy driver)
+    ↑
+ Openbox WM
+    ↑
+ Genesis viewer / RViz
+    ↓
+ x11vnc  →  websockify  →  Browser (noVNC, port 6080)
+                        →  VNC viewer (port 5900)
+```
+
+Xorg with a dummy driver plus Mesa software rendering gives full OpenGL support without a physical GPU. The VNC + noVNC layer makes the desktop accessible from any browser or VNC client.
+
+The display stack starts automatically via `postStartCommand` in `devcontainer.json`. Restart manually inside the container if needed:
+
+```bash title="Inside devcontainer"
+./.devcontainer/x_server.sh
+```
 
 ## Container user
 
-The container runs as a non-root user `trickfire` with passwordless sudo:
-
-```dockerfile
-RUN useradd trickfire --shell /bin/bash --create-home
-RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
-```
+The container runs as `trickfire` with passwordless sudo. The repo is bind-mounted at `/home/trickfire/gazebo-simulations` (the directory exists in the image so Docker Engine 27.3+ doesn't reject it as the working directory).
 
 ## Dev Container configuration
 
-The `devcontainer.json` configures how VS Code opens the container:
+`devcontainer.json` configures the VS Code Dev Container:
 
-**Build target:** `dev` stage of `docker/Dockerfile`
+- **Build target:** `dev` stage
+- **Workspace mount:** repo root → `/home/trickfire/gazebo-simulations`
+- **Port forwarding:** `6080` (noVNC) and `5900` (VNC) forwarded to host
+- **SSH keys:** `~/.ssh` bind-mounted for `sim create` / `sim auth`
+- **Extensions:** Python, C++, ROS/URDF, Docker, formatters, Astro
 
-**Workspace mount:** The repo is bind-mounted into the container at `/home/trickfire/gazebo-simulations`.
+## Extending the image
 
-**Compose config:** `.devcontainer/devcontainer.json` uses `docker/docker-compose.yml` plus `.devcontainer/docker-compose.devcontainer.yml`. The override only switches the build target to `dev`; the base compose file starts the X server / VNC stack automatically.
+To add system packages, edit `docker/Dockerfile` and rebuild. Add to the `runtime` stage for things needed at simulation time, `dev` stage for development-only tools. After changing the Dockerfile, run **Dev Containers: Rebuild Container** from the VS Code Command Palette.
 
-**Port forwarding:** Ports `6080` (noVNC) and `5900` (VNC) are forwarded to the host.
+To add Python packages:
 
-**Privileged mode:** The container runs with `--privileged` and device access for hardware interaction (USB, CAN bus).
-
-**X11 forwarding:** The devcontainer relies on the Compose-managed VNC desktop. The standalone GPU compose stack can still mount `/tmp/.X11-unix` when you want host X11 rendering.
-
-**VS Code extensions:** Pre-installs Python, C++, ROS, URDF, Docker, formatting, and docs (Astro/MDX) extensions.
-
-## X-server Display Architecture
-
-```
-Xorg/Xvfb  →  x11vnc  →  websockify  →  Browser
-    ↑                                       ↑
- Openbox WM                            noVNC client
-    ↑                                   (port 6080)
- Gazebo / RViz
+```dockerfile
+RUN pip3 install --no-cache-dir <package>
 ```
 
-### Why this approach?
-
-Alternatives like Xvfb don't support GLX properly, which means Gazebo's 3D rendering fails. Using Xorg with a dummy driver + Mesa software rendering gives us full OpenGL support without needing a real GPU. The VNC + noVNC layer makes it accessible from any browser. On Jetsons, we fall back to Xvfb because there's no `/dev/dri`, but GPU rendering still works via EGL through injected Tegra libs.
-
-### Environment variables
-
-| Variable     | Value          | Set in                            |
-| ------------ | -------------- | --------------------------------- |
-| `DISPLAY`    | Host-dependent | `docker-compose.yml` (standalone) |
-| `VNC_PORT`   | `5900`         | Dockerfile                        |
-| `NOVNC_PORT` | `6080`         | Dockerfile                        |
-
-## Extending the container
-
-To add system packages, edit `docker/Dockerfile` and rebuild. For Python packages, add them to the `pip3 install` section in the appropriate stage (`runtime` for things needed at simulation time, `dev` for development-only tools).
-
-After changing the Dockerfile, use **Dev Containers: Rebuild Container** in VS Code's Command Palette.
+The `--no-cache-dir` flag keeps the image layer smaller.

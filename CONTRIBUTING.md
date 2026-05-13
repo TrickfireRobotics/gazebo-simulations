@@ -1,35 +1,50 @@
 # Contributing
 
-Thanks for wanting to contribute to this repo! This guide covers the layout of the repo and how to work on each part.
+Thanks for wanting to contribute! This guide covers the repo layout and how to work on each part.
 
 ## Repo structure
 
 ```
 gazebo-simulations/
-├── robot-sim/       # ROS 2 workspace - simulation packages
-├── cli/             # Python CLI for building and launching simulations
-├── docs/            # Documentation site (Astro / Starlight)
-├── robots.json      # Robot configuration registry
-└── pyproject.toml   # Python tooling config
+├── robot-sim/        # ROS 2 workspace — simulation packages
+├── cli/              # Python CLI for building and launching simulations
+├── docker/           # Dockerfile and Docker Compose files
+├── docs/             # Documentation site (Astro / Starlight)
+├── environment.yml   # Conda environment for sim native
+├── robots.json       # Robot configuration registry
+└── pyproject.toml    # Python tooling config
 ```
 
 ## Projects
 
-### `robot-sim/` - Simulation
+### `robot-sim/` — Simulation
 
-The ROS 2 workspace containing the Gazebo Fortress simulation packages. Built with `colcon` inside the Dev Container.
+The ROS 2 workspace. Built with `colcon` either inside the conda env (`sim native`) or inside the Docker container (`sim docker`).
 
 **Packages:**
-- `<robot>_bringup` - launch files
-- `<robot>_description` - URDF/SDF models and worlds
-- `sim_common` - shared ROS utilities and configs
-- `sim_worlds` - Gazebo world definitions
+- `<robot>/` — URDF, meshes, and RViz config for each robot (one package per robot)
+- `sim_common/` — shared Genesis simulation node, joint GUI, launch utils
 
-When adding or modifying a package, keep `package.xml` and `CMakeLists.txt` up to date so `colcon` can resolve build order and dependencies.
+When adding or modifying a package, keep `package.xml` and `CMakeLists.txt` up to date so `colcon` can resolve dependencies.
 
-### `docs/` - Documentation site
+### `cli/` — Simulation CLI
 
-An [Astro Starlight](https://starlight.astro.build/) site published to GitHub Pages. Source lives in `docs/content/`.
+Python package providing the `sim` CLI:
+
+- `cli.py` — entry point and argument parsing
+- `native.py` — `sim native`: conda bootstrap + colcon build + Genesis launch
+- `docker.py` — `sim docker`: colcon build + Genesis launch inside Docker
+- `create/` — `sim create` / `sim update`: OnShape download, URDF processing, package scaffolding
+- `paths.py` — workspace path constants
+- `output.py` — terminal output helpers (`info`, `warn`, `die`)
+
+### `docker/` — Docker environment
+
+`Dockerfile` builds the image used by `sim docker` and the VS Code Dev Container. The image includes ROS 2 Humble, Genesis, and a full VNC/noVNC display stack.
+
+### `docs/` — Documentation site
+
+An [Astro Starlight](https://starlight.astro.build/) site published to GitHub Pages. Source lives in `docs/content/docs/` and follows the existing directory structure (`setup/`, `guides/`, `reference/`).
 
 ```bash
 # from docs/
@@ -38,41 +53,32 @@ npm run dev     # local dev server
 npm run build   # production build
 ```
 
-Content pages live in `docs/content/docs/` and follow the existing directory structure (`guides/`, `reference/`, etc.).
-
-### `cli/` - Simulation CLI
-
-Python package providing the `sim` CLI command:
-
-- `cli.py` - Main entry point and argument parsing
-- `docker.py` - `sim docker` build and launch logic
-- `create/` - `sim create` / `sim update` implementation (OnShape download, URDF processing, package scaffolding)
-- `paths.py` - Workspace path utilities
-- `output.py` - Terminal output helpers (`info`, `warn`, `die`)
-
 ## Dev setup
 
-The simulation runs inside a Docker Dev Container. Follow the [Getting Started](https://trickfirerobotics.github.io/gazebo-simulations/setup/getting-started/) guide to set up your environment before making changes to `robot-sim/`.
+There are two ways to work on `robot-sim/` code:
 
-For `docs/` changes, only Node.js is required, no container needed.
+- **Native:** run `sim native <robot>` — bootstraps a conda env at `.conda/` inside the repo on first run.
+- **Docker:** open in the VS Code Dev Container and run `sim docker <robot>`.
+
+For `docs/` changes, only Node.js is required — no ROS or container needed.
 
 ## Formatting
 
-All formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
+Formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
 
 | Language | Formatter |
 |---|---|
 | Python | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`) |
 | Astro | Astro (`astro-build.astro-vscode`) |
-| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) - follow the project's Prettier configuration (including 4-space indentation) |
+| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) — 4-space indentation |
 | XML | XML Tools (`DotJoshJohnson.xml`) |
-| Dockerfile | Docker (`ms-azuretools.vscode-containers`) |
+| Shell | shfmt (`mkhl.shfmt`) |
 
-For Python, you can also run Ruff manually before submitting:
+Run Ruff manually before submitting:
 
 ```bash
 ruff check .
 ruff format .
 ```
 
-Configuration lives in `pyproject.toml`. The `robot-sim/build`, `install`, and `log` directories are excluded automatically.
+Configuration lives in `pyproject.toml`. The `robot-sim/build`, `install`, `log`, and `.conda/` directories are excluded automatically.

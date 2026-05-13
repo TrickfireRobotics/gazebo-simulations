@@ -3,8 +3,7 @@
 <!-- Onshape document_id: 9b05a4dfb79241a5b295b397 / workspace_id: d00f3086da43b93d9c689413 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="arm">
     <!-- XACRO -->
-    <xacro:property name="mesh_path" value="package://arm_description/meshes"/>
-    <xacro:arg name="controller_config" default=""/>
+    <xacro:property name="mesh_path" value="package://arm/meshes"/>
 
     <!-- Link base_link -->
     
@@ -2168,5 +2167,4 @@
         <axis xyz="0 0 1"/>
         <limit effort="10" velocity="10"/>
     </joint>
-    <xacro:include filename="$(find arm_description)/urdf/arm_control.urdf.xacro"/>
 </robot>

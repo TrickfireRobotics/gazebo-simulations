@@ -3,9 +3,7 @@ title: Moving Joints
 description: Control robot joints using the Joint GUI or the move_joints CLI node.
 ---
 
-There are two ways to move joints in the simulation: the **Joint GUI** (graphical, interactive) and the **`move_joints` CLI node** (scriptable, one-shot commands).
-
-Both publish `JointTrajectory` messages to the `joint_trajectory_controller`.
+There are two ways to move joints: the **Joint GUI** (graphical, interactive) and the **`move_joints` node** (scriptable, one-shot commands). Both publish `JointTrajectory` messages to genesis_sim on `/joint_trajectory_controller/joint_trajectory`.
 
 ## Joint GUI (interactive)
 
@@ -27,20 +25,27 @@ You can also:
 ### How it works
 
 1. On launch, the GUI parses the URDF file for all `revolute` joints, reading their `lower` and `upper` limits
-2. It subscribes to `/joint_states` to discover which joints are actually active and their starting positions
-3. When you hit **Send**, it publishes a `JointTrajectory` message to the selected topic with positions offset by each joint's origin angle
+2. It subscribes to `/joint_states` to discover which joints are active and their current positions
+3. When you hit **Send**, it publishes a `JointTrajectory` message with positions offset by each joint's origin angle
 
 :::tip
-If the GUI shows "Discovering joints from /joint_states..." for a long time, the joint controllers may not have started yet. Wait for Gazebo to fully load.
+If the GUI shows "Discovering joints from /joint_states..." for a long time, Genesis may still be loading. Wait for it to finish building the scene.
 :::
+
+To suppress the GUI:
+
+```bash title="Terminal"
+sim native arm --no-build  # then pass gui:=false directly
+ros2 launch sim_common sim.launch.py robot:=arm gui:=false
+```
 
 ## move_joints node (CLI)
 
-The `move_joints` node sends a single trajectory command and exits. It's useful for scripting or quick tests.
+Sends a single trajectory command and exits. Useful for scripting or quick tests.
 
 ### Usage
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 ros2 run sim_common move_joints --ros-args \
     -p joints:="['shoulder_1', 'elbow_1', 'wrist_1', 'wrist_2']" \
     -p positions:="[0.5, 0.5, 0.2, 0.0]" \
@@ -51,35 +56,25 @@ ros2 run sim_common move_joints --ros-args \
 
 | Parameter | Required | Default | Description |
 | --- | --- | --- | --- |
-| `joints` | Yes | -- | List of joint names to move |
-| `positions` | Yes | -- | Target positions (radians), one per joint |
+| `joints` | Yes | — | List of joint names to move |
+| `positions` | Yes | — | Target positions (radians), one per joint |
 | `duration` | No | `2.0` | Seconds to reach the target |
-| `topic` | No | See below | Trajectory topic to publish on |
-
-Default topic: `/joint_trajectory_controller/joint_trajectory`
+| `topic` | No | `/joint_trajectory_controller/joint_trajectory` | Trajectory topic to publish on |
 
 ### Behavior
 
-The node:
-1. Creates a publisher on the trajectory topic
-2. Waits (polling every 0.5s) until at least one subscriber is connected
-3. Publishes the trajectory message
-4. Logs the command and exits
+The node waits (polling every 0.5 s) until at least one subscriber is connected before publishing. This means it will wait automatically if Genesis hasn't finished loading yet.
 
-This means the joint trajectory controller must be running before `move_joints` can send its command. If you run it right after launching the simulation, it will wait automatically until the controller is ready.
+### Examples
 
-### Example: move two joints
-
-```bash title="Inside devcontainer"
+```bash title="Terminal"
+# Move two joints
 ros2 run sim_common move_joints --ros-args \
     -p joints:="['shoulder_1', 'elbow_1']" \
     -p positions:="[1.0, -0.5]" \
     -p duration:=3.0
-```
 
-### Example: move a single joint slowly
-
-```bash title="Inside devcontainer"
+# Move one joint slowly
 ros2 run sim_common move_joints --ros-args \
     -p joints:="['wrist_1']" \
     -p positions:="[0.8]" \

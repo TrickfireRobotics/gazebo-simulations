@@ -1,91 +1,72 @@
 ---
 title: Dev Notes
-description: Internal notes, tips, and architectural decisions for contributors.
+description: Tips, useful commands, and common pitfalls for contributors.
 ---
 
 ## Architecture decisions
 
-### Why a Dev Container?
+### Why Genesis instead of Gazebo?
 
-ROS 2 + Gazebo + their dependencies are notoriously painful to install natively, especially across different OS versions. The container guarantees everyone has the same Ubuntu 22.04 + ROS Humble + Gazebo Fortress environment. No "works on my machine" issues.
+Genesis is a Python-native physics engine that integrates directly into the ROS 2 process as a node. This removes the separate Gazebo process, the ROS-Gazebo bridge, `ros2_control` hardware interfaces, and per-robot controller YAML files. The result is a simpler stack: one ROS node drives the simulation loop and publishes joint states directly.
 
-### Why Gazebo Fortress (not Harmonic)?
+### Why one package per robot?
 
-The main TrickFire robot codebase uses ROS 2 Humble, so the simulation environment matches. ROS 2 Humble officially supports Gazebo Fortress -- newer Gazebo versions (like Harmonic) require ROS 2 Iron or newer. Since Humble is the current LTS and we need to stay compatible with the main robot, we use Fortress.
+Each robot only needs its URDF, meshes, and RViz config at runtime — there's nothing robot-specific to configure in a separate launch or config package. The shared `sim_common` launch file handles everything else. This keeps `sim create` output minimal and avoids the confusion of editing launch files in one package that reference URDFs in another.
 
-### Why two packages per robot?
+### Why `sim native` instead of just Docker?
 
-The `_description` / `_bringup` split is a ROS convention:
-- **`_description`** contains the robot model (URDF + meshes) -- things that change when the CAD changes
-- **`_bringup`** contains runtime config (launch files, controller YAML, RViz config) -- things you tweak during development
+The native workflow (`sim native`) stores everything — miniconda, the conda env, build artifacts — inside the repo at `.conda/`. No system installs, no global state. It's the fastest iteration loop for development, and it works on macOS and Linux without Docker installed.
 
-This separation means `sim update` can safely replace the description without touching your launch customizations.
+## Useful ROS 2 commands
 
-## Useful CLI commands
-
-### Gazebo camera position
-
-To set the camera position in the Gazebo viewer:
-
-```bash title="Inside devcontainer"
-gz service -s /gui/move_to/pose \
-    --reqtype gz.msgs.GUICamera \
-    --reptype gz.msgs.Boolean \
-    --timeout 2000 \
-    --req "pose: {position: {x: 0.0, y: -2.0, z: 2.0} orientation: {x: -0.2706, y: 0.2706, z: 0.6533, w: 0.6533}}"
-```
-
-To read the current camera position:
-
-```bash title="Inside devcontainer"
-gz topic -e -t /gui/camera/pose
-```
-
-### ROS 2 inspection
-
-```bash title="Inside devcontainer"
-# List all topics
+```bash title="Terminal"
+# List all active topics
 ros2 topic list
 
-# See joint states in real time
+# Stream joint states in real time
 ros2 topic echo /joint_states
 
-# List active controllers
-ros2 control list_controllers
+# Publish a joint trajectory manually
+ros2 topic pub /joint_trajectory_controller/joint_trajectory \
+    trajectory_msgs/msg/JointTrajectory \
+    '{joint_names: ["shoulder_1"], points: [{positions: [0.5], time_from_start: {sec: 2}}]}'
 
-# Check controller manager status
-ros2 control list_hardware_interfaces
+# Check what nodes are running
+ros2 node list
+
+# Inspect a node's parameters
+ros2 param list /genesis_sim
 ```
 
-### Building a single package
+## Building a single package
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 cd robot-sim
-colcon build --packages-select arm_description
+colcon build --packages-select arm
 source install/setup.bash
 ```
 
-## Community `apt` repository
-
-Some ROS packages live in the `universe` repository rather than `main`. If `apt` can't find a package:
-
-```bash title="Inside devcontainer"
-apt-get update
-apt-get install -y software-properties-common
-add-apt-repository -y universe
-apt-get update
-```
-
-:::note
-The Dockerfile already enables `universe` for the packages that need it.
-:::
+Use `--packages-up-to arm` to also rebuild all its dependencies.
 
 ## Common pitfalls
 
-**Forgetting to source after build:** ROS 2 can't find packages until you run `source install/setup.bash`. The launch script does this automatically, but if you're running ROS commands manually, you need to source first.
+**Forgetting to source after build:** ROS 2 won't find packages until you run `source install/setup.bash`. The `sim native` / `sim docker` launch scripts do this automatically, but manual `ros2` commands need it first.
 
-**Stale build artifacts:** If something breaks for no obvious reason, run `sim clean` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
+**Stale build artifacts:** Run `sim clean` and rebuild if something breaks for no obvious reason. Colcon's incremental builds can get confused after certain types of changes (especially after renaming packages or changing `setup.py`).
 
-**X server not running:** Gazebo and RViz will fail silently or crash if the X server isn't started. The Dev Container starts it automatically, but if you need to restart it manually, run `.devcontainer/x_server.sh`.
+**Genesis takes 15–20 s to open the first time:** Normal — Genesis compiles Taichi JIT kernels on first use. Subsequent runs are much faster. If it hangs indefinitely, check that your torch version is ≥ 2.8.0:
 
-**Port conflicts:** If port 6080 or 5900 is already in use, the X server script will fail. Make sure no other VNC sessions or containers are using those ports.
+```bash title="Terminal"
+python3 -c "import torch; print(torch.__version__)"
+```
+
+If it's older, delete the torch sentinel and let the CLI upgrade it:
+
+```bash title="Terminal"
+rm .conda/.torch_upgraded
+sim native arm
+```
+
+**VNC shows blank screen (Docker):** The display stack starts automatically, but if you restarted the container manually run `.devcontainer/x_server.sh &` inside the container.
+
+**Port 6080 / 5900 already in use:** Another VNC session or container is using those ports. Stop it or change the port mapping in `docker/docker-compose.yml`.

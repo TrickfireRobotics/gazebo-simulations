@@ -1,4 +1,3 @@
-# Only run the interactive extras for interactive shells
 case "$-" in
 *i*) ;;
 *) return ;;

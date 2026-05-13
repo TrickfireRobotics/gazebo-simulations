@@ -1,10 +1,10 @@
 ---
-title: TrickFire Gazebo Simulations
-description: Documentation for the TrickFire Robotics Gazebo simulation environment.
+title: TrickFire Robot Simulations
+description: Documentation for the TrickFire Robotics Genesis simulation environment.
 template: splash
 hero:
-  title: TrickFire Gazebo Simulations
-  tagline: Simulation system guide for TrickFire Robotics systems in Gazebo with ROS 2, inside a fully containerized environment, with an OnShape to simulation pipeline.
+  title: TrickFire Robot Simulations
+  tagline: Genesis physics simulations for TrickFire Robotics systems, running on ROS 2 Humble with a one-command OnShape-to-simulation pipeline.
   image:
     html: '<img src="/gazebo-simulations/logo-small.png" alt="TrickFire Robotics Logo" class="hero-logo">'
   actions:
@@ -22,22 +22,22 @@ import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 <CardGrid>
   <LinkCard
     title="Getting Started"
-    description="Clone the repo and pick your environment - Docker, macOS native, or Jetson."
+    description="Clone the repo and pick your environment — native (macOS/Linux) or Docker."
     href="/gazebo-simulations/setup/getting-started/"
   />
   <LinkCard
     title="Running Simulations"
-    description="Launch any robot with a single command. Build, source, and run Gazebo + RViz + Joint GUI automatically."
+    description="Launch any robot with a single command. sim native for a local window, sim docker for VNC."
     href="/gazebo-simulations/guides/running-simulations/"
   />
   <LinkCard
     title="Adding Robots"
-    description="Pull a CAD model from OnShape and generate ready-to-build ROS 2 packages with one command."
+    description="Pull a CAD model from OnShape and generate a ready-to-build ROS 2 package with one command."
     href="/gazebo-simulations/guides/adding-robots/"
   />
   <LinkCard
     title="Deep Dives"
-    description="Architecture deep dives into the launch system, Docker environment, ROS workspace, and robot package generation."
+    description="Architecture deep dives into the Genesis launch system, ROS workspace, and robot package generation."
     href="/gazebo-simulations/reference/ros-workspace/"
   />
 </CardGrid>

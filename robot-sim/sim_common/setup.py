@@ -11,11 +11,13 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + PACKAGE_NAME]),
         ("share/" + PACKAGE_NAME, ["package.xml"]),
+        ("share/" + PACKAGE_NAME + "/launch", ["launch/sim.launch.py"]),
     ],
     entry_points={
         "console_scripts": [
             "move_joints = sim_common.move_joints:main",
             "joint_gui = sim_common.joint_gui:main",
+            "genesis_sim = sim_common.genesis_sim:main",
         ],
     },
     install_requires=["setuptools"],

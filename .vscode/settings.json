@@ -87,8 +87,8 @@
         "docs/node_modules": true,
         "docs/dist": true,
 
-        // MacOS native build files
-        ".native/": true
+        // Conda native
+        ".conda/": true
     },
 
     // ================================
@@ -109,12 +109,16 @@
 
     "python.terminal.activateEnvironment": false,
     "python.analysis.extraPaths": [
+        "/usr/local/lib/python3.10/dist-packages",
+        "/usr/lib/python3/dist-packages",
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages",
         "robot-sim/sim_common",
         ".github"
     ],
     "python.autoComplete.extraPaths": [
+        "/usr/local/lib/python3.10/dist-packages",
+        "/usr/lib/python3/dist-packages",
         "/opt/ros/humble/lib/python3.10/site-packages",
         "/opt/ros/humble/local/lib/python3.10/dist-packages",
         "robot-sim/sim_common",

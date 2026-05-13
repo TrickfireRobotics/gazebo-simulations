@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import re
 import shutil
+import signal
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -23,30 +24,14 @@ def _workspace_package(name: str) -> Path:
     return WORKSPACE_DIR / name
 
 
-def _validate_robot_layout(robot_name: str) -> tuple[str, str, str]:
-    bringup_pkg = f"{robot_name}_bringup"
-    description_pkg = f"{robot_name}_description"
-    launch_file_name = f"{robot_name}.launch.py"
-
-    bringup_dir = _workspace_package(bringup_pkg)
-    if not bringup_dir.is_dir():
+def _validate_robot_layout(robot_name: str) -> None:
+    robot_dir = _workspace_package(robot_name)
+    if not robot_dir.is_dir():
         die(
-            f"Package '{bringup_pkg}' not found in {WORKSPACE_DIR}\n"
-            f"        Expected directory: {bringup_dir}"
+            f"Robot package '{robot_name}' not found in {WORKSPACE_DIR}\n"
+            f"        Expected directory: {robot_dir}\n"
+            "        Run 'sim create <robot> <onshape_url>' first."
         )
-
-    description_dir = _workspace_package(description_pkg)
-    if not description_dir.is_dir():
-        die(
-            f"Package '{description_pkg}' not found in {WORKSPACE_DIR}\n"
-            f"        Expected directory: {description_dir}"
-        )
-
-    launch_file = bringup_dir / "launch" / launch_file_name
-    if not launch_file.is_file():
-        die(f"Launch file not found: {launch_file}")
-
-    return bringup_pkg, description_pkg, launch_file_name
 
 
 def _clean_workspace() -> None:
@@ -91,6 +76,7 @@ def _run_logged_command(
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            start_new_session=True,
         )
 
         try:
@@ -100,11 +86,17 @@ def _run_logged_command(
                 log_file.write(_strip_ansi(line))
                 log_file.flush()
         except KeyboardInterrupt:
-            process.terminate()
             try:
-                process.wait(timeout=5)
+                os.killpg(os.getpgid(process.pid), signal.SIGINT)
+            except (ProcessLookupError, OSError):
+                process.terminate()
+            try:
+                process.wait(timeout=10)
             except subprocess.TimeoutExpired:
-                process.kill()
+                try:
+                    os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+                except (ProcessLookupError, OSError):
+                    process.kill()
                 process.wait()
             raise
 
@@ -122,7 +114,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     build = not no_build
     launch = not build_only
     env = os.environ.copy()
-    bringup_pkg, description_pkg, launch_file_name = _validate_robot_layout(robot_name)
+    _validate_robot_layout(robot_name)
 
     if build:
         _clean_workspace()
@@ -130,11 +122,11 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
 
     log_dir = WORKSPACE_DIR / "log"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / f"{robot_name}-gazebo-{datetime.now():%Y-%m-%d_%H-%M}.log"
+    log_path = log_dir / f"{robot_name}-genesis-docker-{datetime.now():%Y-%m-%d_%H-%M}.log"
 
     print("--------------------------------------------------------------")
     print(f"Robot:     {robot_name}")
-    print("Simulator: gazebo")
+    print("Simulator: genesis (docker + VNC)")
     print(f"Workspace: {WORKSPACE_DIR}")
     print(f"Log:       {log_path}")
     print("--------------------------------------------------------------")
@@ -148,9 +140,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
                 "colcon",
                 "build",
                 "--packages-up-to",
-                bringup_pkg,
-                description_pkg,
-                "sim_worlds",
+                robot_name,
                 "sim_common",
                 "--cmake-args",
                 "-DBUILD_TESTING=OFF",
@@ -171,21 +161,11 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
         info("Build-only requested; skipping launch")
         return
 
-    info("Sourcing ROS2 environment and launching simulation...")
+    info("Sourcing ROS 2 environment and launching Genesis simulation...")
     launch_script = f"""
 set -e
 source install/setup.bash
-
-SIM_WORLDS_SHARE=\"$PWD/install/sim_worlds/share/sim_worlds\"
-if [ -d \"$SIM_WORLDS_SHARE/worlds\" ]; then
-    export GZ_SIM_RESOURCE_PATH=\"${{GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}}$SIM_WORLDS_SHARE\"
-    echo \"[INFO] GZ_SIM_RESOURCE_PATH set to: $GZ_SIM_RESOURCE_PATH\"
-else
-    echo \"[WARN] sim_worlds share directory not found - world files may not load\"
-    echo \"       Expected: $SIM_WORLDS_SHARE/worlds\"
-fi
-
-exec ros2 launch \"{bringup_pkg}\" \"{launch_file_name}\" gui:=true
+exec ros2 launch sim_common sim.launch.py robot:={robot_name} headless:=true
 """.strip()
 
     try:
