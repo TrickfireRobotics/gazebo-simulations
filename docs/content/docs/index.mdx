@@ -3,41 +3,41 @@ title: TrickFire Robot Simulations
 description: Documentation for the TrickFire Robotics Genesis simulation environment.
 template: splash
 hero:
-  title: TrickFire Robot Simulations
-  tagline: Genesis physics simulations for TrickFire Robotics systems, running on ROS 2 Humble with a one-command OnShape-to-simulation pipeline.
-  image:
-    html: '<img src="/gazebo-simulations/logo-small.png" alt="TrickFire Robotics Logo" class="hero-logo">'
-  actions:
-    - text: Get Started
-      link: /gazebo-simulations/setup/getting-started/
-      icon: right-arrow
-    - text: View on GitHub
-      link: https://github.com/TrickfireRobotics/gazebo-simulations
-      icon: external
-      variant: minimal
+    title: TrickFire Robot Simulations
+    tagline: Genesis physics simulations for TrickFire Robotics systems, running on ROS 2 Humble with a one-command OnShape-to-simulation pipeline.
+    image:
+        html: '<img src="/genesis-simulations/logo-small.png" alt="TrickFire Robotics Logo" class="hero-logo">'
+    actions:
+        - text: Get Started
+          link: /genesis-simulations/setup/getting-started/
+          icon: right-arrow
+        - text: View on GitHub
+          link: https://github.com/TrickfireRobotics/genesis-simulations
+          icon: external
+          variant: minimal
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 <CardGrid>
-  <LinkCard
-    title="Getting Started"
-    description="Clone the repo and pick your environment — native (macOS/Linux) or Docker."
-    href="/gazebo-simulations/setup/getting-started/"
-  />
-  <LinkCard
-    title="Running Simulations"
-    description="Launch any robot with a single command. sim native for a local window, sim docker for VNC."
-    href="/gazebo-simulations/guides/running-simulations/"
-  />
-  <LinkCard
-    title="Adding Robots"
-    description="Pull a CAD model from OnShape and generate a ready-to-build ROS 2 package with one command."
-    href="/gazebo-simulations/guides/adding-robots/"
-  />
-  <LinkCard
-    title="Deep Dives"
-    description="Architecture deep dives into the Genesis launch system, ROS workspace, and robot package generation."
-    href="/gazebo-simulations/reference/ros-workspace/"
-  />
+    <LinkCard
+        title="Getting Started"
+        description="Clone the repo and pick your environment — native (macOS/Linux) or Docker."
+        href="/genesis-simulations/setup/getting-started/"
+    />
+    <LinkCard
+        title="Running Simulations"
+        description="Launch any robot with a single command. sim native for a local window, sim docker for VNC."
+        href="/genesis-simulations/guides/running-simulations/"
+    />
+    <LinkCard
+        title="Adding Robots"
+        description="Pull a CAD model from OnShape and generate a ready-to-build ROS 2 package with one command."
+        href="/genesis-simulations/guides/adding-robots/"
+    />
+    <LinkCard
+        title="Deep Dives"
+        description="Architecture deep dives into the Genesis launch system, ROS workspace, and robot package generation."
+        href="/genesis-simulations/reference/ros-workspace/"
+    />
 </CardGrid>

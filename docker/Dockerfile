@@ -59,11 +59,11 @@ RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 RUN rosdep fix-permissions && \
     chown -R trickfire:trickfire /usr/local/lib/python3.10/dist-packages && \
     chmod -R a+rX /usr/local/lib/python3.10/dist-packages
-RUN mkdir -p /home/trickfire/gazebo-simulations && \
-    chown trickfire:trickfire /home/trickfire/gazebo-simulations
+RUN mkdir -p /home/trickfire/genesis-simulations && \
+    chown trickfire:trickfire /home/trickfire/genesis-simulations
 
 USER trickfire
-WORKDIR /home/trickfire/gazebo-simulations
+WORKDIR /home/trickfire/genesis-simulations
 
 
 # Dev image

@@ -5,7 +5,7 @@ Thanks for wanting to contribute! This guide covers the repo layout and how to w
 ## Repo structure
 
 ```
-gazebo-simulations/
+genesis-simulations/
 ├── robot-sim/        # ROS 2 workspace — simulation packages
 ├── cli/              # Python CLI for building and launching simulations
 ├── docker/           # Dockerfile and Docker Compose files
@@ -22,6 +22,7 @@ gazebo-simulations/
 The ROS 2 workspace. Built with `colcon` either inside the conda env (`sim native`) or inside the Docker container (`sim docker`).
 
 **Packages:**
+
 - `<robot>/` — URDF, meshes, and RViz config for each robot (one package per robot)
 - `sim_common/` — shared Genesis simulation node, joint GUI, launch utils
 
@@ -66,13 +67,13 @@ For `docs/` changes, only Node.js is required — no ROS or container needed.
 
 Formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
 
-| Language | Formatter |
-|---|---|
-| Python | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`) |
-| Astro | Astro (`astro-build.astro-vscode`) |
-| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) — 4-space indentation |
-| XML | XML Tools (`DotJoshJohnson.xml`) |
-| Shell | shfmt (`mkhl.shfmt`) |
+| Language               | Formatter                                                   |
+| ---------------------- | ----------------------------------------------------------- |
+| Python                 | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`) |
+| Astro                  | Astro (`astro-build.astro-vscode`)                          |
+| JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) — 4-space indentation   |
+| XML                    | XML Tools (`DotJoshJohnson.xml`)                            |
+| Shell                  | shfmt (`mkhl.shfmt`)                                        |
 
 Run Ruff manually before submitting:
 

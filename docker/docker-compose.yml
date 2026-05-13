@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------------------
-# Gazebo Simulation Environment
+# Robot Simulation Environment
 # Base config -- works on any host.
 # For NVIDIA GPU passthrough, also use docker-compose-gpu.yml
 # For development also use docker-compose-dev.yml
@@ -11,8 +11,8 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: runtime
-    image: gazebo-simulations:latest
-    container_name: gazebo-simulations
+    image: genesis-simulations:latest
+    container_name: genesis-simulations
     user: trickfire
 
     environment:
@@ -24,9 +24,9 @@ services:
       TZ: ${TZ:-UTC}
 
     volumes:
-      - ..:/home/trickfire/gazebo-simulations
+      - ..:/home/trickfire/genesis-simulations
 
-    working_dir: /home/trickfire/gazebo-simulations
+    working_dir: /home/trickfire/genesis-simulations
 
     ports:
       - "5900:5900"
