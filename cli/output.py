@@ -21,7 +21,6 @@ else:
 
 
 def info(msg: str) -> None:
-    """Informational message - print to stdout"""
     print(f"{_B}[INFO]{_X}  {msg}")
 
 
