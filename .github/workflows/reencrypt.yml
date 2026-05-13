@@ -1,0 +1,56 @@
+name: Re-encrypt Onshape credentials
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - .github/workflows/reencrypt.yml
+            - authorized_users.jsonc
+    workflow_dispatch:
+
+jobs:
+    reencrypt:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install age
+              run: sudo apt-get install -y age
+
+            - name: Encrypt credentials for authorized users
+              env:
+                  ONSHAPE_API_KEY: ${{ secrets.ONSHAPE_ACCESS_KEY }}
+                  ONSHAPE_API_SECRET: ${{ secrets.ONSHAPE_SECRET_KEY }}
+              run: |
+                  TMPFILE=$(mktemp)
+                  trap 'rm -f "$TMPFILE"' EXIT
+                  printf 'ONSHAPE_API_KEY=%s\nONSHAPE_API_SECRET=%s\n' "$ONSHAPE_API_KEY" "$ONSHAPE_API_SECRET" > "$TMPFILE"
+
+                  RECIPIENT_ARGS=()
+                  while IFS= read -r username; do
+                    echo "Fetching SSH keys for GitHub user: $username"
+                    while IFS= read -r key; do
+                      [[ -z "$key" ]] && continue
+                      RECIPIENT_ARGS+=("-r" "$key")
+                    done < <(curl -fsSL "https://github.com/${username}.keys")
+                  done < <(grep -v '^\s*//' authorized_users.jsonc | jq -r '.[]')
+
+                  if [[ ${#RECIPIENT_ARGS[@]} -eq 0 ]]; then
+                    echo "ERROR: No SSH keys found for any authorized user"
+                    exit 1
+                  fi
+
+                  mkdir -p cli
+                  age "${RECIPIENT_ARGS[@]}" -e -o cli/onshape.env.age "$TMPFILE"
+                  echo "Encrypted for ${#RECIPIENT_ARGS[@]} key(s) -> cli/onshape.env.age"
+
+            - name: Commit updated onshape.env.age
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add cli/onshape.env.age
+                  git diff --staged --quiet || git commit -m "chore: re-encrypt onshape credentials"
+                  git push

@@ -13,19 +13,21 @@ Icon
 !.vscode/extensions.json
 
 ### Devcontainer ###
-.devcontainer/launch.env
 
 ### Python ###
 .mypy_cache
 __pycache__
+*.egg-info/
+build/
+**/.venv
 
 ### ROS2 ###
 robot-sim/install
 robot-sim/build
 robot-sim/log
 
-### Genbot ###
-.github/genbot/tests
+### sim create tests ###
+cli/create/tests
 
 ### env ###
 **/*.env
@@ -34,7 +36,3 @@ robot-sim/log
 node_modules/
 dist/
 .astro/
-
-### MacOS native ###
-.macos/
-!robot-sim/sim_common/macos/versions.env

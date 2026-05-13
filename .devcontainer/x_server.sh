@@ -2,8 +2,6 @@
 set -eo pipefail
 
 # --------------------------------------------------------------------------------------------
-# start_x_server.sh
-# --------------------------------------------------------------------------------------------
 # Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
 # Intended for running GUI apps (Gazebo) in Docker.
 # Supports --verbose flag for debugging (prints all output to console instead of log file).
@@ -80,7 +78,7 @@ if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; 
 	exit 1
 fi
 
-# Set in the .devcontainer Dockerfile & launch.env
+# Set in the Dockerfile and docker compose.
 : "${DISPLAY:?DISPLAY is not set}"
 : "${VNC_PORT:?VNC_PORT is not set}"
 : "${NOVNC_PORT:?NOVNC_PORT is not set}"

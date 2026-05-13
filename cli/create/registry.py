@@ -2,7 +2,7 @@
 
 import json
 
-from genbot import ROBOTS_JSON
+from . import ROBOTS_JSON
 
 
 def load_robots_json() -> list:

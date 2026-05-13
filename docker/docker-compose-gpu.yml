@@ -20,4 +20,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
 
-    command: sleep infinity
+    command: >-
+      bash -lc 'set -e;
+      python3 -m venv .venv && source .venv/bin/activate && pip install -e . && \
+      exec sleep infinity'

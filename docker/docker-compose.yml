@@ -2,6 +2,7 @@
 # Gazebo Simulation Environment
 # Base config -- works on any host.
 # For NVIDIA GPU passthrough, also use docker-compose-gpu.yml.
+# For development also use docker-compose-dev.yml.
 # --------------------------------------------------------------------------------------------
 
 services:
@@ -11,7 +12,7 @@ services:
       dockerfile: docker/Dockerfile
       target: runtime
     image: gazebo-simulations:latest
-    container_name: gazebo-sim
+    container_name: gazebo-simulations
     user: trickfire
 
     environment:
@@ -32,8 +33,6 @@ services:
       - "6080:6080"
 
     privileged: true
-
-    command: scripts/start_x_server.sh
 
     stdin_open: true
     tty: true

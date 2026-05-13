@@ -1,30 +1,17 @@
-// DOCUMENTATION: https://containers.dev/implementors/json_reference/
 {
-    "build": {
-        "context": "../",
-        "dockerfile": "../docker/Dockerfile",
-        "target": "dev"
-    },
-    "containerUser": "trickfire",
-    "remoteUser": "trickfire",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/trickfire/${localWorkspaceFolderBasename},type=bind",
-    "workspaceFolder": "/home/trickfire/${localWorkspaceFolderBasename}",
-    "initializeCommand": ["bash", ".devcontainer/launch.sh"],
-    "postCreateCommand": "scripts/ros_clean.sh",
-    "forwardPorts": [6080, 5900],
-    "runArgs": [
-        "--privileged",
-        "--cap-add=SYS_PTRACE",
-        "--device=/dev",
-        "--security-opt",
-        "seccomp=unconfined",
-        "--env-file",
-        ".devcontainer/launch.env",
-        "-e",
-        "QT_X11_NO_MITSHM=1",
-        "-v",
-        "/tmp/.X11-unix:/tmp/.X11-unix"
+    "dockerComposeFile": [
+        "../docker/docker-compose.yml",
+        "../docker/docker-compose-dev.yml"
     ],
+    "service": "sim",
+    "runServices": ["sim"],
+    "workspaceFolder": "/home/trickfire/gazebo-simulations",
+    "postCreateCommand": "[ -d .venv ] || (python3 -m venv --copies .venv && . .venv/bin/activate && pip install -e .)",
+    "postStartCommand": "bash -c 'bash .devcontainer/x_server.sh &'",
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/home/trickfire/.ssh,type=bind,consistency=cached"
+    ],
+    "forwardPorts": [6080, 5900],
     "customizations": {
         "vscode": {
             "extensions": [

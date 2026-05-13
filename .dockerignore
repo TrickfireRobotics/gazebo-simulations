@@ -1,7 +1,9 @@
-.macos/
+# ROS build
 robot-sim/build/
 robot-sim/install/
 robot-sim/log/
+
+# Website
 docs/node_modules/
 docs/dist/
 docs/.astro/

@@ -1,131 +1,75 @@
 ---
 title: Adding a New Robot
-description: How to generate ROS 2 simulation packages for a new robot from an OnShape CAD model using genbot.
+description: How to generate ROS 2 packages from an OnShape CAD model and get a new robot running in Gazebo.
 ---
 
-This guide covers the full process of going from a CAD model in OnShape to a running Gazebo simulation.
+`sim create` takes a robot from OnShape and produces two ready-to-build ROS 2 packages - no manual URDF editing or package scaffolding required.
 
-## Overview
+## Via GitHub Actions (recommended)
 
-The pipeline is:
+You do not need any credentials or local setup. The **Create new robot** workflow runs on CI and opens a PR with the generated packages.
 
-```
-OnShape CAD → genbot → ROS 2 packages → launch_sim.sh → Gazebo + RViz
-```
+1. Go to **Actions** and then to **Create new robot**
+2. Click **Run workflow** and fill in the inputs:
+    - **Mode:** `create`
+    - **Robot name:** unique, lowercase, no spaces (e.g. `arm`)
+    - **OnShape URL:** the full document URL from OnShape
+    - **Fix robot to world:** yes for stationary robots (arms, turrets), no for mobile
+3. Wait for the workflow to finish, then review and merge the generated PR
 
-`genbot` handles the heavy lifting: it downloads the URDF and meshes from OnShape, post-processes them for Gazebo (xacro injection, mesh path rewriting, control generation), and scaffolds two ROS 2 packages.
+## Via Dev Container (developers only)
 
-## Option A: GitHub Actions (recommended)
+Running `sim create` locally requires your GitHub username to be listed in
+[`authorized_users.jsonc`](https://github.com/TrickfireRobotics/gazebo-simulations/blob/main/authorized_users.jsonc).
+If you're not listed, ask a repo admin to add you. There are also some local package requirements:
 
-The easiest way to add a robot is through the GitHub Actions workflow, which runs genbot on CI and opens a PR with the generated packages.
-
-1. Go to **Actions** > **Generate/Update Robot from OnShape**
-2. Click **Run workflow**
-3. Fill in the inputs:
-
-| Input | Description |
-| --- | --- |
-| `mode` | `create` for a new robot |
-| `robot_name` | Identifier for the robot (e.g. `arm`, `rover`). Used for package names. |
-| `onshape_url` | Full OnShape document URL for the CAD model |
-| `attach_to_world` | Check this if the robot's base should be fixed in place (not free-floating) |
-
-4. The workflow generates the packages and opens a PR on branch `genbot/create-<robot_name>`
-5. Review the PR, set up RViz (see below), and merge
-
-:::note
-The workflow requires `ONSHAPE_ACCESS_KEY` and `ONSHAPE_SECRET_KEY` to be configured as repository secrets.
+:::note[note]
+The container mounts your `ssh` keys, as this method uses your GitHub `ssh` key. Make sure it is set up.
 :::
 
-## Option B: Run genbot locally
+```bash title="Host terminal"
+sim auth
+```
 
-If you prefer to run it locally (useful for iteration):
-
-### 1. Set up OnShape credentials
-
-Create a file at `.github/genbot/onshape.env`:
+Then you can create the robot using:
 
 ```bash title="Inside devcontainer"
-ONSHAPE_API_KEY=your_key_here
-ONSHAPE_API_SECRET=your_secret_here
+sim create <robot_name> <onshape_url>
 ```
 
-This lets you run `genbot` without passing credentials every time. Alternatively, export them directly:
+:::tip[Tip]
+This sim will work with any Onshape API key and secret as long as you put them in the `cli/onshape.env` file under `ONSHAPE_API_KEY` and `ONSHAPE_API_SECRET` (in standard env format). The above is just for TrickFire specific robots.
+:::
 
-```bash title="Inside devcontainer"
-export ONSHAPE_API_KEY=your_key
-export ONSHAPE_API_SECRET=your_secret
-```
+## Flags
 
-### 2. Run the create command
-
-```bash title="Inside devcontainer"
-PYTHONPATH=.github python3 -m genbot create <robot_name> <onshape_url> --attach-to-world
-```
-
-Or if you set up `onshape.env`, the alias works:
-
-```bash title="Inside devcontainer"
-genbot create <robot_name> <onshape_url> --attach-to-world
-```
-
-Options:
-- `--attach-to-world` -- adds a fixed joint from the robot's `base_link` to the Gazebo world (use for arms, turrets, anything bolted down). Without this flag, genbot will prompt you interactively asking whether to attach to the world.
-- `--no-reduce` -- skip STL triangle reduction (meshes will be larger but higher detail)
-- `--output-dir <path>` -- write packages somewhere else instead of `robot-sim/`
-
-### 3. What gets generated
-
-```
-robot-sim/
-  <robot>_description/
-    urdf/<robot>.urdf                   ← Post-processed geometry URDF
-    urdf/<robot>_control.urdf.xacro     ← Generated ros2_control block
-    meshes/                             ← STL mesh files
-    CMakeLists.txt
-    package.xml
-
-  <robot>_bringup/
-    launch/<robot>.launch.py            ← Launch orchestration
-    config/<robot>.controller.yaml      ← Joint controller config
-    config/<robot>.rviz                 ← RViz config (template)
-    CMakeLists.txt
-    package.xml
-```
-
-The robot is also registered in `robots.json` at the repo root with its OnShape URL and settings.
-
-## 4. Launch
-
-```bash title="Inside devcontainer"
-./scripts/launch_sim.sh <robot_name>
-```
+| Flag                   | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `--attach-to-world`    | Fix `base_link` to the Gazebo world (stationary robots) |
+| `--no-attach-to-world` | Explicitly skip - for mobile robots                     |
+| `--no-reduce`          | Skip STL mesh decimation (larger files, higher detail)  |
+| `--output-dir <path>`  | Write packages somewhere other than `robot-sim/`        |
 
 ## Updating an existing robot
 
-If the OnShape model changes and you need to refresh the URDF and meshes:
+When the OnShape CAD changes, pull in the new geometry without touching your bringup config.
+
+**Via CI (recommended):** Actions → **Create new robot** → mode: `update`
+
+**Locally:**
 
 ```bash title="Inside devcontainer"
-genbot update <robot_name>
+sim update arm
 ```
 
-Or use the GitHub Actions workflow with `mode: update`.
+This replaces only `arm_description/urdf/arm.urdf` and `arm_description/meshes/`. Everything else - your control xacro edits, launch file, controller YAML, RViz config - is left untouched.
 
-This **only** replaces:
-- `<robot>_description/urdf/<robot>.urdf` (geometry)
-- `<robot>_description/meshes/*` (mesh files)
+## Troubleshooting
 
-It does **not** touch:
-- `<robot>_description/urdf/<robot>_control.urdf.xacro` (your control edits)
-- The entire `<robot>_bringup/` package (launch files, configs, RViz)
-- `robots.json`
+**Missing joints:** Joints must be defined as mates in the OnShape assembly. Check the OnShape model if joints don't appear in the generated controller YAML.
 
-This means any manual edits you've made to the control xacro or bringup package are preserved.
+**URDF errors after generation:** See [Robot Packages](../../reference/robot-packages/) for details on what post-processing happens and how to inspect the raw OnShape output.
 
-## Debugging generation issues
+**Large mesh files:** `sim create` decimates STL triangle counts automatically. If meshes are still too large, simplify the geometry in OnShape before re-running.
 
-**URDF parsing errors:** Run `genbot raw <robot_name>` first to download the raw URDF without processing. Inspect it in `.github/genbot/tests/<robot_name>/` to see what OnShape produced.
-
-**Missing joints:** Check the OnShape model -- joints must be properly defined as mates in the assembly. `genbot` only picks up joints that `onshape-to-robot` successfully converts.
-
-**Large mesh files:** By default, `genbot create` reduces STL triangle counts using `open3d`. If meshes are still too large, you can manually decimate them or simplify the CAD model.
+**`sim auth` fails with "no access":** Your GitHub username is not in `authorized_users.jsonc`, or it was added but CI hasn't re-encrypted yet. Check the **Re-encrypt Onshape credentials** workflow run in Actions.

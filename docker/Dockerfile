@@ -43,13 +43,14 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg \
 # APT packages
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git python3-pip wget zstd \
+    git python3-pip python3.10-venv wget zstd \
     python3-rosdep \
     python3-colcon-common-extensions \
     ros-humble-ros-gz-sim \
     ros-humble-ros-ign-bridge \
     ros-humble-ros2-controllers \
     python3-tk \
+    age \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -111,8 +112,7 @@ RUN rosdep init || true
 
 RUN useradd trickfire --shell /bin/bash --create-home --no-log-init && \
     usermod -aG video trickfire
-COPY docker/shell/trickfire.bashrc /home/trickfire/.bashrc
-COPY docker/shell/sim.aliases.sh /home/trickfire/.bash_aliases
+COPY docker/container.bashrc /home/trickfire/.bashrc
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 RUN rosdep fix-permissions && \
@@ -123,14 +123,13 @@ USER trickfire
 
 
 # --------------------------------------------------------------------------------------------
-# DEV — adds dev tooling on top of runtime  (devcontainer)
+# DEV - adds dev tooling on top of runtime  (devcontainer)
 
 FROM runtime AS dev
 
 USER root
 
-RUN pip3 install ruff onshape-to-robot
-RUN pip3 install open3d --ignore-installed blinker
+RUN pip3 install ruff
 
 RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
     -o /usr/local/bin/shfmt && \
