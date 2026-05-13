@@ -2156,10 +2156,10 @@
             </geometry>
         </collision>
     </link>
-    <!-- Joint from base_link to elbow_linkage -->
-    <joint name="base_link_to_elbow_linkage" type="fixed">
-        <origin xyz="0 0 0" rpy="0 -0 0"/>
-        <parent link="base_link"/>
+    <!-- Joint from bicep_actuator to elbow_linkage (continuous: closed-loop linkage stub) -->
+    <joint name="bicep_to_elbow_linkage" type="continuous">
+        <origin xyz="-0.08608547 -0.03610776 -0.02567487" rpy="2.945694 1.570795 -2.945694"/>
+        <parent link="bicep_actuator"/>
         <child link="elbow_linkage"/>
         <axis xyz="0 0 1"/>
         <limit effort="10" velocity="10"/>

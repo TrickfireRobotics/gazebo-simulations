@@ -49,15 +49,17 @@ class JointPublisher(Node):
         root = et.fromstring(doc.toxml())
         joints = {}
         for joint in root.iter("joint"):
-            if joint.get("type") == "revolute":
+            if joint.get("type") in ("revolute", "continuous"):
                 name = joint.get("name")
                 limit = joint.find("limit")
 
-                if name is not None and limit is not None:
-                    # initially origin angle will be 0, when a joint is discovered update value
+                if name is not None:
+                    # continuous joints have no lower/upper; fall back to ±π
+                    lower = limit.get("lower") if limit is not None else None
+                    upper = limit.get("upper") if limit is not None else None
                     joints[name] = {
-                        "min": float(limit.get("lower", JOINT_MAX)),
-                        "max": float(limit.get("upper", JOINT_MIN)),
+                        "min": float(lower) if lower is not None else JOINT_MIN,
+                        "max": float(upper) if upper is not None else JOINT_MAX,
                         "origin": 0.0,
                     }
         return joints
