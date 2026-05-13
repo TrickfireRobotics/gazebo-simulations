@@ -1,25 +1,19 @@
 # Conda environment for sim native — managed inside the repo at .conda/envs/sim/
-# Bootstrap: sim native downloads miniconda to .conda/ and creates this env automatically.
-# Channel priority and envs/pkgs dirs are set in .conda/.condarc (written by bootstrap).
-#
-# To update after changing this file:
-#   .conda/bin/conda env update -n sim --file environment.yml --prune
+# Bootstrap: sim native downloads miniconda to .conda/ and creates this env automatically
 name: sim
 channels:
-  - robostack-staging
-  - conda-forge
-  - nodefaults
+    - robostack-staging
+    - conda-forge
+    - nodefaults
 dependencies:
-  - python=3.11
-  - ros-humble-desktop
-  - ros-humble-rosbridge-suite
-  - colcon-common-extensions
-  - pip
-  - pip:
-      - torch>=2.8.0
-      - torchvision
-      - torchaudio
-      - onshape-to-robot
-      - open3d  # optional: STL mesh reduction (sim create --no-reduce to skip)
-# genesis-world is installed separately by `sim native` bootstrap after env creation
-# (pip install genesis-world) — this is more reliable than the conda pip block.
+    - python=3.11
+    - ros-humble-desktop
+    - ros-humble-rosbridge-suite
+    - colcon-common-extensions
+    - pip
+    - pip:
+          - torch>=2.8.0
+          - torchvision
+          - torchaudio
+          - onshape-to-robot
+          - open3d
