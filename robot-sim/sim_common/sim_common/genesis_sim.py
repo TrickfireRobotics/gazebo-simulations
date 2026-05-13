@@ -71,9 +71,7 @@ class GenesisSim(Node):
         self._lock = threading.Lock()
         self._pending_positions: dict[str, float] = {}
 
-        backend: Any = cast(Any, gs.cpu)
-        if os.environ.get("GENESIS_BACKEND") == "cuda":
-            backend = cast(Any, gs.cuda)
+        backend: Any = cast(Any, gs.gpu)  # default to GPU if available
 
         gs.init(backend=backend, logging_level="warning")
 
