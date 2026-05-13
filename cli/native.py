@@ -30,9 +30,16 @@ _ANSI_RE = __import__("re").compile(r"\x1B\[[0-9;]*[mK]")
 # Conda env vars that must be stripped so a user's existing conda install
 # doesn't redirect our operations into their personal envs/pkgs dirs.
 _CONDA_VARS = {
-    "CONDA_PREFIX", "CONDA_DEFAULT_ENV", "CONDA_SHLVL", "CONDA_ENVS_DIRS",
-    "CONDA_ENVS_PATH", "CONDA_PKGS_DIRS", "CONDA_PROMPT_MODIFIER",
-    "CONDA_PYTHON_EXE", "CONDA_EXE", "CONDA_ROOT",
+    "CONDA_PREFIX",
+    "CONDA_DEFAULT_ENV",
+    "CONDA_SHLVL",
+    "CONDA_ENVS_DIRS",
+    "CONDA_ENVS_PATH",
+    "CONDA_PKGS_DIRS",
+    "CONDA_PROMPT_MODIFIER",
+    "CONDA_PYTHON_EXE",
+    "CONDA_EXE",
+    "CONDA_ROOT",
 }
 
 
@@ -122,7 +129,9 @@ def _ensure_conda_env() -> None:
         "        (downloading ROS 2 Humble + Genesis + dependencies)..."
     )
     result = subprocess.run(
-        _conda(["env", "create", "-y", "-n", CONDA_ENV_NAME, "--file", str(CONDA_ENV_YML)]),
+        _conda(
+            ["env", "create", "-y", "-n", CONDA_ENV_NAME, "--file", str(CONDA_ENV_YML)]
+        ),
         env=_clean_env(),
         check=False,
     )
@@ -133,10 +142,17 @@ def _ensure_conda_env() -> None:
     # Conda-forge ships an older torch; genesis requires 2.8+.
     info("Installing torch>=2.8.0 and genesis-world via pip...")
     result = subprocess.run(
-        _conda_run([
-            "pip", "install", "--upgrade",
-            "torch>=2.8.0", "torchvision", "torchaudio", "genesis-world",
-        ]),
+        _conda_run(
+            [
+                "pip",
+                "install",
+                "--upgrade",
+                "torch>=2.8.0",
+                "torchvision",
+                "torchaudio",
+                "genesis-world",
+            ]
+        ),
         env=_clean_env(),
         check=False,
     )
@@ -152,10 +168,17 @@ def _ensure_torch_version() -> None:
 
     info("Upgrading torch>=2.8.0 for Genesis (one-time)...")
     result = subprocess.run(
-        _conda_run([
-            "pip", "install", "--upgrade",
-            "torch>=2.8.0", "torchvision", "torchaudio", "genesis-world",
-        ]),
+        _conda_run(
+            [
+                "pip",
+                "install",
+                "--upgrade",
+                "torch>=2.8.0",
+                "torchvision",
+                "torchaudio",
+                "genesis-world",
+            ]
+        ),
         env=_clean_env(),
         check=False,
     )
@@ -226,7 +249,9 @@ def _run_logged(
         raise subprocess.CalledProcessError(rc, command)
 
 
-def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: bool = False) -> None:
+def build_and_launch(
+    robot_name: str, *, build_only: bool = False, no_build: bool = False
+) -> None:
     """Bootstrap conda + env if needed, build workspace, launch Genesis simulation."""
     if build_only and no_build:
         die("Use either --build-only or --no-build, not both")
@@ -263,11 +288,17 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     if build:
         info("Building ROS 2 workspace inside conda env...")
         _run_logged(
-            _conda_run([
-                "colcon", "build",
-                "--packages-up-to", robot_name, "sim_common",
-                "--cmake-args", "-DBUILD_TESTING=OFF",
-            ]),
+            _conda_run(
+                [
+                    "colcon",
+                    "build",
+                    "--packages-up-to",
+                    robot_name,
+                    "sim_common",
+                    "--cmake-args",
+                    "-DBUILD_TESTING=OFF",
+                ]
+            ),
             cwd=WORKSPACE_DIR,
             env=env,
             log_path=log_path,
