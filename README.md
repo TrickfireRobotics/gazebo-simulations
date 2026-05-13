@@ -1,13 +1,13 @@
-# Gazebo Simulations
+# TrickFire Robot Simulations
 
-Gazebo Fortress simulations for TrickFire Robotics robot subsystems, running on ROS 2 Humble inside a Docker Dev Container.
+Genesis physics simulations for TrickFire Robotics robot subsystems, running on ROS 2 Humble.
 
 ## Documentation
 
-**Full documentation is at [trickfirerobotics.com/gazebo-simulations](https://trickfirerobotics.com/gazebo-simulations)**
+**Full documentation: [trickfirerobotics.com/gazebo-simulations](https://trickfirerobotics.com/gazebo-simulations)**
 
-- [Getting Started](https://trickfirerobotics.com/gazebo-simulations/setup/getting-started/) - setup, Dev Container, display, first launch
-- [Running Simulations](https://trickfirerobotics.com/gazebo-simulations/guides/running-simulations/) - `sim` CLI usage and flags
-- [Moving Joints](https://trickfirerobotics.com/gazebo-simulations/guides/moving-joints/) - Joint GUI and `move_joints` CLI node
-- [Adding a New Robot](https://trickfirerobotics.com/gazebo-simulations/guides/adding-robots/) - OnShape to Gazebo with `sim create`
-- [Reference](https://trickfirerobotics.com/gazebo-simulations/reference/ros-workspace/) - launch system, Docker environment, robot packages in depth
+- [Getting Started](https://trickfirerobotics.com/gazebo-simulations/setup/getting-started/) — clone, choose native or Docker
+- [Running Simulations](https://trickfirerobotics.com/gazebo-simulations/guides/running-simulations/) — `sim native` / `sim docker` commands and flags
+- [Moving Joints](https://trickfirerobotics.com/gazebo-simulations/guides/moving-joints/) — Joint GUI and `move_joints` node
+- [Adding a New Robot](https://trickfirerobotics.com/gazebo-simulations/guides/adding-robots/) — OnShape to Genesis with `sim create`
+- [Reference](https://trickfirerobotics.com/gazebo-simulations/reference/ros-workspace/) — launch system, robot packages, workspace layout

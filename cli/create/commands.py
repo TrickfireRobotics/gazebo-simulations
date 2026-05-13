@@ -9,11 +9,7 @@ from ..output import die as err, info, warn
 from .onshape import download, parse_onshape_url
 from .reduce_stl import batch_process_directory
 from .registry import load_robots_json, save_robots_json
-from .ros_packages import (
-    generate_bringup_pkg,
-    generate_description_pkg,
-    update_description_pkg,
-)
+from .ros_packages import generate_robot_pkg, update_robot_pkg
 from .urdf import postprocess
 
 
@@ -37,7 +33,7 @@ def _reduce_meshes(meshes_dir: Path, no_reduce: bool) -> None:
     batch_process_directory(str(meshes_dir), str(meshes_dir))
 
 
-def _scaffold_packages(
+def _scaffold_package(
     robot: str, urdf_path: Path, meshes_src: Path, out_dir: Path, world_base_link: bool = False
 ) -> None:
     if not meshes_src.exists():
@@ -46,7 +42,7 @@ def _scaffold_packages(
         warn(f"Meshes directory {meshes_src} is empty")
 
     info("Post-processing URDF...")
-    geometry_urdf, control_xacro, joints, links = postprocess(urdf_path, robot, world_base_link)
+    geometry_urdf, joints, links = postprocess(urdf_path, robot, world_base_link)
 
     if joints:
         joint_names = [name for name, _, _ in joints]
@@ -54,16 +50,11 @@ def _scaffold_packages(
     else:
         info("No revolute joints found")
 
-    info("Generating description package...")
-    generate_description_pkg(robot, geometry_urdf, control_xacro, meshes_src, out_dir)
-
-    info("Generating bringup package...")
-    generate_bringup_pkg(robot, joints, links, out_dir)
+    info("Generating robot package...")
+    generate_robot_pkg(robot, geometry_urdf, meshes_src, links, out_dir)
 
     info("Done!")
-    info(f"Packages written to: {out_dir}")
-    info(f" ├─ {robot}_description/")
-    info(f" └─ {robot}_bringup/")
+    info(f"Package written to: {out_dir / robot}/")
 
 
 def cmd_create(args) -> None:
@@ -92,7 +83,7 @@ def cmd_create(args) -> None:
         )
 
     _reduce_meshes(workdir / "assets", args.no_reduce)
-    _scaffold_packages(robot, urdf_path, workdir / "assets", out_dir, world_base_link)
+    _scaffold_package(robot, urdf_path, workdir / "assets", out_dir, world_base_link)
 
     registry = load_robots_json()
     registry = [e for e in registry if e["name"] != robot]
@@ -125,11 +116,11 @@ def cmd_local(args) -> None:
             reduced = Path(tmp) / "assets"
             shutil.copytree(meshes_src, reduced)
             _reduce_meshes(reduced, no_reduce=False)
-            _scaffold_packages(robot, urdf_path, reduced, out_dir, world_base_link)
+            _scaffold_package(robot, urdf_path, reduced, out_dir, world_base_link)
     else:
         if args.no_reduce:
             info("Skipping STL reduction (--no-reduce)")
-        _scaffold_packages(robot, urdf_path, meshes_src, out_dir, world_base_link)
+        _scaffold_package(robot, urdf_path, meshes_src, out_dir, world_base_link)
 
 
 def cmd_raw(args) -> None:
@@ -209,11 +200,10 @@ def cmd_update(args) -> None:
     _reduce_meshes(exported_meshes_src, args.no_reduce)
 
     info("Post-processing URDF...")
-    geometry_urdf, _, _, _ = postprocess(exported_urdf_path, robot, world_base_link)
+    geometry_urdf, _, _ = postprocess(exported_urdf_path, robot, world_base_link)
 
-    info("Updating description package...")
-    update_description_pkg(robot, geometry_urdf, exported_meshes_src, out_dir)
+    info("Updating robot package...")
+    update_robot_pkg(robot, geometry_urdf, exported_meshes_src, out_dir)
 
     info("Done!")
-    info(f"Updated {robot}_description/urdf and meshes only.")
-    info("Bringup package and control xacro were NOT modified.")
+    info(f"Updated {robot}/urdf and meshes.")

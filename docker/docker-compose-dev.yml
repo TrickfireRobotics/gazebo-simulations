@@ -1,3 +1,11 @@
+# --------------------------------------------------------------------------------------------
+# Extends docker-compose.yml with development dependencies from the Dockefile
+# Used by the devcontainer
+#
+# Usage:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose-dev.yml up
+# --------------------------------------------------------------------------------------------
+
 services:
   sim:
     build:

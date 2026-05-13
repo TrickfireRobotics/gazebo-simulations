@@ -1,8 +1,8 @@
 # --------------------------------------------------------------------------------------------
 # Gazebo Simulation Environment
 # Base config -- works on any host.
-# For NVIDIA GPU passthrough, also use docker-compose-gpu.yml.
-# For development also use docker-compose-dev.yml.
+# For NVIDIA GPU passthrough, also use docker-compose-gpu.yml
+# For development also use docker-compose-dev.yml
 # --------------------------------------------------------------------------------------------
 
 services:

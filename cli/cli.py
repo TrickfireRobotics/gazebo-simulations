@@ -4,7 +4,8 @@ import argparse
 import shutil
 import sys
 
-from .docker import build_and_launch
+from .docker import build_and_launch as docker_build_and_launch
+from .native import build_and_launch as native_build_and_launch
 from .create import create as robot_create, update as robot_update, PACKAGE_DIR, REPO_ROOT
 from .create.commands import cmd_local, cmd_raw
 from .auth import auth as cmd_auth
@@ -20,10 +21,27 @@ def main() -> None:
     )
     subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
+    # --- native ---
+    native_parser = subparsers.add_parser(
+        "native",
+        help="Build and launch a robot simulation natively (Genesis viewer, no Docker)",
+    )
+    native_parser.add_argument("robot", help="Robot name (e.g., arm, gripper)")
+    native_parser.add_argument(
+        "--build-only",
+        action="store_true",
+        help="Build only, don't launch simulation",
+    )
+    native_parser.add_argument(
+        "--no-build",
+        action="store_true",
+        help="Skip build, use existing install/",
+    )
+
     # --- docker ---
     docker_parser = subparsers.add_parser(
         "docker",
-        help="Build and launch a robot simulation",
+        help="Build and launch a robot simulation in Docker with VNC display",
     )
     docker_parser.add_argument("robot", help="Robot name (e.g., arm, gripper)")
     docker_parser.add_argument(
@@ -115,8 +133,10 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        if args.command == "docker":
-            build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
+        if args.command == "native":
+            native_build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
+        elif args.command == "docker":
+            docker_build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
         elif args.command == "clean":
             for name in ("build", "install", "log"):
                 path = WORKSPACE_DIR / name

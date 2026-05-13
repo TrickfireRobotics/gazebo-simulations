@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>__ROBOT___description</name>
+    <name>arm</name>
     <version>0.0.0</version>
-    <description>__ROBOT__ simulation models and descriptions</description>
+    <description>arm simulation models and descriptions</description>
     <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
     <license>TODO</license>
 

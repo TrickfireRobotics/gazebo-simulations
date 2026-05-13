@@ -3,52 +3,71 @@ title: Running Simulations
 description: How to build and launch robot simulations with the sim CLI.
 ---
 
-All simulations are launched through the `sim` CLI. It builds the workspace, sets up the environment, and runs the ROS 2 launch file for the specified robot.
+Simulations are launched through the `sim` CLI. It builds the ROS 2 workspace, sets up the environment, and runs the shared Genesis launch file for the specified robot.
 
-## Basic usage
+## Native (local Genesis window)
 
-```bash title="Inside devcontainer"
-sim docker <robot_name>
+```bash title="Terminal"
+sim native arm
 ```
 
-For example, to run the arm simulation:
+Bootstraps the conda env on first run, then builds and launches. Genesis opens a native viewer window.
 
-```bash title="Inside devcontainer"
+## Docker (VNC display)
+
+```bash title="Terminal"
 sim docker arm
 ```
 
-## Options
+Builds the ROS 2 workspace inside the container and launches Genesis headlessly. Connect via VNC at `localhost:5900` or browser at `http://localhost:6080`.
 
-| Option | Description |
+## Flags
+
+Both `sim native` and `sim docker` accept the same flags:
+
+| Flag | Description |
 | --- | --- |
-| `--no-build` | Skip the `colcon build` step. Use this when you haven't changed any code and want a faster startup. |
-| `--build-only` | Build the workspace but don't launch the simulation. Useful for checking if your changes compile. |
+| `--no-build` | Skip `colcon build` — use the existing `install/` directory. Faster when you haven't changed any ROS packages. |
+| `--build-only` | Build only, don't launch. Useful for CI or checking that your changes compile. |
 
-```bash title="Inside devcontainer"
-# Skip building (already built)
-sim docker arm --no-build
+```bash title="Terminal"
+# Already built, just launch
+sim native arm --no-build
 
-# Only build, don't launch
-sim docker arm --build-only
+# Build only (don't open the viewer)
+sim native arm --build-only
 ```
 
 ## Cleaning the workspace
 
-To remove build artifacts and do a clean rebuild:
-
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 sim clean
 ```
 
-This deletes `build/`, `install/`, and `log/` directories. Use this when you encounter unexplained build failures.
+Deletes `robot-sim/build/`, `robot-sim/install/`, and `robot-sim/log/`. Use this when you hit unexplained build failures — stale artifacts are the most common cause.
+
+## What launches
+
+Both commands run the shared `sim_common/launch/sim.launch.py` launch file, which starts three components:
+
+1. **`robot_state_publisher`** — publishes the robot's TF tree from the URDF
+2. **`genesis_sim`** — Genesis physics simulation, publishes `/joint_states`, subscribes to `/joint_trajectory_controller/joint_trajectory`
+3. **Joint GUI** — Tkinter sliders for interactive joint control (disable with `gui:=false`)
+
+When the Genesis window or process exits, the launch file automatically shuts down all other nodes.
+
+## Environment variable
+
+Set `GENESIS_BACKEND=cuda` before launching to enable the CUDA backend (requires an Nvidia GPU and the GPU Docker Compose override):
+
+```bash title="Terminal"
+GENESIS_BACKEND=cuda sim docker arm
+```
 
 ## Troubleshooting
 
-**Build fails with cryptic errors:**
-Run `sim clean` to delete stale build artifacts, then try again. Stale artifacts are the most common cause of unexplained build failures.
+**Build fails with cryptic errors:** Run `sim clean` then retry.
 
-**Gazebo window doesn't appear:**
-The display starts automatically with the Dev Container. Connect via your VNC viewer at `localhost:5900` and verify it works with `xeyes`. If you restarted the container manually and the display isn't running, restart it with `.devcontainer/x_server.sh`.
+**Genesis takes 15–20 seconds to open:** Normal on the first run after a fresh install — Genesis compiles Taichi kernels. Subsequent runs are faster.
 
-**Package not found errors after launch:**
-Try running `sim clean` and building again.
+**Joint GUI shows no joints:** Wait a moment for Genesis to finish loading. The GUI discovers joints from `/joint_states`, which genesis_sim starts publishing after `scene.build()` completes.
