@@ -3,7 +3,7 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
     site: 'https://trickfirerobotics.github.io',
-    base: '/gazebo-simulations',
+    base: '/genesis-simulations',
     srcDir: './',
     integrations: [
         starlight({
@@ -28,7 +28,7 @@ export default defineConfig({
                 {
                     icon: 'github',
                     label: 'GitHub',
-                    href: 'https://github.com/TrickfireRobotics/gazebo-simulations'
+                    href: 'https://github.com/TrickfireRobotics/genesis-simulations'
                 },
                 {
                     icon: 'external',

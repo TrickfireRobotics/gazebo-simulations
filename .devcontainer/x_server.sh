@@ -3,7 +3,7 @@ set -eo pipefail
 
 # --------------------------------------------------------------------------------------------
 # Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
-# Intended for running GUI apps (Gazebo) in Docker.
+# Intended for running GUI apps (Genesis, RViz) in Docker.
 # Supports --verbose flag for debugging (prints all output to console instead of log file).
 # --------------------------------------------------------------------------------------------
 

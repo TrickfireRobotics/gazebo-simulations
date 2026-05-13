@@ -19,7 +19,7 @@ No credentials or local setup needed. The **Create new robot** workflow runs on 
 
 ## Via CLI (developers only)
 
-Running `sim create` locally requires your GitHub username to be listed in [`authorized_users.jsonc`](https://github.com/TrickfireRobotics/gazebo-simulations/blob/main/authorized_users.jsonc). If you're not listed, ask a repo admin to add you.
+Running `sim create` locally requires your GitHub username to be listed in [`authorized_users.jsonc`](https://github.com/TrickfireRobotics/genesis-simulations/blob/main/authorized_users.jsonc). If you're not listed, ask a repo admin to add you.
 
 The container mounts your SSH keys — make sure your GitHub SSH key is set up, then:
 
@@ -34,12 +34,12 @@ You can use any OnShape API key/secret by placing them in `cli/onshape.env` as `
 
 ## Flags
 
-| Flag | Description |
-| --- | --- |
-| `--attach-to-world` | Fix `base_link` to world frame (stationary robots) |
-| `--no-attach-to-world` | Explicitly skip — for mobile robots |
-| `--no-reduce` | Skip STL mesh decimation (larger files, higher detail) |
-| `--output-dir <path>` | Write package somewhere other than `robot-sim/` |
+| Flag                   | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| `--attach-to-world`    | Fix `base_link` to world frame (stationary robots)     |
+| `--no-attach-to-world` | Explicitly skip — for mobile robots                    |
+| `--no-reduce`          | Skip STL mesh decimation (larger files, higher detail) |
+| `--output-dir <path>`  | Write package somewhere other than `robot-sim/`        |
 
 ## Updating an existing robot
 

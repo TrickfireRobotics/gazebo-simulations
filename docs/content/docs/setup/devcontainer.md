@@ -15,7 +15,7 @@ Open the cloned folder in VS Code. You should see a prompt to **Reopen in Contai
 
 The first build downloads and installs ROS 2 Humble + Genesis into the image — this takes several minutes. Subsequent opens are fast.
 
-Once inside you'll be the `trickfire` user at `/home/trickfire/gazebo-simulations`.
+Once inside you'll be the `trickfire` user at `/home/trickfire/genesis-simulations`.
 
 ### Start the display
 

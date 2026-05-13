@@ -5,7 +5,7 @@
     ],
     "service": "sim",
     "runServices": ["sim"],
-    "workspaceFolder": "/home/trickfire/gazebo-simulations",
+    "workspaceFolder": "/home/trickfire/genesis-simulations",
     "postCreateCommand": "[ -d .venv ] || (python3 -m venv --copies .venv && . .venv/bin/activate && pip install -e .)",
     "postStartCommand": "bash -c 'bash .devcontainer/x_server.sh &'",
     "mounts": [

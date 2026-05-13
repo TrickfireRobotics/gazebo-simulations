@@ -29,7 +29,7 @@ Subsequent runs skip steps 1–2 and go straight to building and launching.
 Everything lives inside the repo under `.conda/`. It is gitignored and never touches your system Python, system ROS, or any other global state. Deleting the repo removes all of it.
 
 ```
-gazebo-simulations/
+genesis-simulations/
 └── .conda/
     ├── bin/conda          ← miniconda binary
     ├── envs/sim/          ← ROS 2 Humble + Genesis conda env
@@ -62,6 +62,7 @@ sim native arm
 **Build errors:** Run `sim clean` to delete stale build artifacts, then retry.
 
 **`sim` command not found:** Make sure you installed the CLI:
+
 ```bash title="Terminal"
 pip install -e .
 ```

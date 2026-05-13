@@ -19,9 +19,9 @@ _tf_find_repo() {
 	local d
 	for d in \
 		"$PWD" \
-		"$HOME/gazebo-simulations" \
-		"/workspaces/gazebo-simulations" \
-		"/workspace/gazebo-simulations"; do
+		"$HOME/genesis-simulations" \
+		"/workspaces/genesis-simulations" \
+		"/workspace/genesis-simulations"; do
 		if [ -d "$d/robot-sim" ] && [ -f "$d/pyproject.toml" ]; then
 			printf "%s\n" "$d"
 			return 0
@@ -52,7 +52,7 @@ if [[ -n "${DISPLAY:-}" && "${DISPLAY}" != :* ]]; then
 	export DISPLAY=":${DISPLAY}"
 fi
 
-# ---------- ROS/Gazebo environment ----------
+# ---------- ROS environment ----------
 tf_source_env() {
 	if [ -f /opt/ros/humble/setup.bash ]; then
 		# shellcheck source=/dev/null
@@ -62,11 +62,6 @@ tf_source_env() {
 	if [ -n "${TF_ROBOT_WS:-}" ] && [ -f "$TF_ROBOT_WS/install/setup.bash" ]; then
 		# shellcheck source=/dev/null
 		source "$TF_ROBOT_WS/install/setup.bash"
-
-		local _sim_worlds_share="$TF_ROBOT_WS/install/sim_worlds/share/sim_worlds"
-		if [ -d "$_sim_worlds_share/worlds" ]; then
-			export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$_sim_worlds_share"
-		fi
 	fi
 }
 
@@ -112,9 +107,6 @@ alias ...='cd ../..'
 
 alias rtl='ros2 topic list'
 alias rte='ros2 topic echo'
-alias gtl='ign topic -l'
-alias gte='ign topic -e -t'
-
 alias simup='sim docker'
 alias simclean='sim clean'
 
