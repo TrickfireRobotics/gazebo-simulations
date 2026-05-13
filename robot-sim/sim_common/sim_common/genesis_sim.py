@@ -94,7 +94,7 @@ class GenesisSim(Node):
         self._robot = self._scene.add_entity(
             gs.morphs.URDF(
                 file=urdf_path,
-                pos=(0.0, 0.0, 0.5),
+                pos=(0.0, 0.0, 0.05),
                 quat=(1.0, 0.0, 0.0, 0.0),
                 fixed=True,
             )
