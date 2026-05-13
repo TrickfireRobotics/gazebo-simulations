@@ -20,13 +20,20 @@ def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
     pattern = re.compile(r"(<robot\b[^>]*>)")
     return pattern.sub(r"\1" + props, urdf_text, count=1)
 
-
 def _rewrite_mesh_paths(urdf_text: str) -> str:
-    return re.sub(
+    # Raw onshape-to-robot form
+    urdf_text = re.sub(
         r'filename="package://assets/([^"]+)"',
-        r'filename="${mesh_path}/\1"',
+        r'filename="../meshes/\1"',
         urdf_text,
     )
+    # If an old generated URDF already had ${mesh_path}/...
+    urdf_text = re.sub(
+        r'filename="\$\{mesh_path\}/([^"]+)"',
+        r'filename="../meshes/\1"',
+        urdf_text,
+    )
+    return urdf_text
 
 
 def _strip_xacro_for_parsing(urdf_text: str) -> str:
@@ -91,8 +98,6 @@ def postprocess(raw_urdf_path: str | Path, robot_name: str, world_base_link: boo
     joint_list items are (name, lower_limit, upper_limit).
     """
     text = Path(raw_urdf_path).read_text(encoding="utf-8")
-    text = _ensure_xacro_ns(text)
-    text = _inject_xacro_properties(text, robot_name)
     text = _rewrite_mesh_paths(text)
     if world_base_link:
         text = _inject_world_base_link(text)
