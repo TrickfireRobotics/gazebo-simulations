@@ -5,7 +5,7 @@
     <version>0.0.0</version>
     <description>Shared utilities for simulation launch files</description>
     <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
-    <license>TODO</license>
+    <license>Apache-2.0</license>
 
     <buildtool_depend>ament_python</buildtool_depend>
 
