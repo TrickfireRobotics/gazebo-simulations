@@ -63,7 +63,9 @@ class GenesisSim(Node):
 
     _PUBLISH_HZ = 60
 
-    def __init__(self, robot_name: str, urdf_path: str, show_viewer: bool = True) -> None:
+    def __init__(
+        self, robot_name: str, urdf_path: str, show_viewer: bool = True
+    ) -> None:
         super().__init__("genesis_sim")
 
         self._lock = threading.Lock()
@@ -102,7 +104,9 @@ class GenesisSim(Node):
         self._scene.build()
 
         # Joints that have DOFs (i.e. not fixed)
-        self._controllable_joints = [j for j in self._robot.joints if len(j.dofs_idx_local) > 0]
+        self._controllable_joints = [
+            j for j in self._robot.joints if len(j.dofs_idx_local) > 0
+        ]
         joint_names = [j.name for j in self._controllable_joints]
         self.get_logger().info(
             f"Genesis loaded '{robot_name}' — controllable joints: {joint_names}"
@@ -138,7 +142,7 @@ class GenesisSim(Node):
 
         for joint in self._controllable_joints:
             if joint.name in pending:
-                self._robot.set_dofs_position(
+                self._robot.control_dofs_position(
                     np.array([pending[joint.name]]),
                     joint.dofs_idx_local,
                 )

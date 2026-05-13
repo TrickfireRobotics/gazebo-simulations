@@ -20,17 +20,26 @@ def _inject_xacro_properties(urdf_text: str, robot_name: str) -> str:
     pattern = re.compile(r"(<robot\b[^>]*>)")
     return pattern.sub(r"\1" + props, urdf_text, count=1)
 
-def _rewrite_mesh_paths(urdf_text: str) -> str:
+def _rewrite_mesh_paths(urdf_text: str, robot_name: str) -> str:
+    # Emit package:// URIs so consumers (ROS, Genesis loader) can resolve
+    # meshes via ament_index regardless of where the URDF lives on disk.
+    target = f"package://{robot_name}/meshes"
     # Raw onshape-to-robot form
     urdf_text = re.sub(
         r'filename="package://assets/([^"]+)"',
-        r'filename="../meshes/\1"',
+        rf'filename="{target}/\1"',
         urdf_text,
     )
-    # If an old generated URDF already had ${mesh_path}/...
+    # Old xacro form: ${mesh_path}/...
     urdf_text = re.sub(
         r'filename="\$\{mesh_path\}/([^"]+)"',
-        r'filename="../meshes/\1"',
+        rf'filename="{target}/\1"',
+        urdf_text,
+    )
+    # Old relative form: ../meshes/...
+    urdf_text = re.sub(
+        r'filename="\.\./meshes/([^"]+)"',
+        rf'filename="{target}/\1"',
         urdf_text,
     )
     return urdf_text
@@ -98,7 +107,7 @@ def postprocess(raw_urdf_path: str | Path, robot_name: str, world_base_link: boo
     joint_list items are (name, lower_limit, upper_limit).
     """
     text = Path(raw_urdf_path).read_text(encoding="utf-8")
-    text = _rewrite_mesh_paths(text)
+    text = _rewrite_mesh_paths(text, robot_name)
     if world_base_link:
         text = _inject_world_base_link(text)
     links = _extract_links(text)
