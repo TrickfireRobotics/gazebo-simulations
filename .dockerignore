@@ -1,3 +1,6 @@
+# Native build
+.conda/
+
 # ROS build
 robot-sim/build/
 robot-sim/install/
