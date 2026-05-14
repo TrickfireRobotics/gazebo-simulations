@@ -51,6 +51,17 @@ def _clean_env() -> dict[str, str]:
     """Return os.environ with system conda vars stripped and project .condarc active."""
     env = {k: v for k, v in os.environ.items() if k not in _CONDA_VARS}
     env["CONDARC"] = str(CONDA_DIR / ".condarc")
+
+    # Defensive: if the user has LD_PRELOAD set (common in some robotics/toolchain setups),
+    # it can break conda + Python extension imports.
+    env.pop("LD_PRELOAD", None)
+
+    # Ensure we prefer the conda env's runtime libraries (libstdc++, etc.) over system /lib.
+    env_dir = CONDA_DIR / "envs" / CONDA_ENV_NAME
+    env_lib = str(env_dir / "lib")
+    old_ld = env.get("LD_LIBRARY_PATH", "")
+    env["LD_LIBRARY_PATH"] = f"{env_lib}:{old_ld}" if old_ld else env_lib
+
     return env
 
 
