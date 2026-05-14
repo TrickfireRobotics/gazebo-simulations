@@ -25,7 +25,7 @@ DEFAULT_DURATION = 2.0
 DEFAULT_FORCE_TOPIC = "/joint_force_commands"
 FORCE_MIN = -100.0
 FORCE_MAX = 100.0
-DISCOVERY_TIMEOUT_S = 30.0  # seconds to wait for /joint_states
+DISCOVERY_TIMEOUT_S = 1000  # peak
 
 
 class JointPublisher(Node):
@@ -45,9 +45,7 @@ class JointPublisher(Node):
             JointState, "/joint_states", self._on_joint_states, 10
         )
 
-    def _parse_urdf_joints(
-        self, urdf_file_name: str
-    ) -> dict[str, dict[str, float | int]]:
+    def _parse_urdf_joints(self, urdf_file_name: str) -> dict[str, dict[str, float | int]]:
         """Reads through the urdf, gets all the urdf revolute joints, parses the
         max and min angles and returns them in the form of a dictionary"""
 
@@ -106,9 +104,7 @@ class JointPublisher(Node):
             if "trajectory_msgs/msg/JointTrajectory" in types
         ]
 
-    def publish_forces(
-        self, topic: str, joint_names: list[str], forces: list[float]
-    ) -> None:
+    def publish_forces(self, topic: str, joint_names: list[str], forces: list[float]) -> None:
         """Publish a JointState with effort values to apply joint forces/torques."""
         if topic not in self.force_publishers:
             self.force_publishers[topic] = self.create_publisher(JointState, topic, 10)
@@ -118,8 +114,7 @@ class JointPublisher(Node):
         msg.effort = [float(f) for f in forces]
         self.force_publishers[topic].publish(msg)
         self.get_logger().info(
-            f"Published forces to {topic}: "
-            f"{dict(zip(joint_names, [f'{f:.3f}' for f in forces]))}"
+            f"Published forces to {topic}: {dict(zip(joint_names, [f'{f:.3f}' for f in forces]))}"
         )
 
     def publish(
@@ -134,9 +129,7 @@ class JointPublisher(Node):
         Creates the publisher lazily on first use.
         """
         if topic not in self.joint_publishers:
-            self.joint_publishers[topic] = self.create_publisher(
-                JointTrajectory, topic, 10
-            )
+            self.joint_publishers[topic] = self.create_publisher(JointTrajectory, topic, 10)
 
         sec = int(duration)
         nanosec = int((duration - sec) * 1e9)
@@ -243,9 +236,7 @@ class JointGui:
             side=tk.LEFT, padx=2
         )
 
-        ttk.Separator(self._controls, orient=tk.HORIZONTAL).pack(
-            fill=tk.X, padx=16, pady=6
-        )
+        ttk.Separator(self._controls, orient=tk.HORIZONTAL).pack(fill=tk.X, padx=16, pady=6)
 
         # --- Joint sliders + force inputs ---
         header = tk.Frame(self._controls)
@@ -254,9 +245,7 @@ class JointGui:
         tk.Label(header, text="position (rad)", width=28, anchor="w", fg="gray").pack(
             side=tk.LEFT, padx=6
         )
-        tk.Label(header, text="force (N·m)", anchor="w", fg="gray").pack(
-            side=tk.LEFT, padx=6
-        )
+        tk.Label(header, text="force (N·m)", anchor="w", fg="gray").pack(side=tk.LEFT, padx=6)
 
         for joint in joints:
             frame = tk.Frame(self._controls, pady=3)
@@ -293,26 +282,20 @@ class JointGui:
                 width=7,
             ).pack(side=tk.LEFT, padx=6)
 
-        ttk.Separator(self._controls, orient=tk.HORIZONTAL).pack(
-            fill=tk.X, padx=16, pady=6
-        )
+        ttk.Separator(self._controls, orient=tk.HORIZONTAL).pack(fill=tk.X, padx=16, pady=6)
 
         # --- Force topic row ---
         force_topic_frame = tk.Frame(self._controls, pady=4)
         force_topic_frame.pack(fill=tk.X, padx=16)
-        tk.Label(force_topic_frame, text="Force topic", width=14, anchor="w").pack(
-            side=tk.LEFT
+        tk.Label(force_topic_frame, text="Force topic", width=14, anchor="w").pack(side=tk.LEFT)
+        ttk.Entry(force_topic_frame, textvariable=self._force_topic_var, width=34).pack(
+            side=tk.LEFT, padx=6
         )
-        ttk.Entry(
-            force_topic_frame, textvariable=self._force_topic_var, width=34
-        ).pack(side=tk.LEFT, padx=6)
 
         # --- Duration row ---
         dur_frame = tk.Frame(self._controls, pady=4)
         dur_frame.pack(fill=tk.X, padx=16)
-        tk.Label(dur_frame, text="Duration (s)", width=14, anchor="w").pack(
-            side=tk.LEFT
-        )
+        tk.Label(dur_frame, text="Duration (s)", width=14, anchor="w").pack(side=tk.LEFT)
         ttk.Spinbox(
             dur_frame,
             from_=0.1,
@@ -325,15 +308,9 @@ class JointGui:
         # --- Buttons ---
         btn_frame = tk.Frame(self._controls, pady=8)
         btn_frame.pack()
-        ttk.Button(btn_frame, text="Send", command=self._send).pack(
-            side=tk.LEFT, padx=4
-        )
-        ttk.Button(btn_frame, text="Sync", command=self._sync).pack(
-            side=tk.LEFT, padx=4
-        )
-        ttk.Button(btn_frame, text="Reset", command=self._reset).pack(
-            side=tk.LEFT, padx=4
-        )
+        ttk.Button(btn_frame, text="Send", command=self._send).pack(side=tk.LEFT, padx=4)
+        ttk.Button(btn_frame, text="Sync", command=self._sync).pack(side=tk.LEFT, padx=4)
+        ttk.Button(btn_frame, text="Reset", command=self._reset).pack(side=tk.LEFT, padx=4)
         ttk.Button(btn_frame, text="Send Forces", command=self._send_forces).pack(
             side=tk.LEFT, padx=4
         )
@@ -358,10 +335,7 @@ class JointGui:
     def _send(self) -> None:
         """Read current slider positions and publish a trajectory command to the selected topic."""
         joints = self.node.joint_names
-        positions = [
-            self.sliders[j].get() + self.node.possible_joints[j]["origin"]
-            for j in joints
-        ]
+        positions = [self.sliders[j].get() + self.node.possible_joints[j]["origin"] for j in joints]
         topic = self._topic_var.get().strip()
         if not topic:
             self.status_var.set("No topic selected")
