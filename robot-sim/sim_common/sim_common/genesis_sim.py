@@ -23,6 +23,7 @@ import genesis as gs
 import numpy as np
 import rclpy
 from ament_index_python.packages import get_package_share_directory
+from genesis.ext.pyrender.constants import TextAlign
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -72,8 +73,8 @@ class GenesisSim(Node):
         self._pending_positions: dict[str, float] = {}
         self._pending_forces: dict[str, float] = {}
 
-        backend: Any = cast(Any, gs.gpu)
-        gs.init(backend=backend, logging_level="warning")
+        self._backend: Any = cast(Any, gs.gpu)
+        gs.init(backend=self._backend, logging_level="warning")
 
         self._scene = gs.Scene(
             rigid_options=gs.options.RigidOptions(
@@ -100,6 +101,19 @@ class GenesisSim(Node):
             )
         )
         self._scene.build()
+
+        self._fps_caption: dict[str, Any] = {
+            "text": "",
+            "location": TextAlign.TOP_RIGHT,
+            "font_name": "OpenSans-Regular",
+            "font_pt": 30,
+            "color": (0, 255, 0, 255),
+            "scale": 1.0,
+        }
+        if show_viewer and self._scene.viewer is not None:
+            self._scene.viewer._pyrender_viewer.viewer_flags["caption"] = [
+                self._fps_caption
+            ]
 
         # Joints that have DOFs (i.e. not fixed)
         self._controllable_joints = [
@@ -145,6 +159,11 @@ class GenesisSim(Node):
         self._apply_commands()
         self._scene.step()
         self._publish_joint_states()
+
+        self._fps_caption["text"] = (
+            f"FPS: {self._scene.FPS_tracker.total_fps:.1f}   "
+            f"BACKEND: {self._backend}"
+        )
 
     def _apply_commands(self) -> None:
         with self._lock:
@@ -206,6 +225,7 @@ def main() -> None:
     try:
         while rclpy.ok() and node.viewer_alive and not _shutdown.is_set():
             node.step()
+
     finally:
         executor.shutdown(timeout_sec=2.0)
         node.destroy_node()
