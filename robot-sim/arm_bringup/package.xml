@@ -5,7 +5,7 @@
     <version>0.0.0</version>
     <description>Launch files for the arm simulation</description>
     <maintainer email="tfrbtcs@uw.edu">Trickfire Robotics</maintainer>
-    <license>TODO</license>
+    <license>Apache-2.0</license>
 
     <depend>arm_description</depend>
     <exec_depend>sim_common</exec_depend>
