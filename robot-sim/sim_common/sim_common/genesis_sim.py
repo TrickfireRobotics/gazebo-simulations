@@ -86,6 +86,7 @@ class GenesisSim(Node):
                 camera_lookat=(0.0, 0.0, 0.5),
                 camera_fov=40,
                 run_in_thread=False,
+                max_FPS=120,
             ),
             profiling_options=gs.options.ProfilingOptions(show_FPS=True),
             show_viewer=show_viewer,
