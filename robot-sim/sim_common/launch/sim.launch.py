@@ -42,6 +42,8 @@ def _launch_setup(context):
         output="screen",
     )
 
+    webbridge = Node(package="sim_common", executable="web_bridge", output="screen")
+
     on_genesis_exit = RegisterEventHandler(
         OnProcessExit(
             target_action=genesis_sim,
@@ -49,7 +51,7 @@ def _launch_setup(context):
         )
     )
 
-    nodes = [robot_state_publisher, genesis_sim, on_genesis_exit]
+    nodes = [robot_state_publisher, genesis_sim, webbridge, on_genesis_exit]
     if gui:
         nodes.append(joint_gui)
 

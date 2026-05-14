@@ -18,6 +18,7 @@ setup(
             "move_joints = sim_common.move_joints:main",
             "joint_gui = sim_common.joint_gui:main",
             "genesis_sim = sim_common.genesis_sim:main",
+            "web_bridge = sim_common.webbridge:main"
         ],
     },
     install_requires=["setuptools"],
