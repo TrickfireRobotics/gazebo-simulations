@@ -70,6 +70,7 @@ class GenesisSim(Node):
 
         self._lock = threading.Lock()
         self._pending_positions: dict[str, float] = {}
+        self._pending_forces: dict[str, float] = {}
 
         backend: Any = cast(Any, gs.gpu)
         gs.init(backend=backend, logging_level="warning")
@@ -117,6 +118,13 @@ class GenesisSim(Node):
             10,
         )
 
+        self.create_subscription(
+            JointState,
+            "/joint_force_commands",
+            self._on_forces,
+            10,
+        )
+
     # ROS callbacks (run in executor thread)
     def _on_trajectory(self, msg: JointTrajectory) -> None:
         if not msg.points:
@@ -125,6 +133,11 @@ class GenesisSim(Node):
         with self._lock:
             for name, pos in zip(msg.joint_names, positions):
                 self._pending_positions[name] = pos
+
+    def _on_forces(self, msg: JointState) -> None:
+        with self._lock:
+            for name, force in zip(msg.name, msg.effort):
+                self._pending_forces[name] = force
 
     # Simulation step (called from main thread)
     def step(self) -> None:
@@ -136,11 +149,17 @@ class GenesisSim(Node):
     def _apply_commands(self) -> None:
         with self._lock:
             pending = dict(self._pending_positions)
+            forces = dict(self._pending_forces)
 
         for joint in self._controllable_joints:
             if joint.name in pending:
                 self._robot.control_dofs_position(
                     np.array([pending[joint.name]]),
+                    joint.dofs_idx_local,
+                )
+            if joint.name in forces:
+                self._robot.control_dofs_force(
+                    np.array([forces[joint.name]]),
                     joint.dofs_idx_local,
                 )
 
