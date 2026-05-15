@@ -91,7 +91,7 @@ _XDISPLAY="${DISPLAY%%.*}"
 _DISPLAY_NUM="${_XDISPLAY#:}"
 _SOCKET="/tmp/.X11-unix/X${_DISPLAY_NUM}"
 _LOCK="/tmp/.X${_DISPLAY_NUM}-lock"
-if pgrep -f "Xorg $_XDISPLAY" > /dev/null 2>&1 || pgrep -f "Xvfb $_XDISPLAY" > /dev/null 2>&1; then
+if pgrep -f "Xorg $_XDISPLAY" >/dev/null 2>&1 || pgrep -f "Xvfb $_XDISPLAY" >/dev/null 2>&1; then
 	log "[X11] X server already running on $DISPLAY, skipping startup"
 	exit 0
 elif [ -S "$_SOCKET" ] && [ ! -f "$_LOCK" ]; then
