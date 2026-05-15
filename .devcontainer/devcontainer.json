@@ -6,10 +6,11 @@
     "service": "sim",
     "runServices": ["sim"],
     "workspaceFolder": "/home/trickfire/gazebo-simulations",
-    "postCreateCommand": "[ -d .venv ] || (python3 -m venv --copies .venv && . .venv/bin/activate && pip install -e .)",
-    "postStartCommand": "bash -c 'bash .devcontainer/x_server.sh &'",
+    "postCreateCommand": "[ -d .venv ] || (python3 -m venv --system-site-packages .venv && . .venv/bin/activate && pip install -e .)",
+    // "postStartCommand": "bash ./.devcontainer/x_server.sh",
     "mounts": [
-        "source=${localEnv:HOME}/.ssh,target=/home/trickfire/.ssh,type=bind,consistency=cached"
+        "source=${localEnv:HOME}/.ssh,target=/home/trickfire/.ssh,type=bind,consistency=cached",
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached"
     ],
     "forwardPorts": [6080, 5900],
     "customizations": {

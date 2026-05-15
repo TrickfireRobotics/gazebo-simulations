@@ -55,9 +55,9 @@ fi
 
 # ---------- ROS/Gazebo environment ----------
 tf_source_env() {
-	if [ -f /opt/ros/humble/setup.bash ]; then
+	if [ -f /opt/ros/jazzy/setup.bash ]; then
 		# shellcheck source=/dev/null
-		source /opt/ros/humble/setup.bash
+		source /opt/ros/jazzy/setup.bash
 	fi
 
 	if [ -n "${TF_ROBOT_WS:-}" ] && [ -f "$TF_ROBOT_WS/install/setup.bash" ]; then
@@ -113,8 +113,8 @@ alias ...='cd ../..'
 
 alias rtl='ros2 topic list'
 alias rte='ros2 topic echo'
-alias gtl='ign topic -l'
-alias gte='ign topic -e -t'
+alias gtl='gz topic -l'
+alias gte='gz topic -e -t'
 
 alias simup='sim docker'
 alias simclean='sim clean'

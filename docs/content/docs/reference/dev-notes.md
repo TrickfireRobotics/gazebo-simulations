@@ -5,13 +5,17 @@ description: Internal notes, tips, and architectural decisions for contributors.
 
 ## Architecture decisions
 
-### Why a Dev Container?
+### Why pixi for the native workflow?
 
-ROS 2 + Gazebo + their dependencies are notoriously painful to install natively, especially across different OS versions. The container guarantees everyone has the same Ubuntu 22.04 + ROS Humble + Gazebo Fortress environment. No "works on my machine" issues.
+ROS 2 + Gazebo + their dependencies are notoriously painful to install natively, especially across different OS versions. [pixi](https://pixi.sh) solves this by storing the entire environment (ROS 2 Jazzy, Gazebo Harmonic, all dependencies) inside the repo's `.pixi/` directory via conda. Deleting the repo also deletes the environment — your system stays completely clean. The same `pixi install` works on Linux, macOS, and WSL2 without any OS-level ROS installation.
 
-### Why Gazebo Fortress (not Harmonic)?
+### Why a Dev Container (alternative)?
 
-The main TrickFire robot codebase uses ROS 2 Humble, so the simulation environment matches. ROS 2 Humble officially supports Gazebo Fortress -- newer Gazebo versions (like Harmonic) require ROS 2 Iron or newer. Since Humble is the current LTS and we need to stay compatible with the main robot, we use Fortress.
+The Docker Dev Container is an alternative for users who prefer a containerized environment or already have Docker set up. It provides the same ROS 2 Jazzy + Gazebo Harmonic environment inside a container. The Dev Container is useful for Windows users (via Docker Desktop), CI systems, or anyone who wants strong isolation from their host system.
+
+### Why Gazebo Harmonic?
+
+Gazebo Harmonic (gz-sim 8.x) is the current LTS release of the new-generation Gazebo and pairs with ROS 2 Jazzy. It replaces the old Gazebo Fortress (ignition-fortress). The package prefix changed from `ign` to `gz` in this generation — use `gz topic`, `gz service`, etc.
 
 ### Why two packages per robot?
 
@@ -27,7 +31,7 @@ This separation means `sim update` can safely replace the description without to
 
 To set the camera position in the Gazebo viewer:
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 gz service -s /gui/move_to/pose \
     --reqtype gz.msgs.GUICamera \
     --reptype gz.msgs.Boolean \
@@ -37,13 +41,13 @@ gz service -s /gui/move_to/pose \
 
 To read the current camera position:
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 gz topic -e -t /gui/camera/pose
 ```
 
 ### ROS 2 inspection
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 # List all topics
 ros2 topic list
 
@@ -59,15 +63,15 @@ ros2 control list_hardware_interfaces
 
 ### Building a single package
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 cd robot-sim
 colcon build --packages-select arm_description
 source install/setup.bash
 ```
 
-## Community `apt` repository
+## Community `apt` repository (Dev Container)
 
-Some ROS packages live in the `universe` repository rather than `main`. If `apt` can't find a package:
+Some ROS packages live in the `universe` repository rather than `main`. If `apt` can't find a package inside the container:
 
 ```bash title="Inside devcontainer"
 apt-get update
@@ -86,6 +90,6 @@ The Dockerfile already enables `universe` for the packages that need it.
 
 **Stale build artifacts:** If something breaks for no obvious reason, run `sim clean` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
 
-**X server not running:** Gazebo and RViz will fail silently or crash if the X server isn't started. The Dev Container starts it automatically, but if you need to restart it manually, run `.devcontainer/x_server.sh`.
+**X server not running (Dev Container only):** Gazebo and RViz will fail silently or crash if the X server isn't started. The Dev Container starts it automatically, but if you need to restart it manually, run `.devcontainer/x_server.sh`.
 
-**Port conflicts:** If port 6080 or 5900 is already in use, the X server script will fail. Make sure no other VNC sessions or containers are using those ports.
+**Port conflicts (Dev Container only):** If port 6080 or 5900 is already in use, the X server script will fail. Make sure no other VNC sessions or containers are using those ports.

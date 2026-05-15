@@ -40,7 +40,7 @@ The `move_joints` node sends a single trajectory command and exits. It's useful 
 
 ### Usage
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 ros2 run sim_common move_joints --ros-args \
     -p joints:="['shoulder_1', 'elbow_1', 'wrist_1', 'wrist_2']" \
     -p positions:="[0.5, 0.5, 0.2, 0.0]" \
@@ -70,7 +70,7 @@ This means the joint trajectory controller must be running before `move_joints` 
 
 ### Example: move two joints
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 ros2 run sim_common move_joints --ros-args \
     -p joints:="['shoulder_1', 'elbow_1']" \
     -p positions:="[1.0, -0.5]" \
@@ -79,7 +79,7 @@ ros2 run sim_common move_joints --ros-args \
 
 ### Example: move a single joint slowly
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 ros2 run sim_common move_joints --ros-args \
     -p joints:="['wrist_1']" \
     -p positions:="[0.8]" \

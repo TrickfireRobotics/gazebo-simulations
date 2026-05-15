@@ -87,8 +87,8 @@
         "docs/node_modules": true,
         "docs/dist": true,
 
-        // MacOS native build files
-        ".native/": true
+        // Pixi env
+        ".pixi/": true
     },
 
     // ================================
