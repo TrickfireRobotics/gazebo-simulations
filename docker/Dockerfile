@@ -107,7 +107,8 @@ RUN rosdep init || true
 # --------------------------------------
 # User
 
-RUN useradd trickfire --shell /bin/bash --create-home --no-log-init && \
+RUN userdel ubuntu 2>/dev/null || true && \
+    useradd trickfire --uid 1000 --shell /bin/bash --create-home --no-log-init && \
     usermod -aG video trickfire
 COPY docker/container.bashrc /home/trickfire/.bashrc
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user

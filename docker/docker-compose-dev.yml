@@ -2,3 +2,5 @@ services:
   sim:
     build:
       target: dev
+      args:
+        USER_UID: "${UID:-1000}"
