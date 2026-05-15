@@ -102,6 +102,8 @@ RUN printf '#include <stdlib.h>\nint drmCloseBufferHandle(int fd, unsigned int h
 # --------------------------------------
 # Python packages
 
+RUN pip3 install --break-system-packages \
+    pypresence
 RUN rosdep init || true
 
 # --------------------------------------
