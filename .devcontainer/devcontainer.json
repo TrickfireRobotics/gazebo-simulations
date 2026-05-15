@@ -6,7 +6,7 @@
     "service": "sim",
     "runServices": ["sim"],
     "workspaceFolder": "/home/trickfire/gazebo-simulations",
-    "postCreateCommand": "[ -d .venv ] || (python3 -m venv --copies .venv && . .venv/bin/activate && pip install -e .)",
+    "postCreateCommand": "[ -d .venv ] || (python3 -m venv --system-site-packages .venv && . .venv/bin/activate && pip install -e .)",
     "postStartCommand": "bash -c 'bash .devcontainer/x_server.sh &'",
     "mounts": [
         "source=${localEnv:HOME}/.ssh,target=/home/trickfire/.ssh,type=bind,consistency=cached"
