@@ -1,5 +1,5 @@
 # --------------------------------------------------------------------------------------------
-# Multi-stage build: Ubuntu 22.04 (Jammy) + ROS 2 Humble + Gazebo Fortress
+# Multi-stage build: Ubuntu 24.04 (Noble) + ROS 2 Jazzy + Gazebo Harmonic
 #
 # Targets:
 #   runtime   simulation environment + VNC/headless display stack  (docker-compose)
@@ -10,7 +10,7 @@
 # --------------------------------------------------------------------------------------------
 # RUNTIME
 
-FROM ros:humble-ros-base AS runtime
+FROM ros:jazzy-ros-base AS runtime
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ="America/Los_Angeles"
@@ -30,7 +30,7 @@ RUN ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
     echo "${TZ}" > /etc/timezone
 
 # --------------------------------------
-# Gazebo Fortress repo
+# Gazebo Harmonic repo
 
 RUN curl https://packages.osrfoundation.org/gazebo.gpg \
     --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
@@ -43,33 +43,32 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg \
 # APT packages
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git python3-pip python3.10-venv wget zstd \
+    git python3-pip python3.12-venv wget zstd \
     python3-rosdep \
     python3-colcon-common-extensions \
-    ros-humble-ros-gz-sim \
-    ros-humble-ros-ign-bridge \
-    ros-humble-ros2-controllers \
+    ros-jazzy-ros-gz \
+    ros-jazzy-ros2-controllers \
     python3-tk \
     age \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ignition-fortress \
+    gz-harmonic \
     && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     software-properties-common \
     && add-apt-repository universe \
     && apt-get update && apt-get install -y --no-install-recommends \
-    libgz-cmake3-dev \
-    libgz-gui6 \
-    libgz-plugin2-dev \
-    libgz-common5-dev \
-    libgz-sim7-dev \
-    ros-humble-rviz2 \
-    ros-humble-xacro \
-    ros-humble-joint-state-publisher-gui \
-    ros-humble-gz-ros2-control \
+    libgz-cmake4-dev \
+    libgz-gui8 \
+    libgz-plugin3-dev \
+    libgz-common6-dev \
+    libgz-sim8-dev \
+    ros-jazzy-rviz2 \
+    ros-jazzy-xacro \
+    ros-jazzy-joint-state-publisher-gui \
+    ros-jazzy-gz-ros2-control \
     && rm -rf /var/lib/apt/lists/*
 
 # --------------------------------------
@@ -77,7 +76,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb novnc x11vnc websockify openbox xterm python3-xdg x11-utils \
-    mesa-utils libglx-mesa0 libgl1-mesa-glx libgl1-mesa-dri \
+    mesa-utils libglx-mesa0 libgl1-mesa-dri \
     xserver-xorg-core xserver-xorg-video-dummy \
     && rm -rf /var/lib/apt/lists/*
 
@@ -103,8 +102,6 @@ RUN printf '#include <stdlib.h>\nint drmCloseBufferHandle(int fd, unsigned int h
 # --------------------------------------
 # Python packages
 
-RUN pip3 install --upgrade pip "setuptools<66.0.0"
-
 RUN rosdep init || true
 
 # --------------------------------------
@@ -116,8 +113,8 @@ COPY docker/container.bashrc /home/trickfire/.bashrc
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 RUN rosdep fix-permissions && \
-    chown -R trickfire:trickfire /usr/local/lib/python3.10/dist-packages && \
-    chmod -R a+rX /usr/local/lib/python3.10/dist-packages
+    chown -R trickfire:trickfire /usr/local/lib/python3.12/dist-packages && \
+    chmod -R a+rX /usr/local/lib/python3.12/dist-packages
 
 USER trickfire
 
@@ -129,7 +126,7 @@ FROM runtime AS dev
 
 USER root
 
-RUN pip3 install ruff
+RUN pip3 install ruff --break-system-packages
 
 RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
     -o /usr/local/bin/shfmt && \

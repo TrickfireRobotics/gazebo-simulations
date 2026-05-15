@@ -14,6 +14,9 @@ Icon
 
 ### Devcontainer ###
 
+### pixi ###
+.pixi/
+
 ### Python ###
 .mypy_cache
 __pycache__

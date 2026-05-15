@@ -5,6 +5,7 @@ import shutil
 import sys
 
 from .docker import build_and_launch
+from .native import build_and_launch_native
 from .create import create as robot_create, update as robot_update, PACKAGE_DIR, REPO_ROOT
 from .create.commands import cmd_local, cmd_raw
 from .auth import auth as cmd_auth
@@ -32,6 +33,23 @@ def main() -> None:
         help="Build only, don't launch simulation",
     )
     docker_parser.add_argument(
+        "--no-build",
+        action="store_true",
+        help="Skip build, use existing install/",
+    )
+
+    # --- native ---
+    native_parser = subparsers.add_parser(
+        "native",
+        help="Build and launch a robot simulation using the native pixi environment",
+    )
+    native_parser.add_argument("robot", help="Robot name (e.g., arm, gripper)")
+    native_parser.add_argument(
+        "--build-only",
+        action="store_true",
+        help="Build only, don't launch simulation",
+    )
+    native_parser.add_argument(
         "--no-build",
         action="store_true",
         help="Skip build, use existing install/",
@@ -117,6 +135,8 @@ def main() -> None:
     try:
         if args.command == "docker":
             build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
+        elif args.command == "native":
+            build_and_launch_native(args.robot, build_only=args.build_only, no_build=args.no_build)
         elif args.command == "clean":
             for name in ("build", "install", "log"):
                 path = WORKSPACE_DIR / name

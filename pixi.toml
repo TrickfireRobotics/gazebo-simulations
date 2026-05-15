@@ -1,0 +1,18 @@
+[project]
+name = "gazebo-simulations"
+version = "0.1.0"
+description = "TrickFire Gazebo Simulations - native ROS 2 Jazzy + Gazebo Harmonic environment"
+channels = ["conda-forge", "robostack-jazzy"]
+platforms = ["linux-64", "linux-aarch64", "osx-arm64", "osx-64"]
+
+[dependencies]
+python = ">=3.11,<3.13"
+ros-jazzy-desktop = "*"
+ros-jazzy-ros-gz = "*"
+ros-jazzy-gz-ros2-control = "*"
+ros-jazzy-ros2-controllers = "*"
+colcon-common-extensions = "*"
+
+[pypi-dependencies]
+# Installs the sim cli to the pixi env
+sim = { path = ".", editable = true }
