@@ -83,25 +83,11 @@ fi
 : "${VNC_PORT:?VNC_PORT is not set}"
 : "${NOVNC_PORT:?NOVNC_PORT is not set}"
 
-# Check if display is already available:
-#   - pgrep covers local Xorg/Xvfb including root-owned (reads /proc, no permission issues)
-#   - socket-without-lockfile covers forwarded displays (host X server mounted into container)
-#   - socket+lockfile with no process = stale from a previous container run, clean up
-_XDISPLAY="${DISPLAY%%.*}"
-_DISPLAY_NUM="${_XDISPLAY#:}"
-_SOCKET="/tmp/.X11-unix/X${_DISPLAY_NUM}"
-_LOCK="/tmp/.X${_DISPLAY_NUM}-lock"
-if pgrep -f "Xorg $_XDISPLAY" >/dev/null 2>&1 || pgrep -f "Xvfb $_XDISPLAY" >/dev/null 2>&1; then
-	log "[X11] X server already running on $DISPLAY, skipping startup"
-	exit 0
-elif [ -S "$_SOCKET" ] && [ ! -f "$_LOCK" ]; then
-	log "[X11] Display $DISPLAY is forwarded from host, skipping startup"
-	exit 0
-elif [ -f "$_LOCK" ]; then
-	log "[X11] Removing stale X lock file and socket from previous run"
-	rm -f "$_LOCK" "$_SOCKET"
+# Check if DISPLAY is already in use
+if xdpyinfo -display "$DISPLAY" &>/dev/null; then
+	log "[ERROR] Display $DISPLAY is already in use!"
+	exit 1
 fi
-unset _XDISPLAY _DISPLAY_NUM _SOCKET _LOCK
 
 # Kill all child processes on exit
 trap cleanup SIGINT SIGTERM
