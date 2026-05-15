@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "gazebo-simulations"
 version = "0.1.0"
 description = "TrickFire Gazebo Simulations - native ROS 2 Jazzy + Gazebo Harmonic environment"
@@ -11,8 +11,12 @@ ros-jazzy-desktop = "*"
 ros-jazzy-ros-gz = "*"
 ros-jazzy-gz-ros2-control = "*"
 ros-jazzy-ros2-controllers = "*"
+ros-jazzy-rmw-cyclonedds-cpp = "*"
 colcon-common-extensions = "*"
 
+[activation]
+scripts = [".devcontainer/pixi.sh"]
+
 [pypi-dependencies]
-# Installs the sim cli to the pixi env
 sim = { path = ".", editable = true }
+filelock = "*"
