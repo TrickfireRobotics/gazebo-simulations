@@ -26,9 +26,22 @@ def _check_pixi_env() -> None:
         )
 
 
+def _setup_plugin_paths() -> None:
+    conda_prefix = os.environ.get("CONDA_PREFIX", "")
+    if not conda_prefix:
+        return
+    plugin_lib = f"{conda_prefix}/lib"
+    for var in ("GZ_SIM_SYSTEM_PLUGIN_PATH", "GZ_SIM_RESOURCE_PATH"):
+        existing = os.environ.get(var, "")
+        paths = [p for p in existing.split(":") if p]
+        if plugin_lib not in paths:
+            os.environ[var] = ":".join([plugin_lib] + paths)
+
+
 def build_and_launch_native(
     robot_name: str, *, build_only: bool = False, no_build: bool = False
 ) -> None:
     """Build the workspace and launch a robot simulation using the native pixi environment."""
     _check_pixi_env()
+    _setup_plugin_paths()
     _build_and_launch(robot_name, build_only=build_only, no_build=no_build)
