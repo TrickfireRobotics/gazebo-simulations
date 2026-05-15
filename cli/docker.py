@@ -171,6 +171,17 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
         info("Build-only requested; skipping launch")
         return
 
+    info("Checking for display...")
+    display = env.get("DISPLAY")
+    if not display:
+        die("DISPLAY environment variable not set")
+
+    display_running = subprocess.call(["xdpyinfo", "-display", display],
+                                      stdout=subprocess.DEVNULL,
+                                      stderr=subprocess.DEVNULL)
+    if display_running != 0:
+        die("Cannot connect to display " + display)
+
     info("Sourcing ROS2 environment and launching simulation...")
     launch_script = f"""
 set -e
