@@ -3,7 +3,7 @@ title: Docker Dev Container
 description: Run the simulation inside a VS Code Dev Container with full display support.
 ---
 
-This is the primary workflow. Everything runs inside a Docker container - ROS 2 Humble, Gazebo Fortress, and all dependencies are pre-installed. You edit code on your host machine; the container handles building and running.
+The Dev Container is an alternative to the [native workflow](../macos/). Everything runs inside a Docker container — ROS 2 Jazzy, Gazebo Harmonic, and all dependencies are pre-installed. You edit code on your host machine; the container handles building and running.
 
 :::note
 Each code block is labeled - **Host terminal** for commands on your local machine, **Inside devcontainer** for commands inside the container.
@@ -13,7 +13,7 @@ Each code block is labeled - **Host terminal** for commands on your local machin
 
 Open the cloned folder in VS Code. You should see a prompt to **Reopen in Container** - click it. If the prompt doesn't appear, open the Command Palette (`Ctrl+Shift+P`) and run **Dev Containers: Reopen in Container**.
 
-The first build downloads the full Docker image with ROS 2 Humble, Gazebo Fortress, and all dependencies - this takes a few minutes. Subsequent opens are fast.
+The first build downloads the full Docker image with ROS 2 Jazzy, Gazebo Harmonic, and all dependencies - this takes a few minutes. Subsequent opens are fast.
 
 Once inside, you'll be the `trickfire` user at `/home/trickfire/gazebo-simulations`.
 
@@ -51,4 +51,3 @@ For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in
 ## 3. Launch the sim
 
 Once the display is running, head to [Running Simulations](../running-simulations/) to launch your first sim.
-

@@ -17,23 +17,23 @@ You do not need any credentials or local setup. The **Create new robot** workflo
     - **Fix robot to world:** yes for stationary robots (arms, turrets), no for mobile
 3. Wait for the workflow to finish, then review and merge the generated PR
 
-## Via Dev Container (developers only)
+## Via CLI (developers only)
 
 Running `sim create` locally requires your GitHub username to be listed in
 [`authorized_users.jsonc`](https://github.com/TrickfireRobotics/gazebo-simulations/blob/main/authorized_users.jsonc).
 If you're not listed, ask a repo admin to add you. There are also some local package requirements:
 
 :::note[note]
-The container mounts your `ssh` keys, as this method uses your GitHub `ssh` key. Make sure it is set up.
+This method uses your GitHub `ssh` key. Make sure it is set up. In the Dev Container, your SSH keys are mounted automatically from the host.
 :::
 
-```bash title="Host terminal"
+```bash title="Terminal"
 sim auth
 ```
 
 Then you can create the robot using:
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 sim create <robot_name> <onshape_url>
 ```
 
@@ -58,7 +58,7 @@ When the OnShape CAD changes, pull in the new geometry without touching your bri
 
 **Locally:**
 
-```bash title="Inside devcontainer"
+```bash title="Terminal"
 sim update arm
 ```
 

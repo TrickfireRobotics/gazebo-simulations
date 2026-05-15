@@ -7,30 +7,27 @@ Clone the repo, install the prerequisites for your chosen environment, then foll
 
 ## Clone the repository
 
-```bash title="Host terminal"
+```bash title="Terminal"
 git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
 cd gazebo-simulations
 ```
 
 ## Choose your workflow
 
-| Environment | When to use |
-| --- | --- |
-| [Dev Container](../devcontainer/) | Standard setup on any machine with Docker |
-| [Nvidia GPU](../nvidia/) | If you have an Nvidia GPU |
-| [MacOS Native](../macos/) | No Docker, runs natively, MacOS only |
+| Environment | Platforms | When to use |
+| --- | --- | --- |
+| [Native (pixi)](../macos/) | Linux, macOS, WSL2 | **Recommended** — no Docker required |
+| [Dev Container](../devcontainer/) | Any OS with Docker | Consistent containerized environment |
+| [Nvidia GPU](../nvidia/) | Linux with Nvidia GPU | GPU-accelerated simulation on Jetson |
 
 ### Prerequisites by environment
 
+**Native (pixi):**
+- [pixi](https://pixi.sh) installed
+
 **Docker Dev Container:**
-  - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-  - [VS Code](https://code.visualstudio.com/) with the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
-  - A VNC viewer ([RealVNC](https://www.realvnc.com/en/connect/download/viewer/), [TigerVNC](https://tigervnc.org/))
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- [VS Code](https://code.visualstudio.com/) with the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
 
-
-**Jetson:**
-  - Nvidia GPU
-  - Docker
-
-**MacOS Native:**
-  - MacOS with internet access
+**Nvidia / Jetson:**
+- Nvidia GPU with Docker

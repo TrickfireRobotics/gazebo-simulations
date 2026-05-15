@@ -9,6 +9,7 @@ gazebo-simulations/
 ├── robot-sim/       # ROS 2 workspace - simulation packages
 ├── cli/             # Python CLI for building and launching simulations
 ├── docs/            # Documentation site (Astro / Starlight)
+├── pixi.toml        # Native environment definition (ROS 2 Jazzy + Gazebo Harmonic)
 ├── robots.json      # Robot configuration registry
 └── pyproject.toml   # Python tooling config
 ```
@@ -17,7 +18,7 @@ gazebo-simulations/
 
 ### `robot-sim/` - Simulation
 
-The ROS 2 workspace containing the Gazebo Fortress simulation packages. Built with `colcon` inside the Dev Container.
+The ROS 2 workspace containing the Gazebo Harmonic simulation packages. Built with `colcon` via the native pixi environment or the Dev Container.
 
 **Packages:**
 - `<robot>_bringup` - launch files
@@ -45,16 +46,17 @@ Content pages live in `docs/content/docs/` and follow the existing directory str
 Python package providing the `sim` CLI command:
 
 - `cli.py` - Main entry point and argument parsing
-- `docker.py` - `sim docker` build and launch logic
+- `native.py` - `sim native` build and launch logic (pixi environment)
+- `docker.py` - `sim docker` build and launch logic (Dev Container)
 - `create/` - `sim create` / `sim update` implementation (OnShape download, URDF processing, package scaffolding)
 - `paths.py` - Workspace path utilities
 - `output.py` - Terminal output helpers (`info`, `warn`, `die`)
 
 ## Dev setup
 
-The simulation runs inside a Docker Dev Container. Follow the [Getting Started](https://trickfirerobotics.github.io/gazebo-simulations/setup/getting-started/) guide to set up your environment before making changes to `robot-sim/`.
+The primary workflow uses pixi for a self-contained native environment. Follow the [Getting Started](https://trickfirerobotics.github.io/gazebo-simulations/setup/getting-started/) guide.
 
-For `docs/` changes, only Node.js is required, no container needed.
+For `docs/` changes, only Node.js is required.
 
 ## Formatting
 

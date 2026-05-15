@@ -46,9 +46,9 @@ export default defineConfig({
                     label: 'Setup',
                     items: [
                         { label: 'Getting Started', slug: 'setup/getting-started' },
+                        { label: 'Native', slug: 'setup/macos' },
                         { label: 'Dev Container', slug: 'setup/devcontainer' },
-                        { label: 'Nvidia Container', slug: 'setup/nvidia' },
-                        { label: 'MacOS Native', slug: 'setup/macos' }
+                        { label: 'Nvidia Container', slug: 'setup/nvidia' }
                     ]
                 },
                 {

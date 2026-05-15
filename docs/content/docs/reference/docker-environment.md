@@ -3,9 +3,9 @@ title: Docker Environment
 description: How the container is configured, the multi-stage Dockerfile, standalone docker-compose usage, and how the headless display works.
 ---
 
-The entire simulation environment runs inside a Docker container. There are two ways to use it:
+The Docker container is the alternative to the [native pixi workflow](../setup/macos/). There are two ways to use it:
 
-1. **Dev Container** (VS Code) -- uses the `dev` stage of the Dockerfile with dev tooling pre-installed. This is the primary workflow for development.
+1. **Dev Container** (VS Code) -- uses the `dev` stage of the Dockerfile with dev tooling pre-installed. Open the repo in VS Code and choose **Reopen in Container**.
 2. **Standalone container** (docker-compose) -- uses the `runtime` stage for running simulations on any host without VS Code. NVIDIA GPU passthrough is enabled automatically when hardware is detected.
 
 ## Multi-stage Dockerfile
@@ -13,8 +13,8 @@ The entire simulation environment runs inside a Docker container. There are two 
 The Dockerfile at `docker/Dockerfile` has two stages:
 
 ```dockerfile
-FROM ros:humble-ros-base AS runtime   # simulation + VNC/display stack
-FROM runtime AS dev                   # + dev tooling (ruff, onshape-to-robot, shfmt)
+FROM ros:jazzy-ros-base AS runtime   # simulation + VNC/display stack
+FROM runtime AS dev                  # + dev tooling (ruff, onshape-to-robot, shfmt)
 ```
 
 ### Runtime stage
@@ -22,21 +22,20 @@ FROM runtime AS dev                   # + dev tooling (ruff, onshape-to-robot, s
 Everything needed to run simulations:
 
 ```
-ros:humble-ros-base (Ubuntu Jammy 22.04 + ROS 2 Humble)
+ros:jazzy-ros-base (Ubuntu Noble 24.04 + ROS 2 Jazzy)
 ```
 
 **Simulation stack:**
 
 | Package                                | Purpose                                         |
 | -------------------------------------- | ----------------------------------------------- |
-| Gazebo Ignition Fortress               | Physics simulation engine                       |
-| `ros-humble-ros-gz-sim`                | ROS 2 / Gazebo integration                      |
-| `ros-humble-ros-ign-bridge`            | Message bridging between ROS and Gazebo         |
-| `ros-humble-ros2-controllers`          | Joint state broadcaster + trajectory controller |
-| `ros-humble-gz-ros2-control`           | Hardware interface for Gazebo                   |
-| `ros-humble-rviz2`                     | Robot visualization                             |
-| `ros-humble-xacro`                     | URDF macro processing                           |
-| `ros-humble-joint-state-publisher-gui` | Joint state publishing GUI                      |
+| Gazebo Harmonic                        | Physics simulation engine                       |
+| `ros-jazzy-ros-gz`                     | ROS 2 / Gazebo integration + bridge             |
+| `ros-jazzy-ros2-controllers`           | Joint state broadcaster + trajectory controller |
+| `ros-jazzy-gz-ros2-control`            | Hardware interface for Gazebo                   |
+| `ros-jazzy-rviz2`                      | Robot visualization                             |
+| `ros-jazzy-xacro`                      | URDF macro processing                           |
+| `ros-jazzy-joint-state-publisher-gui`  | Joint state publishing GUI                      |
 
 **Display stack (headless GUI):**
 
@@ -47,7 +46,7 @@ ros:humble-ros-base (Ubuntu Jammy 22.04 + ROS 2 Humble)
 | `x11vnc`                                         | VNC server for remote X11 access              |
 | `novnc` + `websockify`                           | Browser-based VNC client                      |
 | `xvfb`                                           | Virtual framebuffer for Jetson/Tegra (no DRI) |
-| `mesa-utils`, `libgl1-mesa-*`                    | Software OpenGL rendering                     |
+| `mesa-utils`, `libgl1-mesa-dri`                  | Software OpenGL rendering                     |
 
 **Build tools:**
 
