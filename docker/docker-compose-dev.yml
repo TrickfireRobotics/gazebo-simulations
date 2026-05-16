@@ -4,3 +4,5 @@ services:
       target: dev
       args:
         USER_UID: "${UID:-1000}"
+    volumes:
+      - ${XDG_RUNTIME_DIR:-/tmp}:/run/host-runtime:ro
