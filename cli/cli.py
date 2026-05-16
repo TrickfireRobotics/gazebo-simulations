@@ -3,6 +3,7 @@
 import argparse
 import shutil
 import sys
+import threading
 
 from .docker import build_and_launch
 from .native import build_and_launch_native
@@ -11,6 +12,7 @@ from .create.commands import cmd_local, cmd_raw
 from .auth import auth as cmd_auth
 from .output import die, info
 from .paths import WORKSPACE_DIR
+from .drpc import rpc_start
 
 
 def main() -> None:
@@ -134,8 +136,10 @@ def main() -> None:
 
     try:
         if args.command == "docker":
+            threading.Thread(target=rpc_start, kwargs={"is_docker": True, "robot_name": args.robot}, daemon=True).start()
             build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
         elif args.command == "native":
+            threading.Thread(target=rpc_start, kwargs={"is_docker": False, "robot_name": args.robot}, daemon=True).start()
             build_and_launch_native(args.robot, build_only=args.build_only, no_build=args.no_build)
         elif args.command == "clean":
             for name in ("build", "install", "log"):
