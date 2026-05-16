@@ -39,9 +39,7 @@ def rpc_start(is_docker: bool = False, robot_name: str = "Unknown Robot") -> Non
             details="Running TrickFire Simulation on " + robot_name,
             state="Running in Docker" if is_docker else "Running locally",
         )
-        print("RPC started")
         while True:
-            print("RPC thread alive")
             time.sleep(15)
     except Exception as e:  # pylint: disable=broad-except
         print(f"Discord RPC unavailable: {e}")
