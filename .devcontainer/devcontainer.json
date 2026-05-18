@@ -7,8 +7,8 @@
     "runServices": ["sim"],
     "workspaceFolder": "/home/trickfire/gazebo-simulations",
     "postCreateCommand": "[ -d .venv ] || (python3 -m venv --system-site-packages .venv && . .venv/bin/activate && pip install -e .)",
-    "postStartCommand": "bash ./.devcontainer/x_server.sh",
-"forwardPorts": [6080, 5900],
+    "postStartCommand": "bash ./.devcontainer/x_server.sh || exit 0",
+    "forwardPorts": [6080, 5900],
     "customizations": {
         "vscode": {
             "extensions": [
