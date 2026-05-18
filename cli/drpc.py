@@ -10,7 +10,8 @@ def _find_discord_socket_dir() -> str | None:
     candidates = [
         os.environ.get("XDG_RUNTIME_DIR"),  # standard Linux user session
         os.environ.get("TMPDIR"),
-        "/run/host-runtime",                # devcontainer: host XDG_RUNTIME_DIR mounted here
+        "/run/host-runtime",  # devcontainer: host XDG_RUNTIME_DIR mounted here
+        "/run/user/1000",  # fallback for some Linux distros
         "/tmp",
     ]
     for base in filter(None, candidates):

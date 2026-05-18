@@ -25,6 +25,7 @@ services:
 
     volumes:
       - ..:/home/trickfire/gazebo-simulations
+      - /run/user/1000/discord-ipc-0:/run/user/1000/discord-ipc-0
 
     working_dir: /home/trickfire/gazebo-simulations
 
