@@ -6,3 +6,14 @@ services:
         USER_UID: "${UID:-1000}"
     volumes:
       - ${XDG_RUNTIME_DIR:-/tmp}:/run/host-runtime:ro
+      - type: bind
+        source: ${HOME}/.ssh
+        target: /home/trickfire/.ssh
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: bind
+        source: /tmp/.X11-unix
+        target: /tmp/.X11-unix
+        bind:
+          create_host_path: true

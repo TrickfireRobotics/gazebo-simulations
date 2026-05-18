@@ -25,7 +25,11 @@ services:
 
     volumes:
       - ..:/home/trickfire/gazebo-simulations
-      - /run/user/1000/discord-ipc-0:/run/user/1000/discord-ipc-0
+      - type: bind
+        source: ${XDG_RUNTIME_DIR:-/run/user/1000}
+        target: /run/user/1000
+        bind:
+          create_host_path: true
 
     working_dir: /home/trickfire/gazebo-simulations
 
