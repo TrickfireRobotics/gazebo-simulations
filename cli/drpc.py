@@ -1,3 +1,5 @@
+"""Discord Rich Presence (DRPC) integration for TrickFire Simulation"""
+
 import os
 import sys
 import time
@@ -22,6 +24,7 @@ def _find_discord_socket_dir() -> str | None:
 
 
 def rpc_start(is_docker: bool = False, robot_name: str = "Unknown Robot") -> None:
+    """Start DRPC in a separate thread"""
     try:
         if sys.platform == "linux":
             socket_dir = _find_discord_socket_dir()
