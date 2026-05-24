@@ -21,6 +21,11 @@
         "editor.defaultColorDecorators": "never",
         "diffEditor.ignoreTrimWhitespace": false
     },
+    "[shellscript]": {
+        "editor.defaultFormatter": "mkhl.shfmt",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
+    },
     "[astro]": {
         "editor.defaultFormatter": "astro-build.astro-vscode",
         "editor.formatOnSave": true,
@@ -95,7 +100,7 @@
     // ROS2 SETTINGS
     // ================================
 
-    "ROS2.distro": "humble",
+    "ROS2.distro": "jazzy",
 
     // ================================
     // CMAKE SETTINGS
@@ -109,15 +114,13 @@
 
     "python.terminal.activateEnvironment": false,
     "python.analysis.extraPaths": [
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages",
         "robot-sim/sim_common",
-        ".github"
+        "cli"
     ],
     "python.autoComplete.extraPaths": [
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages",
+        "/opt/ros/jazzy/lib/python3.12/site-packages",
         "robot-sim/sim_common",
-        ".github"
+        "cli"
     ]
 }
