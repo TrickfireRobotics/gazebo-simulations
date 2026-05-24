@@ -20,3 +20,4 @@ scripts = [".devcontainer/pixi.sh"]
 [pypi-dependencies]
 sim = { path = ".", editable = true }
 filelock = "*"
+pypresence = "*"

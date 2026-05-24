@@ -114,6 +114,20 @@ def _run_logged_command(
         raise subprocess.CalledProcessError(return_code, command)
 
 
+def check_display() -> None:
+    """Check that a display is available and can be connected to"""
+    info("Checking for display...")
+    display = os.environ.copy().get("DISPLAY")
+    if not display:
+        die("DISPLAY environment variable not set")
+
+    display_running = subprocess.call(
+        ["xdpyinfo", "-display", display], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    )
+    if display_running != 0:
+        die("Cannot connect to display " + display)
+
+
 def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: bool = False) -> None:
     """Build the workspace and launch a robot simulation."""
     if build_only and no_build:
@@ -170,17 +184,6 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     if not launch:
         info("Build-only requested; skipping launch")
         return
-
-    info("Checking for display...")
-    display = env.get("DISPLAY")
-    if not display:
-        die("DISPLAY environment variable not set")
-
-    display_running = subprocess.call(["xdpyinfo", "-display", display],
-                                      stdout=subprocess.DEVNULL,
-                                      stderr=subprocess.DEVNULL)
-    if display_running != 0:
-        die("Cannot connect to display " + display)
 
     info("Sourcing ROS2 environment and launching simulation...")
     launch_script = f"""

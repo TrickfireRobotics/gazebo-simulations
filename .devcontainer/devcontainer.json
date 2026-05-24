@@ -7,11 +7,7 @@
     "runServices": ["sim"],
     "workspaceFolder": "/home/trickfire/gazebo-simulations",
     "postCreateCommand": "[ -d .venv ] || (python3 -m venv --system-site-packages .venv && . .venv/bin/activate && pip install -e .)",
-    // "postStartCommand": "bash ./.devcontainer/x_server.sh",
-    "mounts": [
-        "source=${localEnv:HOME}/.ssh,target=/home/trickfire/.ssh,type=bind,consistency=cached",
-        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached"
-    ],
+    "postStartCommand": "bash ./.devcontainer/x_server.sh || exit 0",
     "forwardPorts": [6080, 5900],
     "customizations": {
         "vscode": {
