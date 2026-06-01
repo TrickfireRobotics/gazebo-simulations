@@ -3,6 +3,7 @@ import starlight from '@astrojs/starlight';
 
 export default defineConfig({
     site: 'https://docs.trickfirerobotics.com',
+    base: '/gazebo-simulations',
     srcDir: './',
     integrations: [
         starlight({
