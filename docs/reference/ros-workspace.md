@@ -78,7 +78,7 @@ If colcon can't find a new package, make sure `package.xml` exists and the packa
 
 Here is a flowchart showing how the arm simulation works end-to-end:
 
-![Arm system flowchart](../../../assets/arm-flowchart.excalidraw.png)
+![Arm system flowchart](../assets/arm-flowchart.excalidraw.png)
 
 ## Troubleshooting
 
