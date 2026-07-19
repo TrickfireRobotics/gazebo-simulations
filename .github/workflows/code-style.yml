@@ -1,0 +1,30 @@
+name: Style Check
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Install Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.11"
+
+            - name: Install Ruff
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install ruff
+
+            - name: Run Ruff
+              run: ruff check --output-format=github .
+
+            - name: Install shfmt
+              uses: mfinelli/setup-shfmt@v3
+
+            - name: Check shell formatting
+              run: shfmt -d .

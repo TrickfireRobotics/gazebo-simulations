@@ -1,8 +1,4 @@
 {
-    // ================================
-    // LANGUAGE FORMATTING
-    // ================================
-
     "files.eol": "\n",
 
     "[dockerfile]": {
@@ -41,10 +37,6 @@
     "prettier.tabWidth": 4,
     "prettier.trailingComma": "none",
 
-    // ================================
-    // GENERAL VSCODE BEHAVIOR
-    // ================================
-
     // To prevent vscode creating 20 random forwarded ports
     "remote.autoForwardPorts": false,
     "editor.rulers": [100],
@@ -52,6 +44,7 @@
         "model.config": "xml"
     },
     "files.exclude": {
+<<<<<<< Updated upstream
         // General
         "**/.git": true,
         "**/.hg": true,
@@ -61,31 +54,52 @@
         "**/node_modules": true,
 
         // Python
+||||||| Stash base
+        // General
+        "**/.git": true,
+        "**/.hg": true,
+        "**/.svn": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/node_modules": true,
+
+        // Python
+=======
+        ".cache/": true,
+>>>>>>> Stashed changes
         "**/.ruff_cache": true,
         "**/.mypy_cache": true,
         "**/__pycache__": true,
         "**/*.egg-info": true,
         "build/": true,
         "**/.venv": true,
-
-        // Robot Dev extension stuff
         ".vscode/browse.vc.db": true,
         ".vscode/browse.vc.db-shm": true,
         ".vscode/browse.vc.db-wal": true,
+<<<<<<< Updated upstream
 
         // Pixi env
+||||||| Stash base
+
+        // Pixi env
+=======
+>>>>>>> Stashed changes
         ".pixi/": true
     },
 
+<<<<<<< Updated upstream
     // ================================
     // CMAKE SETTINGS
     // ================================
 
-    "cmake.ignoreCMakeListsMissing": true,
+||||||| Stash base
+    // ================================
+    // CMAKE SETTINGS
+    // ================================
 
-    // ================================
-    // PYTHON SETTINGS
-    // ================================
+=======
+>>>>>>> Stashed changes
+    "cmake.ignoreCMakeListsMissing": true,
 
     "python.terminal.activateEnvironment": false,
     "python.analysis.extraPaths": [

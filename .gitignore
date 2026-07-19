@@ -1,41 +1,34 @@
-### macOS ###
 .DS_Store
-.LSOverride
-Icon
-._*
-*-alias
 
-### VSCode ###
+# vscode
 .vscode/*
 !.vscode/settings.json
 !.vscode/c_cpp_properties.json
 !.vscode/launch.json
 !.vscode/extensions.json
 
-### Devcontainer ###
-
-### pixi ###
+# pixi
 .pixi/
 
-### Python ###
+# Python
 .mypy_cache
 __pycache__
 *.egg-info/
 build/
 **/.venv
 
-### ROS2 ###
+# ROS2
 robot-sim/install
 robot-sim/build
 robot-sim/log
 
-### sim create tests ###
+# sim create tests
 cli/create/tests
 
-### env ###
+# env
 **/*.env
 
-### Astro ###
-node_modules/
+# trickfire-docs
+.trickfire-docs/
 dist/
-.astro/
+.cache/
