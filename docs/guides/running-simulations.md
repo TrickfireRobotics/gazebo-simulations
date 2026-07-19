@@ -27,10 +27,10 @@ sim docker <robot_name>
 
 Both `sim native` and `sim docker` accept the same flags:
 
-| Option | Description |
-| --- | --- |
-| `--no-build` | Skip the `colcon build` step. Use this when you haven't changed any code and want a faster startup. |
-| `--build-only` | Build the workspace but don't launch the simulation. Useful for checking if your changes compile. |
+| Option         | Description                                                                                         |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| `--no-build`   | Skip the `colcon build` step. Use this when you haven't changed any code and want a faster startup. |
+| `--build-only` | Build the workspace but don't launch the simulation. Useful for checking if your changes compile.   |
 
 ```bash title="Terminal"
 # Skip building (already built)

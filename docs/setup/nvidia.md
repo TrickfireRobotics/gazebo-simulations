@@ -41,21 +41,20 @@ To set up a Jetson computer for Docker GPU support:
 
 1. **Install NVIDIA Container Toolkit:**
 
-   ```bash title="Jetson terminal"
-   curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-   distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
-     && curl -fsSL https://nvidia.github.io/libnvidia-container/libnvidia-container.list | \
-     sed 's/^deb /deb [signed-by=\/usr\/share\/keyrings\/nvidia-container-toolkit-keyring.gpg] /' | \
-     sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
-   sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
-   sudo nvidia-ctk runtime configure --runtime=docker
-   sudo systemctl restart docker
-   ```
+    ```bash title="Jetson terminal"
+    curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
+      && curl -fsSL https://nvidia.github.io/libnvidia-container/libnvidia-container.list | \
+      sed 's/^deb /deb [signed-by=\/usr\/share\/keyrings\/nvidia-container-toolkit-keyring.gpg] /' | \
+      sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+    sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+    sudo nvidia-ctk runtime configure --runtime=docker
+    sudo systemctl restart docker
+    ```
 
 2. **Configure Jetson for max performance (optional but recommended):**
-
-   - Switch to maximum power mode (MAXN)
-   - Set fans to full speed
-   - Disable WiFi power management
+    - Switch to maximum power mode (MAXN)
+    - Set fans to full speed
+    - Disable WiFi power management
 
 You should now be ready to run the simulation container on the Jetson with GPU passthrough.
