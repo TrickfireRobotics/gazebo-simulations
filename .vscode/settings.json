@@ -1,101 +1,34 @@
-{
-    // ================================
-    // LANGUAGE FORMATTING
-    // ================================
+.DS_Store
 
-    "files.eol": "\n",
+# vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-    "[dockerfile]": {
-        "editor.defaultFormatter": "ms-azuretools.vscode-containers",
-        "editor.formatOnSave": true
-    },
-    "[xml]": {
-        "editor.defaultFormatter": "DotJoshJohnson.xml",
-        "editor.formatOnSave": true
-    },
-    "[python]": {
-        "editor.defaultFormatter": "charliermarsh.ruff",
-        "editor.formatOnSave": true,
-        "editor.formatOnType": true,
-        "editor.wordBasedSuggestions": "off",
-        "editor.defaultColorDecorators": "never",
-        "diffEditor.ignoreTrimWhitespace": false
-    },
-    "[shellscript]": {
-        "editor.defaultFormatter": "mkhl.shfmt",
-        "editor.formatOnSave": true,
-        "editor.formatOnPaste": true
-    },
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
-        "editor.formatOnPaste": true
-    },
-    "[jsonc]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
-        "editor.formatOnPaste": true
-    },
-    "json.format.keepLines": true,
-    "json.format.enable": true,
-    "prettier.tabWidth": 4,
-    "prettier.trailingComma": "none",
+# pixi
+.pixi/
 
-    // ================================
-    // GENERAL VSCODE BEHAVIOR
-    // ================================
+# Python
+.mypy_cache
+__pycache__
+*.egg-info/
+build/
+**/.venv
 
-    // To prevent vscode creating 20 random forwarded ports
-    "remote.autoForwardPorts": false,
-    "editor.rulers": [100],
-    "files.associations": {
-        "model.config": "xml"
-    },
-    "files.exclude": {
-        // General
-        "**/.git": true,
-        "**/.hg": true,
-        "**/.svn": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/node_modules": true,
+# ROS2
+robot-sim/install
+robot-sim/build
+robot-sim/log
 
-        // Python
-        "**/.ruff_cache": true,
-        "**/.mypy_cache": true,
-        "**/__pycache__": true,
-        "**/*.egg-info": true,
-        "build/": true,
-        "**/.venv": true,
+# sim create tests
+cli/create/tests
 
-        // Robot Dev extension stuff
-        ".vscode/browse.vc.db": true,
-        ".vscode/browse.vc.db-shm": true,
-        ".vscode/browse.vc.db-wal": true,
+# env
+**/*.env
 
-        // Pixi env
-        ".pixi/": true
-    },
-
-    // ================================
-    // CMAKE SETTINGS
-    // ================================
-
-    "cmake.ignoreCMakeListsMissing": true,
-
-    // ================================
-    // PYTHON SETTINGS
-    // ================================
-
-    "python.terminal.activateEnvironment": false,
-    "python.analysis.extraPaths": [
-        "/opt/ros/jazzy/lib/python3.12/site-packages",
-        "robot-sim/sim_common",
-        "cli"
-    ],
-    "python.autoComplete.extraPaths": [
-        "/opt/ros/jazzy/lib/python3.12/site-packages",
-        "robot-sim/sim_common",
-        "cli"
-    ]
-}
+# trickfire-docs
+.trickfire-docs/
+dist/
+.cache/

@@ -1,0 +1,47 @@
+{
+    "$schema": "https://docs.trickfirerobotics.com/docs.config.schema.json",
+    "name": "Gazebo Simulations",
+    "description": "Custom simulation system using Gazebo, ROS Humble and a on-shape pipeline",
+    "sidebar": [
+        { "label": "Getting Started", "slug": "getting-started" },
+        {
+            "label": "Setup",
+            "items": [
+                { "label": "Native", "slug": "setup/macos" },
+                { "label": "Dev Container", "slug": "setup/devcontainer" },
+                { "label": "Nvidia Container", "slug": "setup/nvidia" }
+            ]
+        },
+        {
+            "label": "Simulation",
+            "items": [
+                {
+                    "label": "Running Simulations",
+                    "slug": "guides/running-simulations"
+                },
+                { "label": "Moving Joints", "slug": "guides/moving-joints" },
+                {
+                    "label": "Adding a New Robot",
+                    "slug": "guides/adding-robots"
+                }
+            ]
+        },
+        {
+            "label": "Deep Dives",
+            "items": [
+                { "label": "Dev Notes", "slug": "reference/dev-notes" },
+                { "label": "ROS Workspace", "slug": "reference/ros-workspace" },
+                {
+                    "label": "Docker Environment",
+                    "slug": "reference/docker-environment"
+                },
+                { "label": "Launch System", "slug": "reference/launch-system" },
+                {
+                    "label": "Robot Packages",
+                    "slug": "reference/robot-packages"
+                },
+                { "label": "Joint GUI", "slug": "reference/joint-gui" }
+            ]
+        }
+    ]
+}

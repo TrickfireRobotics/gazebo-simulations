@@ -13,13 +13,14 @@ The Joint GUI launches automatically with the simulation. It provides sliders fo
 
 ### Controls
 
-| Button | Action |
-| --- | --- |
-| **Send** | Publishes the current slider positions as a trajectory command |
-| **Sync** | Reads current joint positions from `/joint_states` and moves sliders to match |
-| **Reset** | Zeros all sliders |
+| Button    | Action                                                                        |
+| --------- | ----------------------------------------------------------------------------- |
+| **Send**  | Publishes the current slider positions as a trajectory command                |
+| **Sync**  | Reads current joint positions from `/joint_states` and moves sliders to match |
+| **Reset** | Zeros all sliders                                                             |
 
 You can also:
+
 - Change the **Duration** (seconds) for how long the trajectory takes
 - Select which **Topic** to publish on (auto-discovered from available `JointTrajectory` topics)
 - Click **Refresh** to re-scan for topics
@@ -49,18 +50,19 @@ ros2 run sim_common move_joints --ros-args \
 
 ### Parameters
 
-| Parameter | Required | Default | Description |
-| --- | --- | --- | --- |
-| `joints` | Yes | -- | List of joint names to move |
-| `positions` | Yes | -- | Target positions (radians), one per joint |
-| `duration` | No | `2.0` | Seconds to reach the target |
-| `topic` | No | See below | Trajectory topic to publish on |
+| Parameter   | Required | Default   | Description                               |
+| ----------- | -------- | --------- | ----------------------------------------- |
+| `joints`    | Yes      | --        | List of joint names to move               |
+| `positions` | Yes      | --        | Target positions (radians), one per joint |
+| `duration`  | No       | `2.0`     | Seconds to reach the target               |
+| `topic`     | No       | See below | Trajectory topic to publish on            |
 
 Default topic: `/joint_trajectory_controller/joint_trajectory`
 
 ### Behavior
 
 The node:
+
 1. Creates a publisher on the trajectory topic
 2. Waits (polling every 0.5s) until at least one subscriber is connected
 3. Publishes the trajectory message
