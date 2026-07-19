@@ -8,7 +8,6 @@ Thanks for wanting to contribute to this repo! This guide covers the layout of t
 gazebo-simulations/
 ├── robot-sim/       # ROS 2 workspace - simulation packages
 ├── cli/             # Python CLI for building and launching simulations
-├── docs/            # Documentation site (Astro / Starlight)
 ├── pixi.toml        # Native environment definition (ROS 2 Jazzy + Gazebo Harmonic)
 ├── robots.json      # Robot configuration registry
 └── pyproject.toml   # Python tooling config
@@ -21,6 +20,7 @@ gazebo-simulations/
 The ROS 2 workspace containing the Gazebo Harmonic simulation packages. Built with `colcon` via the native pixi environment or the Dev Container.
 
 **Packages:**
+
 - `<robot>_bringup` - launch files
 - `<robot>_description` - URDF/SDF models and worlds
 - `sim_common` - shared ROS utilities and configs
@@ -30,16 +30,7 @@ When adding or modifying a package, keep `package.xml` and `CMakeLists.txt` up t
 
 ### `docs/` - Documentation site
 
-An [Astro Starlight](https://starlight.astro.build/) site published to GitHub Pages. Source lives in `docs/content/`.
-
-```bash
-# from docs/
-npm install
-npm run dev     # local dev server
-npm run build   # production build
-```
-
-Content pages live in `docs/content/docs/` and follow the existing directory structure (`guides/`, `reference/`, etc.).
+Go look at the [trickfire-docs documentation](https://docs.trickfirerobotics.com/trickfire-docs/) for more info.
 
 ### `cli/` - Simulation CLI
 
@@ -62,13 +53,13 @@ For `docs/` changes, only Node.js is required.
 
 All formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
 
-| Language | Formatter |
-|---|---|
-| Python | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`) |
-| Astro | Astro (`astro-build.astro-vscode`) |
+| Language               | Formatter                                                                                                         |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Python                 | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`)                                                       |
+| Astro                  | Astro (`astro-build.astro-vscode`)                                                                                |
 | JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) - follow the project's Prettier configuration (including 4-space indentation) |
-| XML | XML Tools (`DotJoshJohnson.xml`) |
-| Dockerfile | Docker (`ms-azuretools.vscode-containers`) |
+| XML                    | XML Tools (`DotJoshJohnson.xml`)                                                                                  |
+| Dockerfile             | Docker (`ms-azuretools.vscode-containers`)                                                                        |
 
 For Python, you can also run Ruff manually before submitting:
 
