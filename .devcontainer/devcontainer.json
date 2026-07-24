@@ -1,38 +1,44 @@
 {
-    "dockerComposeFile": ["../docker/docker-compose.yml", "../docker/docker-compose-dev.yml"],
-    "service": "sim",
-    "runServices": ["sim"],
-    "workspaceFolder": "/home/trickfire/gazebo-simulations",
-    "postCreateCommand": "pip3 install --break-system-packages -e .",
-    "postStartCommand": "bash ./.devcontainer/x_server.sh || exit 0",
-    "forwardPorts": [6080, 5900],
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                // --- Python ---
-                "ms-python.python",
-                "ms-python.vscode-pylance",
-                "charliermarsh.ruff",
-                "ms-python.mypy-type-checker",
-                // --- C and C++ ---
-                "ms-vscode.cpptools",
-                "ms-vscode.cpptools-extension-pack",
-                "ms-vscode.cmake-tools",
-                "josetr.cmake-language-support-vscode",
-                // --- Robotics / ROS / URDF / meshes ---
-                "Ranch-Hand-Robotics.rde-ros-2",
-                "smilerobotics.urdf",
-                "morningfrog.urdf-visualizer",
-                "misiekhardcore.stl-previewer",
-                // --- Container ---
-                "ms-azuretools.vscode-docker",
-                // --- Formatters ---
-                "yzhang.markdown-all-in-one",
-                "DotJoshJohnson.xml",
-                "tamasfe.even-better-toml",
-                "github.vscode-github-actions",
-                "mkhl.shfmt"
-            ]
-        }
+  "dockerComposeFile": [
+    "../docker/docker-compose.yml",
+    "../docker/docker-compose-dev.yml"
+  ],
+  "service": "sim",
+  "runServices": ["sim"],
+  "workspaceFolder": "/home/trickfire/simulations",
+  "postCreateCommand": "pip3 install --break-system-packages -e .",
+  "postStartCommand": "bash ./.devcontainer/x_server.sh || exit 0",
+  "forwardPorts": [6080, 5900],
+  "labels": {
+    "dev_container_auto_added_stage_label": "sim"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // --- Python ---
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-python.mypy-type-checker",
+        // --- C and C++ ---
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
+        "josetr.cmake-language-support-vscode",
+        // --- Robotics / ROS / URDF / meshes ---
+        "Ranch-Hand-Robotics.rde-ros-2",
+        "smilerobotics.urdf",
+        "morningfrog.urdf-visualizer",
+        "misiekhardcore.stl-previewer",
+        // --- Container ---
+        "ms-azuretools.vscode-docker",
+        // --- Formatters ---
+        "yzhang.markdown-all-in-one",
+        "DotJoshJohnson.xml",
+        "tamasfe.even-better-toml",
+        "github.vscode-github-actions",
+        "mkhl.shfmt"
+      ]
     }
+  }
 }

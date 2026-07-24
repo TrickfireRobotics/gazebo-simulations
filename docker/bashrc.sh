@@ -1,4 +1,4 @@
-# Only run the interactive extras for interactive shells
+# Only run for interactive shells
 case "$-" in
 *i*) ;;
 *) return ;;
@@ -15,22 +15,22 @@ export HISTSIZE=10000
 export HISTFILESIZE=20000
 shopt -s histappend checkwinsize
 
-# ---------- locate repo/workspace ----------
+# ---------- locate repo ----------
 _tf_find_repo() {
 	local d
 	for d in \
 		"$PWD" \
-		"$HOME/gazebo-simulations" \
-		"/workspaces/gazebo-simulations" \
-		"/workspace/gazebo-simulations"; do
-		if [ -d "$d/robot-sim" ] && [ -f "$d/pyproject.toml" ]; then
+		"$HOME/simulations" \
+		"/workspaces/simulations" \
+		"/workspace/simulations"; do
+		if [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
 			printf "%s\n" "$d"
 			return 0
 		fi
 	done
 
 	d="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-	if [ -n "$d" ] && [ -d "$d/robot-sim" ] && [ -f "$d/pyproject.toml" ]; then
+	if [ -n "$d" ] && [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
 		printf "%s\n" "$d"
 		return 0
 	fi
@@ -40,17 +40,12 @@ _tf_find_repo() {
 
 if TF_REPO_DIR="$(_tf_find_repo)"; then
 	export TF_REPO_DIR
-	export TF_ROBOT_WS="$TF_REPO_DIR/robot-sim"
+	export TF_GAZEBO_DIR="$TF_REPO_DIR/gazebo"
 fi
 
 # ---------- venv ----------
 if [ -f "${TF_REPO_DIR}/.venv/bin/activate" ]; then
 	source "${TF_REPO_DIR}/.venv/bin/activate"
-fi
-
-# ---------- display ----------
-if [[ -n "${DISPLAY:-}" && "${DISPLAY}" != :* ]]; then
-	export DISPLAY=":${DISPLAY}"
 fi
 
 # ---------- ROS/Gazebo environment ----------
@@ -60,21 +55,25 @@ tf_source_env() {
 		source /opt/ros/jazzy/setup.bash
 	fi
 
-	if [ -n "${TF_ROBOT_WS:-}" ] && [ -f "$TF_ROBOT_WS/install/setup.bash" ]; then
+	if [ -n "${TF_GAZEBO_DIR:-}" ] && [ -f "$TF_GAZEBO_DIR/install/setup.bash" ]; then
 		# shellcheck source=/dev/null
-		source "$TF_ROBOT_WS/install/setup.bash"
+		source "$TF_GAZEBO_DIR/install/setup.bash"
 
-		local _sim_worlds_share="$TF_ROBOT_WS/install/sim_worlds/share/sim_worlds"
+		local _sim_worlds_share="$TF_GAZEBO_DIR/install/sim_worlds/share/sim_worlds"
 		if [ -d "$_sim_worlds_share/worlds" ]; then
 			export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$_sim_worlds_share"
 		fi
 	fi
 }
 
-# Source env once per shell session.
 if [ -z "${TF_ENV_SOURCED:-}" ]; then
 	tf_source_env
 	export TF_ENV_SOURCED=1
+fi
+
+# ---------- display ----------
+if [[ -n "${DISPLAY:-}" && "${DISPLAY}" != :* ]]; then
+	export DISPLAY=":${DISPLAY}"
 fi
 
 # ---------- prompt ----------
@@ -111,23 +110,10 @@ alias l='ls -CF --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 
+alias rs='tf_source_env'
+alias rsource='tf_source_env'
+
 alias rtl='ros2 topic list'
 alias rte='ros2 topic echo'
 alias gtl='gz topic -l'
 alias gte='gz topic -e -t'
-
-alias simup='sim docker'
-alias simclean='sim clean'
-
-alias rws='cd "$TF_ROBOT_WS"'
-alias rs='tf_source_env'
-alias rsource='tf_source_env'
-
-# ---------- helper functions ----------
-ros-clean() {
-	if [ -z "${TF_ROBOT_WS:-}" ]; then
-		echo "robot workspace not found"
-		return 1
-	fi
-	rm -rf "$TF_ROBOT_WS/build" "$TF_ROBOT_WS/install" "$TF_ROBOT_WS/log"
-}
