@@ -8,8 +8,8 @@ Clone the repo, install the prerequisites for your chosen environment, then foll
 ## Clone the repository
 
 ```bash title="Terminal"
-git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
-cd gazebo-simulations
+git clone https://github.com/TrickfireRobotics/simulations.git
+cd simulations
 ```
 
 ## Choose your workflow

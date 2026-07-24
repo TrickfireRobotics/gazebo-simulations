@@ -3,7 +3,7 @@ title: Launch System
 description: How the ROS 2 launch files orchestrate Gazebo, controllers, RViz, and the Joint GUI.
 ---
 
-Each robot has a launch file at `robot-sim/<robot>_bringup/launch/<robot>.launch.py` that orchestrates the full simulation startup. This page explains the architecture using the arm as an example.
+Each robot has a launch file at `gazebo/<robot>_bringup/launch/<robot>.launch.py` that orchestrates the full simulation startup. This page explains the architecture using the arm as an example.
 
 ## Launch arguments
 
@@ -162,11 +162,11 @@ It resolves a file path inside a ROS 2 package's share directory and exits with 
 
 ## Writing a custom launch file
 
-If you need to customize a robot's launch beyond what `sim create` generates:
+If you need to customize a robot's launch beyond what `sim gazebo create` generates:
 
-1. Edit `robot-sim/<robot>_bringup/launch/<robot>.launch.py`
+1. Edit `gazebo/<robot>_bringup/launch/<robot>.launch.py`
 2. The file is standard ROS 2 launch Python -- you can add nodes, change parameters, or modify the startup sequence
-3. `sim update` will **not** overwrite your launch file changes
+3. `sim gazebo update` will **not** overwrite your launch file changes
 
 Common customizations:
 - Adding sensor bridges (cameras, lidar)

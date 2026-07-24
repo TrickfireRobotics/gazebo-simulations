@@ -82,7 +82,7 @@ The simulation must already be running with controllers active for the GUI to di
 
 ## Source
 
-The implementation is in `robot-sim/sim_common/sim_common/joint_gui.py`. Key classes:
+The implementation is in `gazebo/sim_common/sim_common/joint_gui.py`. Key classes:
 
 - **`JointPublisher`** (ROS 2 Node) -- handles URDF parsing, joint state subscription, topic discovery, and trajectory publishing
 - **`JointGui`** (Tkinter) -- builds the UI, manages sliders, and dispatches commands to `JointPublisher`

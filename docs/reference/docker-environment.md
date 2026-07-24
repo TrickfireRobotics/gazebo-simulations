@@ -63,7 +63,7 @@ Adds on top of runtime:
 | Package            | Purpose                                 |
 | ------------------ | --------------------------------------- |
 | `ruff`             | Python linter                           |
-| `onshape-to-robot` | CAD-to-URDF conversion (used by `sim create`) |
+| `onshape-to-robot` | CAD-to-URDF conversion (used by `sim gazebo create`) |
 | `open3d`           | STL mesh decimation                     |
 | `shfmt`            | Shell script formatter                  |
 
@@ -82,7 +82,7 @@ The `devcontainer.json` configures how VS Code opens the container:
 
 **Build target:** `dev` stage of `docker/Dockerfile`
 
-**Workspace mount:** The repo is bind-mounted into the container at `/home/trickfire/gazebo-simulations`.
+**Workspace mount:** The repo is bind-mounted into the container at `/home/trickfire/simulations`.
 
 **Compose config:** `.devcontainer/devcontainer.json` uses `docker/docker-compose.yml` plus `.devcontainer/docker-compose.devcontainer.yml`. The override only switches the build target to `dev`; the base compose file starts the X server / VNC stack automatically.
 

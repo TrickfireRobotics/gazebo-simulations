@@ -28,7 +28,7 @@ This downloads ~3–5 GB on first run. Subsequent runs are instant.
 ## 3. Launch a simulation
 
 ```bash title="Terminal"
-pixi run sim native arm
+pixi run sim gazebo native arm
 ```
 
 This builds the ROS 2 workspace and launches Gazebo, RViz, and the Joint GUI.
@@ -36,5 +36,5 @@ This builds the ROS 2 workspace and launches Gazebo, RViz, and the Joint GUI.
 See [Running Simulations](../../guides/running-simulations/) for full CLI options and flags.
 
 :::tip
-Do not use `pixi shell` as your regular working shell — it modifies library paths in a way that can break system tools like `git` on macOS. Use `pixi run <command>` instead.
+Do not use `pixi shell` as your regular working shell — it modifies library paths in a way that can break system tools like `git` on macOS. Use `pixi run <command>` instead. For example: `pixi run sim gazebo native arm`.
 :::

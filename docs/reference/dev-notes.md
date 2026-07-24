@@ -23,7 +23,7 @@ The `_description` / `_bringup` split is a ROS convention:
 - **`_description`** contains the robot model (URDF + meshes) -- things that change when the CAD changes
 - **`_bringup`** contains runtime config (launch files, controller YAML, RViz config) -- things you tweak during development
 
-This separation means `sim update` can safely replace the description without touching your launch customizations.
+This separation means `sim gazebo update` can safely replace the description without touching your launch customizations.
 
 ## Useful CLI commands
 
@@ -64,7 +64,7 @@ ros2 control list_hardware_interfaces
 ### Building a single package
 
 ```bash title="Terminal"
-cd robot-sim
+cd gazebo
 colcon build --packages-select arm_description
 source install/setup.bash
 ```
@@ -86,9 +86,9 @@ The Dockerfile already enables `universe` for the packages that need it.
 
 ## Common pitfalls
 
-**Forgetting to source after build:** ROS 2 can't find packages until you run `source install/setup.bash`. The launch script does this automatically, but if you're running ROS commands manually, you need to source first.
+**Forgetting to source after build:** ROS 2 can't find packages until you run `source gazebo/install/setup.bash`. The launch script does this automatically, but if you're running ROS commands manually, you need to source first.
 
-**Stale build artifacts:** If something breaks for no obvious reason, run `sim clean` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
+**Stale build artifacts:** If something breaks for no obvious reason, run `sim gazebo clean` and rebuild. Colcon's incremental builds can get confused after certain types of changes.
 
 **X server not running (Dev Container only):** Gazebo and RViz will fail silently or crash if the X server isn't started. The Dev Container starts it automatically, but if you need to restart it manually, run `.devcontainer/x_server.sh`.
 
