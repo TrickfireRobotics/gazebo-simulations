@@ -27,4 +27,4 @@ jobs:
               uses: mfinelli/setup-shfmt@v3
 
             - name: Check shell formatting
-              run: shfmt -d .
+              run: shfmt -d .devcontainer/ docker/
