@@ -4,7 +4,7 @@ Robot simulations for TrickFire Robotics — Gazebo Harmonic (ROS 2 Jazzy) for r
 
 ## Documentation
 
-**Full documentation is at [docs.trickfirerobotics.com/gazebo-simulations](https://docs.trickfirerobotics.com/simulations)**
+**Full documentation is at [docs.trickfirerobotics.com/simulations](https://docs.trickfirerobotics.com/simulations)**
 
 - [Getting Started](https://docs.trickfirerobotics.com/simulations/setup/getting-started/) - native setup, Dev Container alternative, first launch
 - [Running Simulations](https://docs.trickfirerobotics.com/simulations/guides/running-simulations/) - `sim gazebo` CLI usage and flags
