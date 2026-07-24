@@ -9,9 +9,9 @@ from urllib.parse import urlparse
 
 import requests
 
-from .. import config as cfg
-from ..auth import DASHBOARD_URL
-from ..output import die as err, info
+from ... import config as cfg
+from ...auth import DASHBOARD_URL
+from ...output import die as err, info
 
 _ONSHAPE_URL_RE = re.compile(
     r"documents/([0-9a-f]+)/[wv]/([0-9a-f]+)/e/([0-9a-f]+)",

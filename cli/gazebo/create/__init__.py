@@ -5,8 +5,8 @@ from __future__ import annotations
 from argparse import Namespace
 from pathlib import Path
 
-from ..output import info
-from ..paths import REPO_DIR
+from ...output import info
+from ...paths import REPO_DIR, GAZEBO_WORKSPACE_DIR
 
 PACKAGE_DIR = Path(__file__).parent
 TEMPLATES = PACKAGE_DIR / "templates"
@@ -27,11 +27,7 @@ def create(
     info(f"Creating robot packages for '{robot}' from OnShape...")
 
     if not output_dir:
-        cwd = Path.cwd()
-        if (cwd / "robot-sim").exists():
-            output_dir = str(cwd / "robot-sim")
-        else:
-            output_dir = str(REPO_ROOT / "robot-sim")
+        output_dir = str(GAZEBO_WORKSPACE_DIR)
 
     cmd_create(
         Namespace(
@@ -56,7 +52,7 @@ def update(
     cmd_update(
         Namespace(
             robot_name=robot,
-            output_dir=output_dir or str(REPO_ROOT / "robot-sim"),
+            output_dir=output_dir or str(GAZEBO_WORKSPACE_DIR),
             no_reduce=no_reduce,
         )
     )

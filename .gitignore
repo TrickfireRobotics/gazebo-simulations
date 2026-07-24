@@ -18,12 +18,16 @@ build/
 **/.venv
 
 # ROS2
-robot-sim/install
-robot-sim/build
-robot-sim/log
+gazebo/install
+gazebo/build
+gazebo/log
 
 # sim create tests
-cli/create/tests
+cli/gazebo/create/tests
+
+# chrono outputs
+chrono/results/*
+!chrono/results/.gitkeep
 
 # env
 **/*.env

@@ -14,16 +14,26 @@ def _find_repo_root() -> Path:
 
 
 REPO_DIR = _find_repo_root()
-WORKSPACE_DIR = REPO_DIR / "robot-sim"
+
 DOCKER_DIR = REPO_DIR / "docker"
 
+GAZEBO_DIR = REPO_DIR / "gazebo"
+GAZEBO_WORKSPACE_DIR = GAZEBO_DIR
+GAZEBO_DOCKER_DIR = DOCKER_DIR
+
+CHRONO_TERRAIN_DIR = REPO_DIR / "chrono"
+
+# Alias used by gazebo launcher modules
+WORKSPACE_DIR = GAZEBO_WORKSPACE_DIR
+
+# Native / pixi build paths
 NATIVE_BUILD_DIR = REPO_DIR / ".native"
 NATIVE_BIN = NATIVE_BUILD_DIR / "bin"
 NATIVE_ENVS = NATIVE_BUILD_DIR / "envs"
 NATIVE_ENV_PREFIX = NATIVE_ENVS / "ros_env"
 NATIVE_CONTROL_WS = NATIVE_BUILD_DIR / "gz_ros2_control_ws"
 
-MACOS_SOURCE_FILES = WORKSPACE_DIR / "sim_common" / "macos"
+MACOS_SOURCE_FILES = GAZEBO_WORKSPACE_DIR / "sim_common" / "macos"
 MACOS_MAMBA_ROOT = NATIVE_BUILD_DIR / "mamba"
 MACOS_ROS_BASE = NATIVE_BUILD_DIR / "ros_base"
 MACOS_ROS_GZ_WS = NATIVE_BUILD_DIR / "ros_gz_ws"

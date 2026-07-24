@@ -9,8 +9,8 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
-from .output import die, info, warn
-from .paths import WORKSPACE_DIR
+from ..output import die, info, warn
+from ..paths import WORKSPACE_DIR
 
 _ANSI_RE = re.compile(r"\x1B\[[0-9;]*[mK]")
 
@@ -144,7 +144,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
 
     log_dir = WORKSPACE_DIR / "log"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / f"{robot_name}-gazebo-{datetime.now():%Y-%m-%d_%H-%M}.log"
+    log_path = log_dir / f"{robot_name}-gazebo-{datetime.now():%Y-%m-%d_%H-%M}.log"  # noqa: DTZ005
 
     print("--------------------------------------------------------------")
     print(f"Robot:     {robot_name}")

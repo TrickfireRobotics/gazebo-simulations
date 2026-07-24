@@ -1,7 +1,7 @@
 {
     "$schema": "https://docs.trickfirerobotics.com/docs.config.schema.json",
-    "name": "Gazebo Simulations",
-    "description": "Custom simulation system using Gazebo, ROS Humble and a on-shape pipeline",
+    "name": "Simulations",
+    "description": "Multi-sim environment: Gazebo Harmonic (ROS 2 Jazzy) for robot subsystems, and Project Chrono for terrain/wheel physics",
     "sidebar": [
         { "label": "Getting Started", "slug": "getting-started" },
         {

@@ -5,47 +5,71 @@ Thanks for wanting to contribute to this repo! This guide covers the layout of t
 ## Repo structure
 
 ```
-gazebo-simulations/
-├── robot-sim/       # ROS 2 workspace - simulation packages
-├── cli/             # Python CLI for building and launching simulations
+simulations/
+├── gazebo/          # ROS 2 workspace - Gazebo simulation packages
+├── chrono/          # Project Chrono terrain/wheel simulation
+├── cli/             # Python CLI (the `sim` command)
+│   ├── cli.py       # Main entry point and argument parsing
+│   ├── auth.py      # `sim gazebo auth` - dashboard API key management
+│   ├── config.py    # Persistent config storage
+│   ├── drpc.py      # Discord RPC integration
+│   ├── paths.py     # Workspace path utilities
+│   ├── output.py    # Terminal output helpers (info, warn, die)
+│   ├── gazebo/      # `sim gazebo *` sub-commands
+│   └── chrono/      # `sim chrono *` sub-commands
+├── docker/          # Dockerfile and docker-compose files
 ├── pixi.toml        # Native environment definition (ROS 2 Jazzy + Gazebo Harmonic)
 ├── robots.json      # Robot configuration registry
-└── pyproject.toml   # Python tooling config
+├── ruff.toml        # Ruff linter/formatter configuration
+└── pyproject.toml   # Python package config
 ```
 
 ## Projects
 
-### `robot-sim/` - Simulation
+### `gazebo/` - Gazebo Simulation
 
 The ROS 2 workspace containing the Gazebo Harmonic simulation packages. Built with `colcon` via the native pixi environment or the Dev Container.
 
 **Packages:**
 
-- `<robot>_bringup` - launch files
-- `<robot>_description` - URDF/SDF models and worlds
-- `sim_common` - shared ROS utilities and configs
+- `<robot>_bringup` - launch files, controller YAML, RViz config
+- `<robot>_description` - URDF/SDF models and meshes
+- `sim_common` - shared ROS utilities and the joint GUI node
 - `sim_worlds` - Gazebo world definitions
 
 When adding or modifying a package, keep `package.xml` and `CMakeLists.txt` up to date so `colcon` can resolve build order and dependencies.
+
+### `chrono/` - Chrono Terrain Simulation
+
+Project Chrono simulations for wheel-soil interaction research using the SCM (Soil Contact Model). Still in early development.
+
+### `cli/` - Simulation CLI
+
+Python package providing the `sim` command. Two top-level subcommands:
+
+**`sim gazebo`** - Gazebo/ROS 2 simulation:
+
+- `cli/gazebo/docker.py` - `sim gazebo docker` build and launch logic
+- `cli/gazebo/native.py` - `sim gazebo native` build and launch logic (pixi environment)
+- `cli/gazebo/create/` - `sim gazebo create` / `sim gazebo update` (OnShape → URDF pipeline)
+
+**`sim chrono`** - Chrono simulation (not yet fully implemented):
+
+- `cli/chrono/__init__.py` - `sim chrono run` / `sim chrono sweep`
+
+**Shared:**
+
+- `cli/auth.py` - `sim gazebo auth` (dashboard API key)
+- `cli/paths.py` - Workspace path utilities
+- `cli/output.py` - Terminal output helpers (`info`, `warn`, `die`)
 
 ### `docs/` - Documentation site
 
 Go look at the [trickfire-docs documentation](https://docs.trickfirerobotics.com/trickfire-docs/) for more info.
 
-### `cli/` - Simulation CLI
-
-Python package providing the `sim` CLI command:
-
-- `cli.py` - Main entry point and argument parsing
-- `native.py` - `sim native` build and launch logic (pixi environment)
-- `docker.py` - `sim docker` build and launch logic (Dev Container)
-- `create/` - `sim create` / `sim update` implementation (OnShape download, URDF processing, package scaffolding)
-- `paths.py` - Workspace path utilities
-- `output.py` - Terminal output helpers (`info`, `warn`, `die`)
-
 ## Dev setup
 
-The primary workflow uses pixi for a self-contained native environment. Follow the [Getting Started](https://trickfirerobotics.github.io/gazebo-simulations/setup/getting-started/) guide.
+The primary workflow uses pixi for a self-contained native environment. Follow the [Getting Started](https://docs.trickfirerobotics.com/gazebo-simulations/setup/getting-started/) guide.
 
 For `docs/` changes, only Node.js is required.
 
@@ -56,7 +80,6 @@ All formatters run automatically on save in VS Code. Install the recommended ext
 | Language               | Formatter                                                                                                         |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | Python                 | [Ruff](https://docs.astral.sh/ruff/) (`charliermarsh.ruff`)                                                       |
-| Astro                  | Astro (`astro-build.astro-vscode`)                                                                                |
 | JS / TS / JSON / JSONC | Prettier (`esbenp.prettier-vscode`) - follow the project's Prettier configuration (including 4-space indentation) |
 | XML                    | XML Tools (`DotJoshJohnson.xml`)                                                                                  |
 | Dockerfile             | Docker (`ms-azuretools.vscode-containers`)                                                                        |
@@ -68,4 +91,4 @@ ruff check .
 ruff format .
 ```
 
-Configuration lives in `pyproject.toml`. The `robot-sim/build`, `install`, and `log` directories are excluded automatically.
+Configuration lives in `ruff.toml`. The `gazebo/build`, `gazebo/install`, and `gazebo/log` directories are excluded automatically.

@@ -4,7 +4,7 @@ import glob
 import os
 import shutil
 
-from ..output import info
+from ...output import info
 
 
 def _o3d():

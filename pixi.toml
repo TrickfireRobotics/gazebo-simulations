@@ -1,7 +1,7 @@
 [workspace]
-name = "gazebo-simulations"
+name = "simulations"
 version = "0.1.0"
-description = "TrickFire Gazebo Simulations - native ROS 2 Jazzy + Gazebo Harmonic environment"
+description = "TrickFire Simulations"
 channels = ["conda-forge", "robostack-jazzy"]
 platforms = ["linux-64", "linux-aarch64", "osx-arm64", "osx-64"]
 
@@ -19,6 +19,7 @@ scripts = [".devcontainer/pixi.sh"]
 
 [pypi-dependencies]
 sim = { path = ".", editable = true }
+sim_common = { path = "gazebo/sim_common", editable = true }
 filelock = "*"
 pypresence = "*"
 requests = "*"

@@ -14,8 +14,8 @@ If you are using a Nvidia Jetson, this guide assumes it has been set up. If the 
 Clone the repository on the Jetson using `git`:
 
 ```bash title="Jetson terminal"
-git clone https://github.com/TrickfireRobotics/gazebo-simulations.git
-cd gazebo-simulations
+git clone https://github.com/TrickfireRobotics/simulations.git
+cd simulations
 ```
 
 ## 2. Launch the simulation with GPU support
@@ -23,8 +23,8 @@ cd gazebo-simulations
 Use the `sim` CLI to build and launch the simulation with GPU passthrough:
 
 ```bash title="Jetson terminal"
-cd gazebo-simulations
-sim docker <robot-name>
+cd simulations
+sim gazebo docker <robot-name>
 ```
 
 The container detects the NVIDIA GPU and automatically enables GPU passthrough. You should see the container start and drop you into a shell.

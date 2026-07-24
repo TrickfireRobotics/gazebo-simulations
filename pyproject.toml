@@ -14,11 +14,10 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["cli", "cli.create"]
+packages = ["cli", "cli.gazebo", "cli.gazebo.create", "cli.chrono"]
 
 [tool.setuptools.package-data]
-"cli.create" = ["templates/**/*"]
+"cli.gazebo.create" = ["templates/**/*"]
 
 [project.scripts]
 sim = "cli.cli:main"
-

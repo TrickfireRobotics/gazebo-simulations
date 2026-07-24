@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 from . import TEMPLATES
-from ..output import die as err, info
+from ...output import die as err, info
 from .template import write_template
 
 

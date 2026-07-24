@@ -969,6 +969,7 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros-jazzy-zstd-vendor-0.26.9-np2py312h2ed9cc7_16.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-64/ros2-distro-mutex-0.14.0-jazzy_16.conda
       - pypi: ./
+      - pypi: ./gazebo/sim_common
       - pypi: https://files.pythonhosted.org/packages/01/c4/4fa4c8b3097a11f3c5f09a35b72ed6855fb1d332469504962ab7bafcc702/charset_normalizer-3.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/39/5a/8ba33c034a5031a2ca3fb6998b5d00683d923347f472890dfb671a9b38e6/onshape_to_robot-1.8.2.tar.gz
@@ -1910,6 +1911,7 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros-jazzy-zstd-vendor-0.26.9-np2py312h61f2ce4_16.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/linux-aarch64/ros2-distro-mutex-0.14.0-jazzy_16.conda
       - pypi: ./
+      - pypi: ./gazebo/sim_common
       - pypi: https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/39/5a/8ba33c034a5031a2ca3fb6998b5d00683d923347f472890dfb671a9b38e6/onshape_to_robot-1.8.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/61/7a/f38385f1b2d5f54221baf1db3d6371dc6eef8041d95abff39576c694e9d9/transforms3d-0.4.2-py3-none-any.whl
@@ -2779,6 +2781,7 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/osx-64/ros-jazzy-zstd-vendor-0.26.9-np2py312hb847498_16.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/osx-64/ros2-distro-mutex-0.14.0-jazzy_16.conda
       - pypi: ./
+      - pypi: ./gazebo/sim_common
       - pypi: https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/39/5a/8ba33c034a5031a2ca3fb6998b5d00683d923347f472890dfb671a9b38e6/onshape_to_robot-1.8.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/61/7a/f38385f1b2d5f54221baf1db3d6371dc6eef8041d95abff39576c694e9d9/transforms3d-0.4.2-py3-none-any.whl
@@ -3648,6 +3651,7 @@ environments:
       - conda: https://conda.anaconda.org/robostack-jazzy/osx-arm64/ros-jazzy-zstd-vendor-0.26.9-np2py312h50b1e4c_16.conda
       - conda: https://conda.anaconda.org/robostack-jazzy/osx-arm64/ros2-distro-mutex-0.14.0-jazzy_16.conda
       - pypi: ./
+      - pypi: ./gazebo/sim_common
       - pypi: https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/39/5a/8ba33c034a5031a2ca3fb6998b5d00683d923347f472890dfb671a9b38e6/onshape_to_robot-1.8.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/61/7a/f38385f1b2d5f54221baf1db3d6371dc6eef8041d95abff39576c694e9d9/transforms3d-0.4.2-py3-none-any.whl
@@ -62080,6 +62084,10 @@ packages:
   - onshape-to-robot
   - open3d ; extra == 'reduce'
   requires_python: '>=3.9'
+- pypi: ./gazebo/sim_common
+  name: sim-common
+  requires_dist:
+  - setuptools
 - pypi: https://files.pythonhosted.org/packages/01/c4/4fa4c8b3097a11f3c5f09a35b72ed6855fb1d332469504962ab7bafcc702/charset_normalizer-3.4.9-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
   name: charset-normalizer
   version: 3.4.9

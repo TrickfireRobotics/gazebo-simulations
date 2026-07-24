@@ -15,7 +15,7 @@ Open the cloned folder in VS Code. You should see a prompt to **Reopen in Contai
 
 The first build downloads the full Docker image with ROS 2 Jazzy, Gazebo Harmonic, and all dependencies - this takes a few minutes. Subsequent opens are fast.
 
-Once inside, you'll be the `trickfire` user at `/home/trickfire/gazebo-simulations`.
+Once inside, you'll be the `trickfire` user at `/home/trickfire/simulations`.
 
 ## 2. Start the display
 

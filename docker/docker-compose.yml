@@ -1,18 +1,11 @@
-# --------------------------------------------------------------------------------------------
-# Gazebo Simulation Environment
-# Base config -- works on any host.
-# For NVIDIA GPU passthrough, also use docker-compose-gpu.yml.
-# For development also use docker-compose-dev.yml.
-# --------------------------------------------------------------------------------------------
-
 services:
   sim:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      target: runtime
-    image: gazebo-simulations:latest
-    container_name: gazebo-simulations
+      network: host
+    image: simulations:latest
+    container_name: simulations
     user: trickfire
 
     environment:
@@ -23,14 +16,14 @@ services:
       TZ: ${TZ:-UTC}
 
     volumes:
-      - ..:/home/trickfire/gazebo-simulations
+      - ..:/home/trickfire/simulations
       - type: bind
         source: ${XDG_RUNTIME_DIR:-/run/user/1000}
         target: /run/user/1000
         bind:
           create_host_path: true
 
-    working_dir: /home/trickfire/gazebo-simulations
+    working_dir: /home/trickfire/simulations
 
     ports:
       - "5900:5900"
