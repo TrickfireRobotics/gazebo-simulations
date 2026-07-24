@@ -130,6 +130,9 @@ RUN echo "todo - implement"
 
 RUN echo "--------------- DEVCONTAINER ---------------"
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssh-server
+
 RUN pip3 install ruff --break-system-packages
 
 RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
