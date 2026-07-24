@@ -1,7 +1,10 @@
 services:
   sim:
     environment:
+      # to attach to hosts
+      # display if available
       - DISPLAY
+      # wayland fixes
       - QT_SCALE_FACTOR=1.6
       - QT_ENABLE_HIGHDPI_SCALING=1
       - GDK_SCALE=2
@@ -15,5 +18,10 @@ services:
       - type: bind
         source: /tmp/.X11-unix
         target: /tmp/.X11-unix
+        bind:
+          create_host_path: true
+      - type: bind
+        source: ${HOME}/.config/trickfire
+        target: /home/trickfire/.config/trickfire
         bind:
           create_host_path: true

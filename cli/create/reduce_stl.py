@@ -10,6 +10,7 @@ from ..output import info
 def _o3d():
     try:
         import open3d as o3d  # type: ignore
+
         return o3d
     except ImportError as exc:
         raise SystemExit(
@@ -18,10 +19,13 @@ def _o3d():
             "    Or skip reduction with --no-reduce"
         ) from exc
 
+
 MIN_TRIANGLES = 200
 
 
-def reduce_file_size(input_file_path: str, output_file_path: str, target_triangles: int) -> list[int]:
+def reduce_file_size(
+    input_file_path: str, output_file_path: str, target_triangles: int
+) -> list[int]:
     """
     Reduce the number of triangles in the STL file to target_triangles and save to output_file_path.
     Returns original and new file sizes
