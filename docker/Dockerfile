@@ -43,7 +43,7 @@ RUN curl https://packages.osrfoundation.org/gazebo.gpg \
 # APT packages
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git openssh-client python3-pip python3.12-venv wget zstd \
+    git python3-pip python3.12-venv wget zstd \
     python3-rosdep \
     python3-colcon-common-extensions \
     ros-jazzy-ros-gz \
