@@ -51,8 +51,7 @@ The robot spawn uses a `TimerAction` with a 5-second delay to give Gazebo time t
 ```python
 gz_sim = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
-        os.path.join(get_package_share_directory("ros_gz_sim"),
-                     "launch", "gz_sim.launch.py")
+        os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
     ),
     launch_arguments={
         "gz_args": " ".join(["-r", world_file, "--gui-config", gz_gui_config])
@@ -82,8 +81,7 @@ The URDF is processed through xacro at launch time. The `controller_config` mapp
 spawn_robot = Node(
     package="ros_gz_sim",
     executable="create",
-    arguments=["-name", "arm", "-string", robot_desc,
-               "-x", "0", "-y", "0", "-z", "0.1"],
+    arguments=["-name", "arm", "-string", robot_desc, "-x", "0", "-y", "0", "-z", "0.1"],
 )
 ```
 

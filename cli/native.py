@@ -20,10 +20,7 @@ def _check_pixi_env() -> None:
 
     pixi_dir = REPO_DIR / ".pixi"
     if not pixi_dir.is_dir():
-        die(
-            f"No pixi environment at {pixi_dir}\n"
-            "        Install dependencies first: pixi install"
-        )
+        die(f"No pixi environment at {pixi_dir}\n        Install dependencies first: pixi install")
 
 
 def _setup_plugin_paths() -> None:

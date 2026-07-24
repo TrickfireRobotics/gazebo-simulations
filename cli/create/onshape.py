@@ -18,8 +18,8 @@ _ONSHAPE_URL_RE = re.compile(
     re.IGNORECASE,
 )
 
-_POLL_INTERVAL = 5      # seconds between status checks
-_POLL_TIMEOUT  = 8 * 60 # give up after 8 minutes
+_POLL_INTERVAL = 5  # seconds between status checks
+_POLL_TIMEOUT = 8 * 60  # give up after 8 minutes
 
 
 def parse_onshape_url(url: str) -> tuple:
@@ -57,7 +57,9 @@ def _poll_job(dashboard_url: str, job_id: str) -> requests.Response:
     err(f"Export did not complete within {_POLL_TIMEOUT // 60} minutes.")
 
 
-def download(robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str, *, force_refresh: bool = False) -> Path:
+def download(
+    robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str, *, force_refresh: bool = False
+) -> Path:
     api_key = cfg.load()
     if not api_key:
         err(
@@ -72,7 +74,10 @@ def download(robot: str, doc_id: str, ws_id: str, el_id: str, api_url: str, *, f
     try:
         resp = requests.post(
             f"{dashboard_url}/api/sim/export",
-            json={"onshapeUrl": f"{api_url}/documents/{doc_id}/w/{ws_id}/e/{el_id}", "forceRefresh": force_refresh},
+            json={
+                "onshapeUrl": f"{api_url}/documents/{doc_id}/w/{ws_id}/e/{el_id}",
+                "forceRefresh": force_refresh,
+            },
             headers={"x-api-key": api_key},
             stream=True,
             timeout=30,
