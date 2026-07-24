@@ -1,10 +1,6 @@
-# --------------------------------------------------------------------------------------------
-# Multi-stage build: Ubuntu 24.04 (Noble) + ROS 2 Jazzy + Gazebo Harmonic
-#
 # Targets:
-#   runtime   simulation environment + VNC/headless display stack  (docker-compose)
-#   dev       + dev tooling  (devcontainer)
-# --------------------------------------------------------------------------------------------
+#  - runtime   simulation environment + VNC/headless display stack  (docker-compose)
+#  - dev       + dev tooling  (devcontainer)
 
 
 # --------------------------------------------------------------------------------------------

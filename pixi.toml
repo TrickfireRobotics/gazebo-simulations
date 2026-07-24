@@ -21,3 +21,4 @@ scripts = [".devcontainer/pixi.sh"]
 sim = { path = ".", editable = true }
 filelock = "*"
 pypresence = "*"
+requests = "*"

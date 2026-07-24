@@ -112,7 +112,7 @@ def main() -> None:
     # --- auth ---
     subparsers.add_parser(
         "auth",
-        help="Verify your SSH key can access Onshape credentials",
+        help="Configure dashboard API key for OnShape access",
     )
 
     # --- update ---
