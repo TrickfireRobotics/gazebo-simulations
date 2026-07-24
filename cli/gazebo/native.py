@@ -5,8 +5,8 @@ from __future__ import annotations
 import os
 
 from .docker import build_and_launch as _build_and_launch
-from .output import die
-from .paths import REPO_DIR
+from ..output import die
+from ..paths import REPO_DIR
 
 
 def _check_pixi_env() -> None:
