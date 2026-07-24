@@ -116,7 +116,7 @@ COPY docker/container.bashrc /home/trickfire/.bashrc
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 RUN rosdep fix-permissions && \
-    chown -R trickfire:trickfire /usr/local/lib/python3.12/dist-packages && \
+    chown -R trickfire:trickfire /usr/local/lib/python3.12/dist-packages /usr/local/bin && \
     chmod -R a+rX /usr/local/lib/python3.12/dist-packages
 
 USER trickfire
