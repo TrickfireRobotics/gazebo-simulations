@@ -34,8 +34,6 @@
     },
     "json.format.keepLines": true,
     "json.format.enable": true,
-    "prettier.tabWidth": 4,
-    "prettier.trailingComma": "none",
 
     // To prevent vscode creating 20 random forwarded ports
     "remote.autoForwardPorts": false,
@@ -54,30 +52,19 @@
         ".vscode/browse.vc.db": true,
         ".vscode/browse.vc.db-shm": true,
         ".vscode/browse.vc.db-wal": true,
-        ".cache/": true
+        ".cache/": true,
+        ".pixi/": true
     },
 
     "python.terminal.activateEnvironment": false,
+    "python.defaultInterpreterPath": ".pixi/envs/default/bin/python",
     "python.autoComplete.extraPaths": [
         "/opt/ros/jazzy/lib/python3.12/site-packages"
     ],
     "python.analysis.extraPaths": [
         "/opt/ros/jazzy/lib/python3.12/site-packages",
-        "/home/trickfire/simulations/gazebo/sim_common"
+        "${workspaceFolder}/gazebo/sim_common"
     ],
-
-    "material-icon-theme.files.associations": {
-        "docker-compose-dev.yml": "docker",
-        "docker-compose-gpu.yml": "docker"
-    },
-    "material-icon-theme.files.customClones": [
-        {
-            "name": "pixi",
-            "base": "toml",
-            "color": "purple-300",
-            "lightColor": "purple-600",
-            "fileNames": ["pixi.toml"]
-        }
-    ],
-    "ROS2.distro": "jazzy"
+    "ROS2.distro": "jazzy",
+    "cmake.ignoreCMakeListsMissing": true
 }

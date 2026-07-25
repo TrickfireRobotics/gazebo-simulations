@@ -2,6 +2,8 @@ services:
   sim:
     environment:
       - DISPLAY
+      - WAYLAND_DISPLAY
+      - XDG_RUNTIME_DIR=/run/host-runtime
       - QT_SCALE_FACTOR
       - QT_ENABLE_HIGHDPI_SCALING
       - GDK_SCALE

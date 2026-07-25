@@ -51,6 +51,13 @@ for arg in "$@"; do
 	case "$arg" in -v | --verbose) VERBOSE=true ;; esac
 done
 
+# wayland is the best for this, just use that if the host has it
+WAYLAND_SOCK="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
+if [ -S "$WAYLAND_SOCK" ]; then
+	log "[X11] Using Wayland socket at $WAYLAND_SOCK"
+	exit 0
+fi
+
 # Jetson/Tegra has no /dev/dri but Xorg drivers (nvidia, modesetting, dummy) all need it.
 # Use Xvfb on Jetson; GPU rendering still happens via EGL through the injected Tegra libs.
 # Desktop NVIDIA has /proc/driver/nvidia; everything else gets the dummy Xorg driver.
@@ -64,8 +71,53 @@ elif [ -e /proc/driver/nvidia ] || nvidia-smi &>/dev/null; then
 	log "[X11] Desktop NVIDIA GPU detected, using Xorg nvidia driver"
 else
 	BACKEND="xorg"
-	XORG_CONF="/etc/X11/xorg.dummy.conf"
-	log "[X11] No GPU detected, using Xorg dummy driver"
+	log "[X11] No GPU detected - trying vkms for DRI3-capable headless display"
+	sudo modprobe vkms 2>/dev/null || true
+	VKMS_CARD=""
+	for card in /dev/dri/card*; do
+		drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null) || continue
+		[[ "$drv" == *vkms* ]] && {
+			VKMS_CARD="$card"
+			break
+		}
+	done
+	if [ -n "$VKMS_CARD" ]; then
+		log "[X11] Using vkms virtual display ($VKMS_CARD)"
+		XORG_CONF=$(mktemp /tmp/xorg-vkms.XXXXXX.conf)
+		cat >"$XORG_CONF" <<XCONF
+Section "Module"
+  Load "glx"
+EndSection
+Section "Device"
+  Identifier "VKMSDevice"
+  Driver "modesetting"
+  Option "kmsdev" "$VKMS_CARD"
+  Option "DRI" "3"
+EndSection
+Section "Monitor"
+  Identifier "DummyMonitor"
+  HorizSync 28-80
+  VertRefresh 48-75
+EndSection
+Section "Screen"
+  Identifier "DummyScreen"
+  Device "VKMSDevice"
+  Monitor "DummyMonitor"
+  DefaultDepth 24
+  SubSection "Display"
+    Depth 24
+    Modes "1920x1080"
+  EndSubSection
+EndSection
+Section "ServerLayout"
+  Identifier "DummyLayout"
+  Screen "DummyScreen"
+EndSection
+XCONF
+	else
+		log "[X11] vkms unavailable, falling back to dummy driver (no DRI3)"
+		XORG_CONF="/etc/X11/xorg.dummy.conf"
+	fi
 fi
 
 # Parse screen resolution from Xorg config (in docker/xorg.dummy|nvidia.conf)
@@ -113,9 +165,9 @@ start x11vnc -display "$DISPLAY" -forever -shared -rfbport "$VNC_PORT" -nopw -xk
 
 # Start noVNC web client to serve the VNC desktop in a browser
 log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
-start /usr/share/novnc/utils/launch.sh --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}"
+start /usr/share/novnc/utils/novnc_proxy --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}"
 log "[noVNC] Desktop available at: http://localhost:${NOVNC_PORT}/vnc.html"
 
 # Detach all background services so they survive this script exiting
-disown "${PIDS[@]}"
+disown "${PIDS[@]}" || true
 log "[MAIN] All services started"
