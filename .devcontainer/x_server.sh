@@ -16,75 +16,75 @@ log() { printf "\033[1;36m%s\033[0m\n" "$1"; }
 
 # Foreground commands: exit with log dump on failure
 run() {
-	if $VERBOSE; then
-		"$@"
-	else "$@" >>"$LOG_FILE" 2>&1 || {
-		echo
-		echo "[ERROR] Command failed: $*"
-		echo "────────── OUTPUT START ──────────"
-		cat "$LOG_FILE"
-		echo "─────────── OUTPUT END ───────────"
-		exit 1
-	}; fi
+    if $VERBOSE; then
+        "$@"
+    else "$@" >>"$LOG_FILE" 2>&1 || {
+        echo
+        echo "[ERROR] Command failed: $*"
+        echo "────────── OUTPUT START ──────────"
+        cat "$LOG_FILE"
+        echo "─────────── OUTPUT END ───────────"
+        exit 1
+    }; fi
 }
 
 # Background services: just redirect output
 start() {
-	if $VERBOSE; then
-		"$@" &
-	else "$@" >>"$LOG_FILE" 2>&1 & fi
-	PIDS+=($!)
+    if $VERBOSE; then
+        "$@" &
+    else "$@" >>"$LOG_FILE" 2>&1 & fi
+    PIDS+=($!)
 }
 
 # Cleanup function to kill background processes on exit
 cleanup() {
-	trap - SIGINT SIGTERM EXIT
-	log "[CLEANUP] Shutting down X11 / VNC / noVNC…"
-	for pid in "${PIDS[@]}"; do kill "$pid" 2>/dev/null || true; done
-	wait 2>/dev/null || true
+    trap - SIGINT SIGTERM EXIT
+    log "[CLEANUP] Shutting down X11 / VNC / noVNC…"
+    for pid in "${PIDS[@]}"; do kill "$pid" 2>/dev/null || true; done
+    wait 2>/dev/null || true
 }
 
 # --------------------------------------------------------------------------------------------
 
 # Parse --verbose flag
 for arg in "$@"; do
-	case "$arg" in -v | --verbose) VERBOSE=true ;; esac
+    case "$arg" in -v | --verbose) VERBOSE=true ;; esac
 done
 
 # wayland is the best for this, just use that if the host has it
 WAYLAND_SOCK="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
 if [ -S "$WAYLAND_SOCK" ]; then
-	log "[X11] Using Wayland socket at $WAYLAND_SOCK"
-	exit 0
+    log "[X11] Using Wayland socket at $WAYLAND_SOCK"
+    exit 0
 fi
 
 # Jetson/Tegra has no /dev/dri but Xorg drivers (nvidia, modesetting, dummy) all need it.
 # Use Xvfb on Jetson; GPU rendering still happens via EGL through the injected Tegra libs.
 # Desktop NVIDIA has /proc/driver/nvidia; everything else gets the dummy Xorg driver.
 if [ -e /dev/nvmap ] && [ ! -d /dev/dri ]; then
-	BACKEND="xvfb"
-	XORG_CONF="/etc/X11/xorg.nvidia.conf"
-	log "[X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL"
+    BACKEND="xvfb"
+    XORG_CONF="/etc/X11/xorg.nvidia.conf"
+    log "[X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL"
 elif [ -e /proc/driver/nvidia ] || nvidia-smi &>/dev/null; then
-	BACKEND="xorg"
-	XORG_CONF="/etc/X11/xorg.nvidia.conf"
-	log "[X11] Desktop NVIDIA GPU detected, using Xorg nvidia driver"
+    BACKEND="xorg"
+    XORG_CONF="/etc/X11/xorg.nvidia.conf"
+    log "[X11] Desktop NVIDIA GPU detected, using Xorg nvidia driver"
 else
-	BACKEND="xorg"
-	log "[X11] No GPU detected - trying vkms for DRI3-capable headless display"
-	sudo modprobe vkms 2>/dev/null || true
-	VKMS_CARD=""
-	for card in /dev/dri/card*; do
-		drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null) || continue
-		[[ "$drv" == *vkms* ]] && {
-			VKMS_CARD="$card"
-			break
-		}
-	done
-	if [ -n "$VKMS_CARD" ]; then
-		log "[X11] Using vkms virtual display ($VKMS_CARD)"
-		XORG_CONF=$(mktemp /tmp/xorg-vkms.XXXXXX.conf)
-		cat >"$XORG_CONF" <<XCONF
+    BACKEND="xorg"
+    log "[X11] No GPU detected - trying vkms for DRI3-capable headless display"
+    sudo modprobe vkms 2>/dev/null || true
+    VKMS_CARD=""
+    for card in /dev/dri/card*; do
+        drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null) || continue
+        [[ $drv == *vkms* ]] && {
+            VKMS_CARD="$card"
+            break
+        }
+    done
+    if [ -n "$VKMS_CARD" ]; then
+        log "[X11] Using vkms virtual display ($VKMS_CARD)"
+        XORG_CONF=$(mktemp /tmp/xorg-vkms.XXXXXX.conf)
+        cat >"$XORG_CONF" <<XCONF
 Section "Module"
   Load "glx"
 EndSection
@@ -114,10 +114,10 @@ Section "ServerLayout"
   Screen "DummyScreen"
 EndSection
 XCONF
-	else
-		log "[X11] vkms unavailable, falling back to dummy driver (no DRI3)"
-		XORG_CONF="/etc/X11/xorg.dummy.conf"
-	fi
+    else
+        log "[X11] vkms unavailable, falling back to dummy driver (no DRI3)"
+        XORG_CONF="/etc/X11/xorg.dummy.conf"
+    fi
 fi
 
 # Parse screen resolution from Xorg config (in docker/xorg.dummy|nvidia.conf)
@@ -126,8 +126,8 @@ SCREEN_WIDTH=$(echo "$SCREEN_MODE" | cut -dx -f1)
 SCREEN_HEIGHT=$(echo "$SCREEN_MODE" | cut -dx -f2)
 SCREEN_DEPTH=$(grep -oP '(?<=DefaultDepth )\d+' "$XORG_CONF" | head -1)
 if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; then
-	echo "[ERROR] Could not parse resolution from $XORG_CONF"
-	exit 1
+    echo "[ERROR] Could not parse resolution from $XORG_CONF"
+    exit 1
 fi
 
 # Set in the Dockerfile and docker compose.
@@ -137,8 +137,8 @@ fi
 
 # Check if DISPLAY is already in use
 if xdpyinfo -display "$DISPLAY" &>/dev/null; then
-	log "[ERROR] Display $DISPLAY is already in use!"
-	exit 1
+    log "[ERROR] Display $DISPLAY is already in use!"
+    exit 1
 fi
 
 # Kill all child processes on exit
@@ -146,11 +146,11 @@ trap cleanup SIGINT SIGTERM
 
 # Start X server (Xorg or Xvfb determined above)
 if [ "$BACKEND" = "xvfb" ]; then
-	log "[X11] Starting Xvfb on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
-	start Xvfb "$DISPLAY" -screen 0 "${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
+    log "[X11] Starting Xvfb on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
+    start Xvfb "$DISPLAY" -screen 0 "${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
 else
-	log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
-	start sudo Xorg "$DISPLAY" -noreset -config "$XORG_CONF"
+    log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
+    start sudo Xorg "$DISPLAY" -noreset -config "$XORG_CONF"
 fi
 sleep 1
 stty sane 2>/dev/null || true # Xorg alters terminal CR/LF settings

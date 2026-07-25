@@ -10,26 +10,26 @@ SSHD_PID=$!
 STOP_FILE="${CODIUM_WS:-/workspace}/.codium-devcontainer-stop"
 
 cleanup() {
-  if kill -0 "$SSHD_PID" 2>/dev/null; then
-    kill "$SSHD_PID" || true
-    wait "$SSHD_PID" 2>/dev/null || true
-  fi
-  exit 0
+    if kill -0 "$SSHD_PID" 2>/dev/null; then
+        kill "$SSHD_PID" || true
+        wait "$SSHD_PID" 2>/dev/null || true
+    fi
+    exit 0
 }
 trap cleanup TERM INT
 
 # Detect active SSH connections to port 22
 has_active_ssh() {
-  if command -v ss >/dev/null 2>&1; then
-    ss -tan 2>/dev/null | awk '$4 ~ /:22$/ && $1 ~ /ESTAB/ {found=1} END {exit !found}'
-    return $?
-  elif command -v netstat >/dev/null 2>&1; then
-    netstat -tan 2>/dev/null | awk '$4 ~ /:22$/ && $6 ~ /ESTABLISHED/ {found=1} END {exit !found}'
-    return $?
-  else
-    # No socket tools; assume active
-    return 0
-  fi
+    if command -v ss >/dev/null 2>&1; then
+        ss -tan 2>/dev/null | awk '$4 ~ /:22$/ && $1 ~ /ESTAB/ {found=1} END {exit !found}'
+        return $?
+    elif command -v netstat >/dev/null 2>&1; then
+        netstat -tan 2>/dev/null | awk '$4 ~ /:22$/ && $6 ~ /ESTABLISHED/ {found=1} END {exit !found}'
+        return $?
+    else
+        # No socket tools; assume active
+        return 0
+    fi
 }
 
 CHECK_INTERVAL=${CHECK_INTERVAL:-2}
@@ -38,25 +38,25 @@ idle_elapsed=0
 
 # Poll for stop file or idle ssh
 while true; do
-  if [ -f "$STOP_FILE" ]; then
-    rm -f "$STOP_FILE" || true
-    cleanup
-  fi
-
-  if has_active_ssh; then
-    idle_elapsed=0
-  else
-    idle_elapsed=$((idle_elapsed + CHECK_INTERVAL))
-    if [ "$idle_elapsed" -ge "$IDLE_GRACE_SECONDS" ]; then
-      echo "No active SSH sessions for ${IDLE_GRACE_SECONDS}s; stopping." >&2
-      cleanup
+    if [ -f "$STOP_FILE" ]; then
+        rm -f "$STOP_FILE" || true
+        cleanup
     fi
-  fi
 
-  sleep "$CHECK_INTERVAL"
+    if has_active_ssh; then
+        idle_elapsed=0
+    else
+        idle_elapsed=$((idle_elapsed + CHECK_INTERVAL))
+        if [ "$idle_elapsed" -ge "$IDLE_GRACE_SECONDS" ]; then
+            echo "No active SSH sessions for ${IDLE_GRACE_SECONDS}s; stopping." >&2
+            cleanup
+        fi
+    fi
 
-  # In case sshd died unexpectedly, exit
-  if ! kill -0 "$SSHD_PID" 2>/dev/null; then
-    exit 1
-  fi
+    sleep "$CHECK_INTERVAL"
+
+    # In case sshd died unexpectedly, exit
+    if ! kill -0 "$SSHD_PID" 2>/dev/null; then
+        exit 1
+    fi
 done

@@ -73,6 +73,8 @@ The primary workflow uses pixi for a self-contained native environment. Follow t
 
 For `docs/` changes, only Node.js is required.
 
+After installing, run `make hooks` once to register the git pre-commit and commit-msg hooks locally.
+
 ## Formatting
 
 All formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
@@ -84,7 +86,13 @@ All formatters run automatically on save in VS Code. Install the recommended ext
 | XML                    | XML Tools (`DotJoshJohnson.xml`)                                                                                  |
 | Dockerfile             | Docker (`ms-azuretools.vscode-containers`)                                                                        |
 
-For Python, you can also run Ruff manually before submitting:
+Pre-commit hooks enforce all formatters automatically at commit time. You can also run them manually against staged files:
+
+```bash
+pre-commit run
+```
+
+For Python specifically:
 
 ```bash
 ruff check .
