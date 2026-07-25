@@ -66,5 +66,15 @@
         "${workspaceFolder}/gazebo/sim_common"
     ],
     "ROS2.distro": "jazzy",
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true
+    },
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "clangd.arguments": [
+        "--clang-tidy",
+        "--header-insertion=never"
+    ]
 }

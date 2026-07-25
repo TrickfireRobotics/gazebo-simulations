@@ -1,14 +1,14 @@
+#include "chrono/collision/bullet/ChCollisionSystemBullet.h"
 #include "chrono/core/ChDataPath.h"
 #include "chrono/geometry/ChTriangleMeshConnected.h"
 #include "chrono/physics/ChLinkMotorRotationAngle.h"
 #include "chrono/physics/ChLoadContainer.h"
 #include "chrono/physics/ChSystemSMC.h"
-#include "chrono/collision/bullet/ChCollisionSystemBullet.h"
 
-#include "chrono_vsg/ChVisualSystemVSG.h"
-#include "chrono_vehicle/visualization/ChScmVisualizationVSG.h"
 #include "chrono_vehicle/ChVehicleDataPath.h"
 #include "chrono_vehicle/terrain/SCMTerrain.h"
+#include "chrono_vehicle/visualization/ChScmVisualizationVSG.h"
+#include "chrono_vsg/ChVisualSystemVSG.h"
 
 using namespace chrono;
 
@@ -34,15 +34,9 @@ bool var_params = true;
 // -----------------------------------------------------------------------------
 class MySoilParams : public vehicle::SCMTerrain::SoilParametersCallback {
   public:
-    virtual void Set(const ChVector3d& loc,
-                     double& Bekker_Kphi,
-                     double& Bekker_Kc,
-                     double& Bekker_n,
-                     double& Mohr_cohesion,
-                     double& Mohr_friction,
-                     double& Janosi_shear,
-                     double& elastic_K,
-                     double& damping_R) override {
+    virtual void Set(const ChVector3d& loc, double& Bekker_Kphi, double& Bekker_Kc,
+                     double& Bekker_n, double& Mohr_cohesion, double& Mohr_friction,
+                     double& Janosi_shear, double& elastic_K, double& damping_R) override {
         if (loc.y() > 0) {
             // Soft soil
             Bekker_Kphi = 0.2e6;
@@ -70,7 +64,8 @@ class MySoilParams : public vehicle::SCMTerrain::SoilParametersCallback {
 // -----------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
-    std::cout << "Copyright (c) 2017 projectchrono.org\nChrono version: " << CHRONO_VERSION << std::endl;
+    std::cout << "Copyright (c) 2017 projectchrono.org\nChrono version: " << CHRONO_VERSION
+              << std::endl;
 
     SetChronoDataPath(CHRONO_DATA_PATH);
     vehicle::SetVehicleDataPath(CHRONO_VEHICLE_DATA_PATH);
@@ -108,15 +103,16 @@ int main(int argc, char* argv[]) {
             vis_shape->SetColor(ChColor(0.3f, 0.3f, 0.3f));
             wheel->AddVisualShape(vis_shape);
 
-            auto ct_shape =
-                chrono_types::make_shared<ChCollisionShapeTriangleMesh>(material, trimesh, false, false, 0.01);
+            auto ct_shape = chrono_types::make_shared<ChCollisionShapeTriangleMesh>(
+                material, trimesh, false, false, 0.01);
             wheel->AddCollisionShape(ct_shape, ChFrame<>(VNULL, ChMatrix33<>(1)));
             break;
         }
         case TireType::CYLINDRICAL: {
             double radius = 0.5;
             double width = 0.4;
-            auto ct_shape = chrono_types::make_shared<ChCollisionShapeCylinder>(material, radius, width);
+            auto ct_shape =
+                chrono_types::make_shared<ChCollisionShapeCylinder>(material, radius, width);
             wheel->AddCollisionShape(ct_shape, ChFrame<>(ChVector3d(0), QuatFromAngleY(CH_PI_2)));
 
             auto vis_shape = chrono_types::make_shared<ChVisualShapeCylinder>(radius, width);
@@ -163,7 +159,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (enable_active_domains) {
-        terrain.AddActiveDomain(wheel, ChVector3d(0, 0, 0), ChVector3d(0.5, 2 * tire_rad, 2 * tire_rad));
+        terrain.AddActiveDomain(wheel, ChVector3d(0, 0, 0),
+                                ChVector3d(0.5, 2 * tire_rad, 2 * tire_rad));
     }
 
     terrain.SetPlotType(vehicle::SCMTerrain::PLOT_PRESSURE_YIELD, 0, 30000.2);
