@@ -256,6 +256,12 @@ RUN echo "------------------ CHRONO ------------------"
 
 RUN git clone --depth 1 https://github.com/projectchrono/chrono.git /home/trickfire/chrono
 
+# Fix upstream bug: AddActiveDomain appends without clearing the null-body default domain
+# added by SetupInitial, causing a crash when OnBindAssets iterates all domains.
+RUN sed -i \
+    's|    m_loader->m_active_domains.push_back(ad);|    if (!m_loader->m_user_domains)\n        m_loader->m_active_domains.clear();\n    m_loader->m_active_domains.push_back(ad);|' \
+    /home/trickfire/chrono/src/chrono_vehicle/terrain/SCMTerrain.cpp
+
 RUN cmake -S /home/trickfire/chrono -B /home/trickfire/chrono/build \
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
