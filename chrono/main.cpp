@@ -2,7 +2,6 @@
 #include "chrono/core/ChDataPath.h"
 #include "chrono/geometry/ChTriangleMeshConnected.h"
 #include "chrono/physics/ChLinkMotorRotationAngle.h"
-#include "chrono/physics/ChLoadContainer.h"
 #include "chrono/physics/ChSystemSMC.h"
 
 #include "chrono_vehicle/ChVehicleDataPath.h"
@@ -32,6 +31,7 @@ bool var_params = true;
 // Location-dependent soil properties callback.
 // Note: location is in the SCM reference frame; vehicle moves in -Y direction.
 // -----------------------------------------------------------------------------
+
 class MySoilParams : public vehicle::SCMTerrain::SoilParametersCallback {
   public:
     virtual void Set(const ChVector3d& loc, double& Bekker_Kphi, double& Bekker_Kc,

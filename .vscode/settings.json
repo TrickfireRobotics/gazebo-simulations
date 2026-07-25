@@ -53,7 +53,8 @@
         ".vscode/browse.vc.db-shm": true,
         ".vscode/browse.vc.db-wal": true,
         ".cache/": true,
-        ".pixi/": true
+        ".pixi/": true,
+        "chrono/vendor/": true
     },
 
     "python.terminal.activateEnvironment": false,
@@ -73,8 +74,5 @@
         "editor.formatOnSave": true
     },
     "C_Cpp.intelliSenseEngine": "disabled",
-    "clangd.arguments": [
-        "--clang-tidy",
-        "--header-insertion=never"
-    ]
+    "clangd.arguments": ["--clang-tidy", "--header-insertion=never"]
 }

@@ -8,7 +8,10 @@
     "forwardPorts": [6080, 5900],
 
     "workspaceFolder": "/home/trickfire/simulations",
-    "postCreateCommand": "pip3 install --break-system-packages -e .",
+    "remoteEnv": {
+        "HOST_WORKSPACE": "${localWorkspaceFolder}"
+    },
+    "postCreateCommand": "pip3 install --break-system-packages -e . && python3 chrono/scripts/vendor.py",
     "postStartCommand": "bash ./.devcontainer/x_server.sh || exit 0",
 
     "customizations": {
