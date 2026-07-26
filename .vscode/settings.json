@@ -15,7 +15,10 @@
         "editor.formatOnType": true,
         "editor.wordBasedSuggestions": "off",
         "editor.defaultColorDecorators": "never",
-        "diffEditor.ignoreTrimWhitespace": false
+        "diffEditor.ignoreTrimWhitespace": false,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports.ruff": "explicit"
+        }
     },
     "[cpp]": {
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
@@ -65,9 +68,7 @@
     "python.terminal.activateEnvironment": false,
     "python.languageServer": "Default",
     "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/default/bin/python",
-    "python.autoComplete.extraPaths": [
-        "/opt/ros/jazzy/lib/python3.12/site-packages"
-    ],
+    "python.autoComplete.extraPaths": ["/opt/ros/jazzy/lib/python3.12/site-packages"],
     "python.analysis.extraPaths": [
         "/opt/ros/jazzy/lib/python3.12/site-packages",
         "${workspaceFolder}/gazebo/sim_common"
