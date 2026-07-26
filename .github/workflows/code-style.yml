@@ -28,7 +28,7 @@ jobs:
             - uses: actions/checkout@v4
 
             - name: Install shfmt
-              uses: mfinelli/setup-shfmt@v3
+              uses: mfinelli/setup-shfmt@v4
 
             - name: Check shell formatting
               run: shfmt -d .devcontainer/ docker/
