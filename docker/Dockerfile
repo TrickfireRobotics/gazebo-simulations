@@ -51,7 +51,7 @@ RUN echo "-------------------- VSG -------------------"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    git build-essential cmake \
+    ca-certificates git build-essential cmake \
     libeigen3-dev \
     libvulkan-dev \
     mesa-vulkan-drivers \
@@ -173,7 +173,7 @@ RUN echo "------------------ GAZEBO ------------------"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -q -y --no-install-recommends \
-    ca-certificates dirmngr gnupg2
+    dirmngr gnupg2
 
 RUN curl -L -s -f -o /tmp/ros2-apt-source.deb \
     https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.2.0/ros2-apt-source_1.2.0.noble_all.deb && \
