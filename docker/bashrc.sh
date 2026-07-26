@@ -48,6 +48,10 @@ if [ -f "${TF_REPO_DIR}/.venv/bin/activate" ]; then
     source "${TF_REPO_DIR}/.venv/bin/activate"
 fi
 
+# ---------- plugins ----------
+
+source ~/.local/share/bash-autosuggestions/bash-autosuggestions.sh || true
+
 # ---------- ROS/Gazebo environment ----------
 tf_source_env() {
     if [ -f /opt/ros/jazzy/setup.bash ]; then

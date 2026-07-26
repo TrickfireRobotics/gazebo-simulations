@@ -76,6 +76,10 @@ RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl
     -o /usr/local/bin/shfmt && \
     chmod +x /usr/local/bin/shfmt
 
+RUN git clone https://github.com/YOUR_USER/bash-autosuggestions.git /home/trickfire/suggestions && \
+    bash /home/trickfire/suggestions/install.sh && \
+    rm -rf /home/trickfire/suggestions
+
 USER trickfire
 
 # ---------------------------------------------------------------------------- #
