@@ -11,21 +11,12 @@ from .output import die, info
 from .paths import GAZEBO_WORKSPACE_DIR
 
 
+_GAZEBO_SUBCOMMANDS = frozenset({"clean", "create", "update", "auth"})
+
+
 def _build_gazebo_parser(subparsers: argparse._SubParsersAction) -> tuple:
     gazebo = subparsers.add_parser("gazebo", help="Gazebo + ROS2 robot simulation")
     gsubs = gazebo.add_subparsers(dest="command")
-
-    docker_p = gsubs.add_parser("docker", help="Build and launch via Docker")
-    docker_p.add_argument("robot", help="Robot name (e.g., arm, gripper)")
-    docker_p.add_argument("--build-only", action="store_true", help="Build only, don't launch")
-    docker_p.add_argument(
-        "--no-build", action="store_true", help="Skip build, use existing install/"
-    )
-
-    native_p = gsubs.add_parser("native", help="Build and launch in native pixi environment")
-    native_p.add_argument("robot", help="Robot name (e.g., arm, gripper)")
-    native_p.add_argument("--build-only", action="store_true")
-    native_p.add_argument("--no-build", action="store_true")
 
     gsubs.add_parser("clean", help="Delete build artifacts (build/, install/, log/)")
 
@@ -82,6 +73,22 @@ def _build_chrono_parser(subparsers: argparse._SubParsersAction) -> tuple:
 
 
 def main() -> None:
+    # Pre-route "sim gazebo <robot> [flags]" before argparse sees it,
+    # since argparse subparsers always claim positionals before other handlers.
+    if (
+        len(sys.argv) >= 3
+        and sys.argv[1] == "gazebo"
+        and sys.argv[2] not in _GAZEBO_SUBCOMMANDS
+        and not sys.argv[2].startswith("-")
+    ):
+        try:
+            _launch_gazebo(sys.argv[2], sys.argv[3:])
+        except KeyboardInterrupt:
+            sys.exit(130)
+        except Exception as e:
+            die(str(e))
+        return
+
     parser = argparse.ArgumentParser(
         prog="sim",
         description="TrickFire simulation launcher",
@@ -99,6 +106,7 @@ def main() -> None:
                 gazebo_parser.print_help()
                 return
             _dispatch_gazebo(args, create_p)
+
         elif args.sim == "chrono":
             if not args.command:
                 chrono_parser.print_help()
@@ -110,6 +118,22 @@ def main() -> None:
         sys.exit(130)
     except Exception as e:
         die(str(e))
+
+
+def _launch_gazebo(robot: str, remaining: list[str]) -> None:
+    p = argparse.ArgumentParser(prog="sim gazebo")
+    p.add_argument("--build-only", action="store_true")
+    p.add_argument("--no-build", action="store_true")
+    args = p.parse_args(remaining)
+
+    from .gazebo.launch import build_and_launch, in_pixi
+
+    threading.Thread(
+        target=rpc_start,
+        kwargs={"is_docker": not in_pixi(), "robot_name": robot},
+        daemon=True,
+    ).start()
+    build_and_launch(robot, build_only=args.build_only, no_build=args.no_build)
 
 
 def _dispath_chrono(args) -> None:
@@ -131,23 +155,8 @@ def _dispatch_gazebo(args, create_p) -> None:
         update as robot_update,
     )
     from .gazebo.create.commands import cmd_local, cmd_raw
-    from .gazebo.docker import build_and_launch, check_display
-    from .gazebo.native import build_and_launch_native
 
-    if args.command == "docker":
-        threading.Thread(
-            target=rpc_start, kwargs={"is_docker": True, "robot_name": args.robot}, daemon=True
-        ).start()
-        check_display()
-        build_and_launch(args.robot, build_only=args.build_only, no_build=args.no_build)
-
-    elif args.command == "native":
-        threading.Thread(
-            target=rpc_start, kwargs={"is_docker": False, "robot_name": args.robot}, daemon=True
-        ).start()
-        build_and_launch_native(args.robot, build_only=args.build_only, no_build=args.no_build)
-
-    elif args.command == "clean":
+    if args.command == "clean":
         for name in ("build", "install", "log"):
             path = GAZEBO_WORKSPACE_DIR / name
             if path.exists():

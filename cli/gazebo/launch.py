@@ -1,4 +1,4 @@
-"""Docker simulation launcher for the `sim` CLI"""
+"""Gazebo simulation launcher for the `sim` CLI"""
 
 from __future__ import annotations
 
@@ -10,17 +10,17 @@ from datetime import datetime
 from pathlib import Path
 
 from ..output import die, info, warn
-from ..paths import WORKSPACE_DIR
+from ..paths import REPO_DIR, WORKSPACE_DIR
 
 _ANSI_RE = re.compile(r"\x1B\[[0-9;]*[mK]")
 
 
+def in_pixi() -> bool:
+    return bool(os.environ.get("PIXI_PROJECT_ROOT") or os.environ.get("CONDA_PREFIX"))
+
+
 def _strip_ansi(text: str) -> str:
     return _ANSI_RE.sub("", text)
-
-
-def _workspace_package(name: str) -> Path:
-    return WORKSPACE_DIR / name
 
 
 def _validate_robot_layout(robot_name: str) -> tuple[str, str, str]:
@@ -28,14 +28,14 @@ def _validate_robot_layout(robot_name: str) -> tuple[str, str, str]:
     description_pkg = f"{robot_name}_description"
     launch_file_name = f"{robot_name}.launch.py"
 
-    bringup_dir = _workspace_package(bringup_pkg)
+    bringup_dir = WORKSPACE_DIR / bringup_pkg
     if not bringup_dir.is_dir():
         die(
             f"Package '{bringup_pkg}' not found in {WORKSPACE_DIR}\n"
             f"        Expected directory: {bringup_dir}"
         )
 
-    description_dir = _workspace_package(description_pkg)
+    description_dir = WORKSPACE_DIR / description_pkg
     if not description_dir.is_dir():
         die(
             f"Package '{description_pkg}' not found in {WORKSPACE_DIR}\n"
@@ -47,13 +47,6 @@ def _validate_robot_layout(robot_name: str) -> tuple[str, str, str]:
         die(f"Launch file not found: {launch_file}")
 
     return bringup_pkg, description_pkg, launch_file_name
-
-
-def _clean_workspace() -> None:
-    for directory_name in ("build", "install", "log"):
-        directory_path = WORKSPACE_DIR / directory_name
-        if directory_path.exists():
-            shutil.rmtree(directory_path)
 
 
 def _drop_missing_prefix_paths(env: dict[str, str]) -> None:
@@ -114,24 +107,66 @@ def _run_logged_command(
         raise subprocess.CalledProcessError(return_code, command)
 
 
-def check_display() -> None:
-    """Check that a display is available and can be connected to"""
+def _check_display() -> None:
     info("Checking for display...")
-    display = os.environ.copy().get("DISPLAY")
+    display = os.environ.get("DISPLAY")
     if not display:
         die("DISPLAY environment variable not set")
-
-    display_running = subprocess.call(
-        ["xdpyinfo", "-display", display], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-    )
-    if display_running != 0:
+    if (
+        subprocess.call(
+            ["xdpyinfo", "-display", display], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        != 0
+    ):
         die("Cannot connect to display " + display)
 
 
+def _setup_pixi_env() -> None:
+    """Configure Gazebo plugin/resource paths and Qt platform for a pixi environment."""
+    pixi_dir = REPO_DIR / ".pixi"
+    if not pixi_dir.is_dir():
+        die(f"No pixi environment at {pixi_dir}\n        Install dependencies first: pixi install")
+
+    conda_prefix = os.environ.get("CONDA_PREFIX", "")
+    if conda_prefix:
+        plugin_lib = f"{conda_prefix}/lib"
+        for var in ("GZ_SIM_SYSTEM_PLUGIN_PATH", "GZ_SIM_RESOURCE_PATH"):
+            existing = os.environ.get(var, "")
+            paths = [p for p in existing.split(":") if p]
+            if plugin_lib not in paths:
+                os.environ[var] = ":".join([plugin_lib] + paths)
+
+        engine_plugins = f"{conda_prefix}/lib/gz-rendering-8/engine-plugins"
+        existing = os.environ.get("GZ_RENDERING_PLUGIN_PATH", "")
+        paths = [p for p in existing.split(":") if p]
+        if engine_plugins not in paths:
+            os.environ["GZ_RENDERING_PLUGIN_PATH"] = ":".join([engine_plugins] + paths)
+
+        ogre2_media = f"{conda_prefix}/share/gz/gz-rendering8/ogre2/media"
+        existing = os.environ.get("GZ_RENDERING_RESOURCE_PATH", "")
+        paths = [p for p in existing.split(":") if p]
+        if ogre2_media not in paths:
+            os.environ["GZ_RENDERING_RESOURCE_PATH"] = ":".join([ogre2_media] + paths)
+
+    # The pixi Qt build ships only the xcb plugin; force it when the session
+    # sets QT_QPA_PLATFORM=wayland (common on Wayland desktops like Hyprland).
+    if os.environ.get("QT_QPA_PLATFORM") == "wayland":
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
 def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: bool = False) -> None:
-    """Build the workspace and launch a robot simulation."""
+    """Build the ROS 2 workspace and launch a robot simulation.
+
+    Auto-detects the environment: configures pixi paths when running natively,
+    or checks the X display when running inside the Dev Container.
+    """
     if build_only and no_build:
         die("Use either --build-only or --no-build, not both")
+
+    if in_pixi():
+        _setup_pixi_env()
+    else:
+        _check_display()
 
     build = not no_build
     launch = not build_only
@@ -139,7 +174,10 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     bringup_pkg, description_pkg, launch_file_name = _validate_robot_layout(robot_name)
 
     if build:
-        _clean_workspace()
+        for directory_name in ("build", "install", "log"):
+            directory_path = WORKSPACE_DIR / directory_name
+            if directory_path.exists():
+                shutil.rmtree(directory_path)
         _drop_missing_prefix_paths(env)
 
     log_dir = WORKSPACE_DIR / "log"
