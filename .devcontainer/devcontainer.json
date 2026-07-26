@@ -27,8 +27,6 @@
                 "ms-python.mypy-type-checker",
 
                 // --- C and C++ ---
-                "ms-vscode.cpptools",
-                "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cmake-tools",
                 "josetr.cmake-language-support-vscode",
                 "llvm-vs-code-extensions.vscode-clangd",

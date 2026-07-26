@@ -47,7 +47,7 @@ RUN printf 'int drmCloseBufferHandle(int fd, unsigned int handle){ return 0; }\n
 
 RUN echo "-------------------- VSG -------------------"
 
-# Build tools + Vulkan/Eigen deps — shared by VSG and Chrono
+# Build tools + Vulkan/Eigen deps - shared by VSG and Chrono
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -249,7 +249,7 @@ RUN echo "--------------- DEV TOOLING ----------------"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    openssh-server python3.12-venv wget zstd
+    clangd openssh-server python3.12-venv wget zstd
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install ruff pre-commit --break-system-packages --ignore-installed

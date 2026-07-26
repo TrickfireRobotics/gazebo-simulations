@@ -17,6 +17,10 @@
         "editor.defaultColorDecorators": "never",
         "diffEditor.ignoreTrimWhitespace": false
     },
+    "[cpp]": {
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+        "editor.formatOnSave": true
+    },
     "[shellscript]": {
         "editor.defaultFormatter": "mkhl.shfmt",
         "editor.formatOnSave": true,
@@ -56,6 +60,8 @@
         ".pixi/": true
     },
 
+    "clangd.arguments": ["--clang-tidy", "--header-insertion=never"],
+
     "python.terminal.activateEnvironment": false,
     "python.languageServer": "Default",
     "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/default/bin/python",
@@ -67,12 +73,5 @@
         "${workspaceFolder}/gazebo/sim_common"
     ],
     "ROS2.distro": "jazzy",
-    "cmake.ignoreCMakeListsMissing": true,
-
-    "[cpp]": {
-        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
-        "editor.formatOnSave": true
-    },
-    "C_Cpp.intelliSenseEngine": "disabled",
-    "clangd.arguments": ["--clang-tidy", "--header-insertion=never"]
+    "cmake.ignoreCMakeListsMissing": true
 }
