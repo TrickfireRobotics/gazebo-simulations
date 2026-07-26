@@ -76,7 +76,7 @@ RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl
     -o /usr/local/bin/shfmt && \
     chmod +x /usr/local/bin/shfmt
 
-RUN git clone https://github.com/YOUR_USER/bash-autosuggestions.git /home/trickfire/suggestions && \
+RUN git clone https://github.com/yogeek/bash-autosuggestions.git /home/trickfire/suggestions && \
     bash /home/trickfire/suggestions/install.sh && \
     rm -rf /home/trickfire/suggestions
 
@@ -141,7 +141,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-jazzy-gz-ros2-control
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --break-system-packages pypresence
+    pip3 install --break-system-packages pypresence trimesh pyfqmr
 
 RUN rosdep init || true
 

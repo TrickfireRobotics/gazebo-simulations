@@ -22,5 +22,7 @@ sim = { path = ".", editable = true }
 sim_common = { path = "gazebo/sim_common", editable = true }
 filelock = "*"
 pypresence = "*"
+trimesh = "*"
+pyfqmr = "*"
 requests = "*"
 pre-commit = "*"
