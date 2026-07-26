@@ -3,7 +3,7 @@ title: Adding a New Robot
 description: How to generate ROS 2 packages from an OnShape CAD model and get a new robot running in Gazebo.
 ---
 
-`sim gazebo create` takes a robot from OnShape and produces two ready-to-build ROS 2 packages — no manual URDF editing or package scaffolding required.
+`sim gazebo create` takes a robot from OnShape and produces two ready-to-build ROS 2 packages - no manual URDF editing or package scaffolding required.
 
 ## Via GitHub Actions (recommended)
 
@@ -44,7 +44,7 @@ This sim will work with any Onshape API key and secret as long as you put them i
 | Flag                   | Description                                             |
 | ---------------------- | ------------------------------------------------------- |
 | `--attach-to-world`    | Fix `base_link` to the Gazebo world (stationary robots) |
-| `--no-attach-to-world` | Explicitly skip — for mobile robots                     |
+| `--no-attach-to-world` | Explicitly skip - for mobile robots                     |
 | `--no-reduce`          | Skip STL mesh decimation (larger files, higher detail)  |
 | `--output-dir <path>`  | Write packages somewhere other than `gazebo/`           |
 
@@ -60,7 +60,7 @@ When the OnShape CAD changes, pull in the new geometry without touching your bri
 sim gazebo update arm
 ```
 
-This replaces only `arm_description/urdf/arm.urdf` and `arm_description/meshes/`. Everything else — your control xacro edits, launch file, controller YAML, RViz config — is left untouched.
+This replaces only `arm_description/urdf/arm.urdf` and `arm_description/meshes/`. Everything else - your control xacro edits, launch file, controller YAML, RViz config - is left untouched.
 
 ## Troubleshooting
 

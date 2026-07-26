@@ -53,9 +53,9 @@ Python package providing the `sim` command. Two top-level subcommands:
 - `cli/gazebo/native.py` - `sim gazebo native` build and launch logic (pixi environment)
 - `cli/gazebo/create/` - `sim gazebo create` / `sim gazebo update` (OnShape → URDF pipeline)
 
-**`sim chrono`** - Chrono simulation (not yet fully implemented):
+**`sim chrono`** - Chrono SCM terrain simulation:
 
-- `cli/chrono/__init__.py` - `sim chrono run` / `sim chrono sweep`
+- `cli/chrono/chrono.py` - `sim chrono run` / `sim chrono clean`
 
 **Shared:**
 

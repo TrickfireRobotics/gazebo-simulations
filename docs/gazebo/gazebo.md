@@ -1,31 +1,29 @@
 ---
-title: Running Simulations
-description: How to build and launch robot simulations with the sim CLI.
+title: Running Gazebo
+description: How to build and launch robot simulations with the Gazebo sim CLI.
 ---
 
-All simulations are launched through the `sim` CLI. The first argument selects the simulator (`gazebo` or `chrono`); subsequent arguments control what to run.
-
-## Gazebo
+Gazebo simulations are launched through the `sim gazebo` CLI.
 
 ### Native (pixi)
 
-```bash title="Terminal"
+```bash
 pixi run sim gazebo native <robot_name>
 ```
 
 For example, to run the arm simulation:
 
-```bash title="Terminal"
+```bash
 pixi run sim gazebo native arm
 ```
 
-### Dev Container
+### Devcontainer
 
-```bash title="Inside devcontainer"
+```bash
 sim gazebo docker <robot_name>
 ```
 
-### Options
+## Options
 
 Both `sim gazebo native` and `sim gazebo docker` accept the same flags:
 
@@ -34,7 +32,7 @@ Both `sim gazebo native` and `sim gazebo docker` accept the same flags:
 | `--no-build`   | Skip the `colcon build` step. Use this when you haven't changed any code and want a faster startup. |
 | `--build-only` | Build the workspace but don't launch the simulation. Useful for checking if your changes compile.   |
 
-```bash title="Terminal"
+```bash
 # Skip building (already built)
 pixi run sim gazebo native arm --no-build
 
@@ -42,7 +40,7 @@ pixi run sim gazebo native arm --no-build
 pixi run sim gazebo native arm --build-only
 ```
 
-### Cleaning the workspace
+## Cleaning the workspace
 
 To remove build artifacts and do a clean rebuild:
 

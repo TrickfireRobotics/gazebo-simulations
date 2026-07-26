@@ -1,29 +1,61 @@
 ---
 title: Docker Environment
-description: How the container is configured, the multi-stage Dockerfile, standalone docker-compose usage, and how the headless display works.
+description: How the container is configured, the Dockerfile sections, standalone docker-compose usage, and how the headless display works.
 ---
 
 The Docker container is the alternative to the [native pixi workflow](../setup/macos/). There are two ways to use it:
 
-1. **Dev Container** (VS Code) -- uses the `dev` stage of the Dockerfile with dev tooling pre-installed. Open the repo in VS Code and choose **Reopen in Container**.
-2. **Standalone container** (docker-compose) -- uses the `runtime` stage for running simulations on any host without VS Code. NVIDIA GPU passthrough is enabled automatically when hardware is detected.
+1. **Dev Container** (VS Code) -- Open the repo in VS Code and choose **Reopen in Container**.
+2. **Standalone container** (docker-compose) -- Run simulations on any host without VS Code. NVIDIA GPU passthrough is enabled automatically when hardware is detected.
 
-## Multi-stage Dockerfile
+Both methods use the same `sim` image built from `docker/Dockerfile`.
 
-The Dockerfile at `docker/Dockerfile` has two stages:
+## Dockerfile
 
-```dockerfile
-FROM ros:jazzy-ros-base AS runtime   # simulation + VNC/display stack
-FROM runtime AS dev                  # + dev tooling (ruff, onshape-to-robot, shfmt)
-```
-
-### Runtime stage
-
-Everything needed to run simulations:
+The Dockerfile at `docker/Dockerfile` produces a single stage named `sim` built on Ubuntu 24.04. It is divided into labelled sections:
 
 ```
-ros:jazzy-ros-base (Ubuntu Noble 24.04 + ROS 2 Jazzy)
+ubuntu:24.04 AS sim
+  ├── BASE    - locale, user setup, libdrm stub
+  ├── VSG     - VulkanSceneGraph stack (built from source, /opt/vsg)
+  ├── CHRONO  - Project Chrono (built from source, /home/trickfire/chrono)
+  ├── GAZEBO  - ROS 2 Jazzy + Gazebo Harmonic
+  ├── VNC/DISPLAY - headless GUI stack
+  └── DEV TOOLING - SSH server, ruff, pre-commit, shfmt
 ```
+
+A `BUILD_JOBS` build arg controls parallelism for the C++ builds (defaults to `nproc`).
+
+### VSG section
+
+VulkanSceneGraph and its dependencies are built from source and installed to `/opt/vsg`:
+
+| Library                    | Version  | Purpose                                      |
+| -------------------------- | -------- | -------------------------------------------- |
+| glslang                    | 16.1.0   | GLSL shader compiler (runtime library)       |
+| KTX-Software               | v4.4.2   | Texture format support                       |
+| draco                      | 1.5.7    | Mesh compression                             |
+| assimp                     | v6.0.5   | 3D asset import                              |
+| VulkanSceneGraph (vsg)     | v1.1.15  | Vulkan-based scene graph rendering           |
+| vsgXchange                 | v1.1.12  | Asset format bridge for vsg (uses assimp)    |
+| vsgImGui                   | v0.7.0   | ImGui integration for vsg overlays           |
+
+`LD_LIBRARY_PATH` is set to `/opt/vsg/lib` so the shared libraries are found at runtime.
+
+### Chrono section
+
+Project Chrono is cloned from source and built with the Vehicle and VSG modules enabled:
+
+```
+CH_ENABLE_MODULE_VEHICLE  - wheel/terrain dynamics
+CH_ENABLE_MODULE_VSG      - Vulkan-based visualizer
+```
+
+The build target is `demo_VEH_SCMTerrain_RigidTire`. An upstream bug in `SCMTerrain.cpp` (domain list not cleared before `AddActiveDomain`) is patched at image build time.
+
+The Chrono source and build live at `/home/trickfire/chrono` and are owned by the `trickfire` user.
+
+### Gazebo section
 
 **Simulation stack:**
 
@@ -37,6 +69,10 @@ ros:jazzy-ros-base (Ubuntu Noble 24.04 + ROS 2 Jazzy)
 | `ros-jazzy-xacro`                      | URDF macro processing                           |
 | `ros-jazzy-joint-state-publisher-gui`  | Joint state publishing GUI                      |
 
+**Python packages:** `pypresence`, `trimesh`, `pyfqmr`
+
+### VNC / display section
+
 **Display stack (headless GUI):**
 
 | Package                                          | Purpose                                       |
@@ -47,32 +83,24 @@ ros:jazzy-ros-base (Ubuntu Noble 24.04 + ROS 2 Jazzy)
 | `novnc` + `websockify`                           | Browser-based VNC client                      |
 | `xvfb`                                           | Virtual framebuffer for Jetson/Tegra (no DRI) |
 | `mesa-utils`, `libgl1-mesa-dri`                  | Software OpenGL rendering                     |
+| `kmod`                                           | Kernel module tools (for `/lib/modules` mount)|
+| `x11-apps`                                       | X11 utilities including `xeyes`               |
 
-**Build tools:**
+### Dev tooling section
 
-| Package                            | Purpose                      |
-| ---------------------------------- | ---------------------------- |
-| `python3-colcon-common-extensions` | ROS 2 workspace build system |
-| `python3-rosdep`                   | ROS dependency installer     |
-| `git`                              | Version control              |
-
-### Dev stage
-
-Adds on top of runtime:
-
-| Package            | Purpose                                 |
-| ------------------ | --------------------------------------- |
-| `ruff`             | Python linter                           |
-| `onshape-to-robot` | CAD-to-URDF conversion (used by `sim gazebo create`) |
-| `open3d`           | STL mesh decimation                     |
-| `shfmt`            | Shell script formatter                  |
+| Package/tool   | Purpose                                                  |
+| -------------- | -------------------------------------------------------- |
+| `openssh-server` | SSH server (used by VS Code remote connection)         |
+| `ruff`         | Python linter/formatter                                  |
+| `pre-commit`   | Git hook framework                                       |
+| `shfmt`        | Shell script formatter                                   |
 
 ## Container user
 
 The container runs as a non-root user `trickfire` with passwordless sudo:
 
 ```dockerfile
-RUN useradd trickfire --shell /bin/bash --create-home
+RUN useradd trickfire --uid 1000 --shell /bin/bash --create-home --no-log-init
 RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 ```
 
@@ -80,19 +108,17 @@ RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 The `devcontainer.json` configures how VS Code opens the container:
 
-**Build target:** `dev` stage of `docker/Dockerfile`
+**Build target:** `sim` stage of `docker/Dockerfile`
 
 **Workspace mount:** The repo is bind-mounted into the container at `/home/trickfire/simulations`.
 
-**Compose config:** `.devcontainer/devcontainer.json` uses `docker/docker-compose.yml` plus `.devcontainer/docker-compose.devcontainer.yml`. The override only switches the build target to `dev`; the base compose file starts the X server / VNC stack automatically.
+**Compose config:** `.devcontainer/devcontainer.json` uses `docker/docker-compose.yml` plus `docker/docker-compose-dev.yml`. The override adds Wayland and display environment variables for Vulkan rendering.
 
 **Port forwarding:** Ports `6080` (noVNC) and `5900` (VNC) are forwarded to the host.
 
 **Privileged mode:** The container runs with `--privileged` and device access for hardware interaction (USB, CAN bus).
 
-**X11 forwarding:** The devcontainer relies on the Compose-managed VNC desktop. The standalone GPU compose stack can still mount `/tmp/.X11-unix` when you want host X11 rendering.
-
-**VS Code extensions:** Pre-installs Python, C++, ROS, URDF, Docker, formatting, and docs (Astro/MDX) extensions.
+**VS Code extensions:** Pre-installs Python, C++ (clangd, CMake, Makefile), ROS, URDF, Docker, Prettier, and other formatting extensions.
 
 ## X-server Display Architecture
 
@@ -101,23 +127,29 @@ Xorg/Xvfb  →  x11vnc  →  websockify  →  Browser
     ↑                                       ↑
  Openbox WM                            noVNC client
     ↑                                   (port 6080)
- Gazebo / RViz
+ Gazebo / RViz / Chrono VSG
 ```
 
 ### Why this approach?
 
 Alternatives like Xvfb don't support GLX properly, which means Gazebo's 3D rendering fails. Using Xorg with a dummy driver + Mesa software rendering gives us full OpenGL support without needing a real GPU. The VNC + noVNC layer makes it accessible from any browser. On Jetsons, we fall back to Xvfb because there's no `/dev/dri`, but GPU rendering still works via EGL through injected Tegra libs.
 
+Chrono uses Vulkan for rendering via the VSG module. Wayland socket passthrough (`WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR`) is exposed to the container so Vulkan can reach the host compositor when available.
+
 ### Environment variables
 
-| Variable     | Value          | Set in                            |
-| ------------ | -------------- | --------------------------------- |
-| `DISPLAY`    | Host-dependent | `docker-compose.yml` (standalone) |
-| `VNC_PORT`   | `5900`         | Dockerfile                        |
-| `NOVNC_PORT` | `6080`         | Dockerfile                        |
+| Variable           | Value                  | Set in                              |
+| ------------------ | ---------------------- | ----------------------------------- |
+| `DISPLAY`          | Host-dependent         | `docker-compose.yml` (standalone)   |
+| `WAYLAND_DISPLAY`  | Host-dependent         | `docker-compose-dev.yml`            |
+| `XDG_RUNTIME_DIR`  | `/run/host-runtime`    | `docker-compose-dev.yml`            |
+| `VNC_PORT`         | `5900`                 | Dockerfile                          |
+| `NOVNC_PORT`       | `6080`                 | Dockerfile                          |
+| `VSG_INSTALL_DIR`  | `/opt/vsg`             | Dockerfile                          |
+| `LD_LIBRARY_PATH`  | `/opt/vsg/lib`         | Dockerfile                          |
 
 ## Extending the container
 
-To add system packages, edit `docker/Dockerfile` and rebuild. For Python packages, add them to the `pip3 install` section in the appropriate stage (`runtime` for things needed at simulation time, `dev` for development-only tools).
+To add system packages, edit `docker/Dockerfile` and rebuild. For Python packages, add them to the `pip3 install` line in the Gazebo section (simulation-time) or the dev tooling section (development-only tools).
 
 After changing the Dockerfile, use **Dev Containers: Rebuild Container** in VS Code's Command Palette.

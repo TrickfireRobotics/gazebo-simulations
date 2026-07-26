@@ -3,7 +3,7 @@ title: Robot Packages
 description: What sim gazebo create generates, how URDF post-processing works, and how the robot registry is structured.
 ---
 
-Reference for `sim gazebo create` and `sim gazebo update` — what they produce and how the underlying pipeline works.
+Reference for `sim gazebo create` and `sim gazebo update` - what they produce and how the underlying pipeline works.
 
 ## Generated package layout
 
@@ -31,17 +31,17 @@ The `_description` / `_bringup` split is a ROS convention: description holds the
 
 `sim gazebo create` downloads a raw URDF from OnShape via `onshape-to-robot`, then runs it through several transforms before writing the final files:
 
-1. **Xacro namespace** — adds `xmlns:xacro` to the `<robot>` tag so the file can use xacro macros
-2. **Mesh path rewriting** — rewrites `filename="package://assets/foo.stl"` to `filename="${mesh_path}/foo.stl"` so paths resolve correctly in ROS
-3. **World base link** — if `--attach-to-world`, inserts a `world` link and a fixed `world_to_base_link` joint before the first `<link>`
-4. **Joint extraction** — finds all `revolute` joints with their limits
-5. **Control xacro generation** — produces `<robot>_control.urdf.xacro` with a `ros2_control` block containing `position` command interfaces and `position`/`velocity`/`effort` state interfaces for every joint
-6. **Control include injection** — appends `<xacro:include>` for the control xacro at the end of the geometry URDF
-7. **Reindent** — normalises indentation from 2-space (OnShape default) to 4-space
+1. **Xacro namespace** - adds `xmlns:xacro` to the `<robot>` tag so the file can use xacro macros
+2. **Mesh path rewriting** - rewrites `filename="package://assets/foo.stl"` to `filename="${mesh_path}/foo.stl"` so paths resolve correctly in ROS
+3. **World base link** - if `--attach-to-world`, inserts a `world` link and a fixed `world_to_base_link` joint before the first `<link>`
+4. **Joint extraction** - finds all `revolute` joints with their limits
+5. **Control xacro generation** - produces `<robot>_control.urdf.xacro` with a `ros2_control` block containing `position` command interfaces and `position`/`velocity`/`effort` state interfaces for every joint
+6. **Control include injection** - appends `<xacro:include>` for the control xacro at the end of the geometry URDF
+7. **Reindent** - normalises indentation from 2-space (OnShape default) to 4-space
 
 ## What `sim gazebo update` touches
 
-Only geometry — everything authored by hand is preserved:
+Only geometry - everything authored by hand is preserved:
 
 | File                                                  | `sim gazebo update`                |
 | ----------------------------------------------------- | ---------------------------------- |
