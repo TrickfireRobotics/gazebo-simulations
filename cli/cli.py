@@ -5,9 +5,10 @@ import shutil
 import sys
 import threading
 
+from .chrono import chrono
+from .drpc import rpc_start
 from .output import die, info
 from .paths import GAZEBO_WORKSPACE_DIR
-from .drpc import rpc_start
 
 
 def _build_gazebo_parser(subparsers: argparse._SubParsersAction) -> tuple:
@@ -76,7 +77,7 @@ def _build_chrono_parser(subparsers: argparse._SubParsersAction) -> tuple:
     chrono = subparsers.add_parser("chrono", help="chrono simulation (Chrono SCM)")
     wsubs = chrono.add_subparsers(dest="command")
     wsubs.add_parser("run", help="Run a chrono simulation")
-    wsubs.add_parser("sweep", help="Sweep chrono geometry parameters and compare results")
+    wsubs.add_parser("clean", help="Clean chrono build files")
     return chrono, wsubs
 
 
@@ -102,7 +103,7 @@ def main() -> None:
             if not args.command:
                 chrono_parser.print_help()
                 return
-            _dispatch_chrono(args)
+            _dispath_chrono(args)
         else:
             parser.print_help()
     except KeyboardInterrupt:
@@ -111,16 +112,27 @@ def main() -> None:
         die(str(e))
 
 
+def _dispath_chrono(args) -> None:
+    if args.command == "run":
+        chrono.run()
+    elif args.command == "clean":
+        chrono.clean()
+
+
 def _dispatch_gazebo(args, create_p) -> None:
-    from .gazebo.docker import build_and_launch, check_display
-    from .gazebo.native import build_and_launch_native
+    from .auth import auth as cmd_auth
     from .gazebo.create import (
-        create as robot_create,
-        update as robot_update,
         PACKAGE_DIR,
     )
+    from .gazebo.create import (
+        create as robot_create,
+    )
+    from .gazebo.create import (
+        update as robot_update,
+    )
     from .gazebo.create.commands import cmd_local, cmd_raw
-    from .auth import auth as cmd_auth
+    from .gazebo.docker import build_and_launch, check_display
+    from .gazebo.native import build_and_launch_native
 
     if args.command == "docker":
         threading.Thread(
@@ -183,10 +195,6 @@ def _dispatch_gazebo(args, create_p) -> None:
 
     elif args.command == "auth":
         cmd_auth()
-
-
-def _dispatch_chrono(args) -> None:
-    die("chrono simulation not yet implemented — coming soon")
 
 
 if __name__ == "__main__":

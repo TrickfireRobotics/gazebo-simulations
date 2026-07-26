@@ -58,7 +58,8 @@
     },
 
     "python.terminal.activateEnvironment": false,
-    "python.defaultInterpreterPath": ".pixi/envs/default/bin/python",
+    "python.languageServer": "Default",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.pixi/envs/default/bin/python",
     "python.autoComplete.extraPaths": [
         "/opt/ros/jazzy/lib/python3.12/site-packages"
     ],

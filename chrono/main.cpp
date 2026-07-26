@@ -64,9 +64,6 @@ class MySoilParams : public vehicle::SCMTerrain::SoilParametersCallback {
 // -----------------------------------------------------------------------------
 
 int main(int argc, char* argv[]) {
-    std::cout << "Copyright (c) 2017 projectchrono.org\nChrono version: " << CHRONO_VERSION
-              << std::endl;
-
     SetChronoDataPath(CHRONO_DATA_PATH);
     vehicle::SetVehicleDataPath(CHRONO_VEHICLE_DATA_PATH);
 
