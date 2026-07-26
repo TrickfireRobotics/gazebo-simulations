@@ -3,7 +3,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      target: chrono
+      target: sim
       network: host
     image: simulations:latest
     container_name: simulations

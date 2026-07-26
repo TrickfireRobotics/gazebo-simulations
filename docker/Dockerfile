@@ -1,11 +1,12 @@
-# ---------------------------------------------------------------------------- #
-#                                     BASE                                     #
-# ---------------------------------------------------------------------------- #
-
-FROM ubuntu:24.04 AS base
+FROM ubuntu:24.04 AS sim
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ="America/Los_Angeles"
+ARG BUILD_JOBS
+
+# ---------------------------------------------------------------------------- #
+#                                     BASE                                     #
+# ---------------------------------------------------------------------------- #
 
 RUN echo "------------------- BASE -------------------"
 
@@ -22,17 +23,11 @@ ENV LANG=en_US.UTF-8
 RUN ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime && \
     echo "${TZ}" > /etc/timezone
 
-# VNC / headless display stack
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
-    xvfb novnc x11vnc websockify openbox xterm python3-xdg x11-utils \
-    mesa-utils libglx-mesa0 libgl1-mesa-dri x11-apps \
-    xserver-xorg-core xserver-xorg-video-dummy kmod
-
-EXPOSE 6080 5900
-ENV VNC_PORT=5900
-ENV NOVNC_PORT=6080
+# User
+RUN userdel ubuntu 2>/dev/null || true && \
+    useradd trickfire --uid 1000 --shell /bin/bash --create-home --no-log-init && \
+    usermod -aG video trickfire
+RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
 
 # The Jetson/Tegra libdrm.so.2 is missing drmCloseBufferHandle, which
 # libdrm_nouveau.so.2 needs. Without it, swrast_dri.so fails to load and
@@ -46,123 +41,17 @@ RUN printf 'int drmCloseBufferHandle(int fd, unsigned int handle){ return 0; }\n
     rm /tmp/drm_stub.c && \
     ldconfig
 
-# User
-RUN userdel ubuntu 2>/dev/null || true && \
-    useradd trickfire --uid 1000 --shell /bin/bash --create-home --no-log-init && \
-    usermod -aG video trickfire
-RUN echo "trickfire ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/user
-
-# Config files last so changes to them don't bust the apt/compile cache
-COPY docker/xorg.nvidia.conf /etc/X11/xorg.nvidia.conf
-COPY docker/xorg.dummy.conf /etc/X11/xorg.dummy.conf
-COPY docker/bashrc.sh /home/trickfire/.bashrc
-
 # ---------------------------------------------------------------------------- #
-#                                  DEV TOOLING                                 #
+#                                      VSG                                     #
 # ---------------------------------------------------------------------------- #
-
-RUN echo "--------------- DEV TOOLING ----------------"
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
-    git build-essential cmake openssh-server \
-    python3-pip python3.12-venv wget zstd
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install ruff --break-system-packages
-
-RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
-    -o /usr/local/bin/shfmt && \
-    chmod +x /usr/local/bin/shfmt
-
-RUN git clone https://github.com/yogeek/bash-autosuggestions.git /home/trickfire/suggestions && \
-    bash /home/trickfire/suggestions/install.sh && \
-    rm -rf /home/trickfire/suggestions
-
-USER trickfire
-
-# ---------------------------------------------------------------------------- #
-#                                    GAZEBO                                    #
-# ---------------------------------------------------------------------------- #
-
-FROM base AS gazebo
-USER root
-
-RUN echo "------------------ GAZEBO ------------------"
-
-# ROS 2 Jazzy apt source
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -q -y --no-install-recommends \
-    ca-certificates dirmngr gnupg2
-
-RUN curl -L -s -f -o /tmp/ros2-apt-source.deb \
-    https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.2.0/ros2-apt-source_1.2.0.noble_all.deb && \
-    echo "0804d9b13db770eb87019be414cd78378835228ad5fa801fc88758596dd8f7e5 */tmp/ros2-apt-source.deb" | sha256sum --strict --check && \
-    apt-get update && apt-get install /tmp/ros2-apt-source.deb && \
-    rm -f /tmp/ros2-apt-source.deb
-
-# Gazebo Harmonic apt source
-RUN curl https://packages.osrfoundation.org/gazebo.gpg \
-    --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable noble main" \
-    > /etc/apt/sources.list.d/gazebo-stable.list
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
-    python3-rosdep \
-    python3-colcon-common-extensions \
-    ros-jazzy-ros-base \
-    ros-jazzy-ros-gz \
-    ros-jazzy-ros2-controllers \
-    python3-tk
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
-    gz-harmonic
-
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common && \
-    add-apt-repository universe && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    libgz-cmake4-dev \
-    libgz-gui8 \
-    libgz-plugin3-dev \
-    libgz-common6-dev \
-    libgz-sim8-dev \
-    ros-jazzy-rviz2 \
-    ros-jazzy-xacro \
-    ros-jazzy-joint-state-publisher-gui \
-    ros-jazzy-gz-ros2-control
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install --break-system-packages pypresence trimesh pyfqmr
-
-RUN rosdep init || true
-
-RUN rosdep fix-permissions && \
-    chown -R trickfire:trickfire /usr/local/lib/python3.12/dist-packages /usr/local/bin && \
-    chmod -R a+rX /usr/local/lib/python3.12/dist-packages
-
-USER trickfire
-
-# ---------------------------------------------------------------------------- #
-#                                     VSG                                      #
-# ---------------------------------------------------------------------------- #
-
-FROM gazebo AS vsg
-USER root
 
 RUN echo "-------------------- VSG -------------------"
 
+# Build tools + Vulkan/Eigen deps — shared by VSG and Chrono
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
+    git build-essential cmake \
     libeigen3-dev \
     libvulkan-dev \
     mesa-vulkan-drivers \
@@ -171,7 +60,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     vulkan-tools
 
 ENV VSG_INSTALL_DIR=/opt/vsg
-ARG BUILD_JOBS
 
 RUN git clone -c advice.detachedHead=false --depth 1 --branch 16.1.0 \
     https://github.com/KhronosGroup/glslang.git /tmp/glslang && \
@@ -245,16 +133,9 @@ RUN git clone -c advice.detachedHead=false --depth 1 --branch v0.7.0 \
 
 ENV LD_LIBRARY_PATH=/opt/vsg/lib
 
-USER trickfire
-
 # ---------------------------------------------------------------------------- #
 #                                    CHRONO                                    #
 # ---------------------------------------------------------------------------- #
-
-FROM vsg AS chrono
-USER root
-
-ARG BUILD_JOBS
 
 RUN echo "------------------ CHRONO ------------------"
 
@@ -281,5 +162,107 @@ RUN cmake --build /home/trickfire/chrono/build \
     --parallel ${BUILD_JOBS:-$(nproc)}
 
 RUN chown -R trickfire:trickfire /home/trickfire/chrono
+
+# ---------------------------------------------------------------------------- #
+#                                    GAZEBO                                    #
+# ---------------------------------------------------------------------------- #
+
+RUN echo "------------------ GAZEBO ------------------"
+
+# ROS 2 Jazzy apt source
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -q -y --no-install-recommends \
+    ca-certificates dirmngr gnupg2
+
+RUN curl -L -s -f -o /tmp/ros2-apt-source.deb \
+    https://github.com/ros-infrastructure/ros-apt-source/releases/download/1.2.0/ros2-apt-source_1.2.0.noble_all.deb && \
+    echo "0804d9b13db770eb87019be414cd78378835228ad5fa801fc88758596dd8f7e5 */tmp/ros2-apt-source.deb" | sha256sum --strict --check && \
+    apt-get update && apt-get install /tmp/ros2-apt-source.deb && \
+    rm -f /tmp/ros2-apt-source.deb
+
+# Gazebo Harmonic apt source
+RUN curl https://packages.osrfoundation.org/gazebo.gpg \
+    --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] https://packages.osrfoundation.org/gazebo/ubuntu-stable noble main" \
+    > /etc/apt/sources.list.d/gazebo-stable.list
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-rosdep \
+    python3-colcon-common-extensions \
+    ros-jazzy-ros-base \
+    ros-jazzy-ros-gz \
+    ros-jazzy-ros2-controllers \
+    python3-tk
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    gz-harmonic
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common && \
+    add-apt-repository universe && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    libgz-cmake4-dev \
+    libgz-gui8 \
+    libgz-plugin3-dev \
+    libgz-common6-dev \
+    libgz-sim8-dev \
+    ros-jazzy-rviz2 \
+    ros-jazzy-xacro \
+    ros-jazzy-joint-state-publisher-gui \
+    ros-jazzy-gz-ros2-control
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install --break-system-packages pypresence trimesh pyfqmr
+
+RUN rosdep init || true
+
+# ---------------------------------------------------------------------------- #
+#                                 VNC / DISPLAY                                #
+# ---------------------------------------------------------------------------- #
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    xvfb novnc x11vnc websockify openbox xterm python3-xdg x11-utils \
+    mesa-utils libglx-mesa0 libgl1-mesa-dri x11-apps \
+    xserver-xorg-core xserver-xorg-video-dummy kmod
+
+EXPOSE 6080 5900
+ENV VNC_PORT=5900
+ENV NOVNC_PORT=6080
+
+# ---------------------------------------------------------------------------- #
+#                                  DEV TOOLING                                 #
+# ---------------------------------------------------------------------------- #
+
+RUN echo "--------------- DEV TOOLING ----------------"
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+    openssh-server python3.12-venv wget zstd
+
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install ruff pre-commit --break-system-packages
+
+RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
+    -o /usr/local/bin/shfmt && \
+    chmod +x /usr/local/bin/shfmt
+
+RUN rosdep fix-permissions && \
+    chown -R trickfire:trickfire /usr/local/lib/python3.12/dist-packages /usr/local/bin && \
+    chmod -R a+rX /usr/local/lib/python3.12/dist-packages
+
+COPY docker/xorg.nvidia.conf /etc/X11/xorg.nvidia.conf
+COPY docker/xorg.dummy.conf /etc/X11/xorg.dummy.conf
+COPY docker/bashrc.sh /home/trickfire/.bashrc
 
 USER trickfire
