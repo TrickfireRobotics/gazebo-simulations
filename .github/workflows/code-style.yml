@@ -5,7 +5,7 @@ on:
     pull_request:
 
 jobs:
-    python:
+    Python:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -22,6 +22,10 @@ jobs:
 
             - name: Run Ruff
               run: ruff check --output-format=github .
+    Shell:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
             - name: Install shfmt
               uses: mfinelli/setup-shfmt@v3
@@ -29,7 +33,7 @@ jobs:
             - name: Check shell formatting
               run: shfmt -d .devcontainer/ docker/
 
-    cpp:
+    Cpp:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
