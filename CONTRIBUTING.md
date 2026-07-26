@@ -53,9 +53,9 @@ Python package providing the `sim` command. Two top-level subcommands:
 - `cli/gazebo/native.py` - `sim gazebo native` build and launch logic (pixi environment)
 - `cli/gazebo/create/` - `sim gazebo create` / `sim gazebo update` (OnShape → URDF pipeline)
 
-**`sim chrono`** - Chrono simulation (not yet fully implemented):
+**`sim chrono`** - Chrono SCM terrain simulation:
 
-- `cli/chrono/__init__.py` - `sim chrono run` / `sim chrono sweep`
+- `cli/chrono/chrono.py` - `sim chrono run` / `sim chrono clean`
 
 **Shared:**
 
@@ -73,6 +73,8 @@ The primary workflow uses pixi for a self-contained native environment. Follow t
 
 For `docs/` changes, only Node.js is required.
 
+After installing, run `make hooks` once to register the git pre-commit and commit-msg hooks locally.
+
 ## Formatting
 
 All formatters run automatically on save in VS Code. Install the recommended extensions when prompted.
@@ -84,7 +86,13 @@ All formatters run automatically on save in VS Code. Install the recommended ext
 | XML                    | XML Tools (`DotJoshJohnson.xml`)                                                                                  |
 | Dockerfile             | Docker (`ms-azuretools.vscode-containers`)                                                                        |
 
-For Python, you can also run Ruff manually before submitting:
+Pre-commit hooks enforce all formatters automatically at commit time. You can also run them manually against staged files:
+
+```bash
+pre-commit run
+```
+
+For Python specifically:
 
 ```bash
 ruff check .

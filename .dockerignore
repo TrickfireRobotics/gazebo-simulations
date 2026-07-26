@@ -1,9 +1,7 @@
 # ROS build
-robot-sim/build/
-robot-sim/install/
-robot-sim/log/
+gazebo/build/
+gazebo/install/
+gazebo/log/
 
 # Website
-docs/node_modules/
-docs/dist/
-docs/.astro/
+.trickfire-website/

@@ -7,7 +7,7 @@ description: Internal notes, tips, and architectural decisions for contributors.
 
 ### Why pixi for the native workflow?
 
-ROS 2 + Gazebo + their dependencies are notoriously painful to install natively, especially across different OS versions. [pixi](https://pixi.sh) solves this by storing the entire environment (ROS 2 Jazzy, Gazebo Harmonic, all dependencies) inside the repo's `.pixi/` directory via conda. Deleting the repo also deletes the environment — your system stays completely clean. The same `pixi install` works on Linux, macOS, and WSL2 without any OS-level ROS installation.
+ROS 2 + Gazebo + their dependencies are notoriously painful to install natively, especially across different OS versions. [pixi](https://pixi.sh) solves this by storing the entire environment (ROS 2 Jazzy, Gazebo Harmonic, all dependencies) inside the repo's `.pixi/` directory via conda. Deleting the repo also deletes the environment - your system stays completely clean. The same `pixi install` works on Linux, macOS, and WSL2 without any OS-level ROS installation.
 
 ### Why a Dev Container (alternative)?
 
@@ -15,7 +15,7 @@ The Docker Dev Container is an alternative for users who prefer a containerized 
 
 ### Why Gazebo Harmonic?
 
-Gazebo Harmonic (gz-sim 8.x) is the current LTS release of the new-generation Gazebo and pairs with ROS 2 Jazzy. It replaces the old Gazebo Fortress (ignition-fortress). The package prefix changed from `ign` to `gz` in this generation — use `gz topic`, `gz service`, etc.
+Gazebo Harmonic (gz-sim 8.x) is the current LTS release of the new-generation Gazebo and pairs with ROS 2 Jazzy. It replaces the old Gazebo Fortress (ignition-fortress). The package prefix changed from `ign` to `gz` in this generation - use `gz topic`, `gz service`, etc.
 
 ### Why two packages per robot?
 

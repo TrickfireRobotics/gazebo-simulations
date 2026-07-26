@@ -17,89 +17,89 @@ shopt -s histappend checkwinsize
 
 # ---------- locate repo ----------
 _tf_find_repo() {
-	local d
-	for d in \
-		"$PWD" \
-		"$HOME/simulations" \
-		"/workspaces/simulations" \
-		"/workspace/simulations"; do
-		if [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
-			printf "%s\n" "$d"
-			return 0
-		fi
-	done
+    local d
+    for d in \
+        "$PWD" \
+        "$HOME/simulations" \
+        "/workspaces/simulations" \
+        "/workspace/simulations"; do
+        if [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
+            printf "%s\n" "$d"
+            return 0
+        fi
+    done
 
-	d="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-	if [ -n "$d" ] && [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
-		printf "%s\n" "$d"
-		return 0
-	fi
+    d="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+    if [ -n "$d" ] && [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
+        printf "%s\n" "$d"
+        return 0
+    fi
 
-	return 1
+    return 1
 }
 
 if TF_REPO_DIR="$(_tf_find_repo)"; then
-	export TF_REPO_DIR
-	export TF_GAZEBO_DIR="$TF_REPO_DIR/gazebo"
+    export TF_REPO_DIR
+    export TF_GAZEBO_DIR="$TF_REPO_DIR/gazebo"
 fi
 
 # ---------- venv ----------
 if [ -f "${TF_REPO_DIR}/.venv/bin/activate" ]; then
-	source "${TF_REPO_DIR}/.venv/bin/activate"
+    source "${TF_REPO_DIR}/.venv/bin/activate"
 fi
 
 # ---------- ROS/Gazebo environment ----------
 tf_source_env() {
-	if [ -f /opt/ros/jazzy/setup.bash ]; then
-		# shellcheck source=/dev/null
-		source /opt/ros/jazzy/setup.bash
-	fi
+    if [ -f /opt/ros/jazzy/setup.bash ]; then
+        # shellcheck source=/dev/null
+        source /opt/ros/jazzy/setup.bash
+    fi
 
-	if [ -n "${TF_GAZEBO_DIR:-}" ] && [ -f "$TF_GAZEBO_DIR/install/setup.bash" ]; then
-		# shellcheck source=/dev/null
-		source "$TF_GAZEBO_DIR/install/setup.bash"
+    if [ -n "${TF_GAZEBO_DIR:-}" ] && [ -f "$TF_GAZEBO_DIR/install/setup.bash" ]; then
+        # shellcheck source=/dev/null
+        source "$TF_GAZEBO_DIR/install/setup.bash"
 
-		local _sim_worlds_share="$TF_GAZEBO_DIR/install/sim_worlds/share/sim_worlds"
-		if [ -d "$_sim_worlds_share/worlds" ]; then
-			export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$_sim_worlds_share"
-		fi
-	fi
+        local _sim_worlds_share="$TF_GAZEBO_DIR/install/sim_worlds/share/sim_worlds"
+        if [ -d "$_sim_worlds_share/worlds" ]; then
+            export GZ_SIM_RESOURCE_PATH="${GZ_SIM_RESOURCE_PATH:+$GZ_SIM_RESOURCE_PATH:}$_sim_worlds_share"
+        fi
+    fi
 }
 
 if [ -z "${TF_ENV_SOURCED:-}" ]; then
-	tf_source_env
-	export TF_ENV_SOURCED=1
+    tf_source_env
+    export TF_ENV_SOURCED=1
 fi
 
 # ---------- display ----------
-if [[ -n "${DISPLAY:-}" && "${DISPLAY}" != :* ]]; then
-	export DISPLAY=":${DISPLAY}"
+if [[ -n ${DISPLAY:-} && ${DISPLAY} != :* ]]; then
+    export DISPLAY=":${DISPLAY}"
 fi
 
 # ---------- prompt ----------
 _tf_git_branch() {
-	git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null
+    git symbolic-ref --quiet --short HEAD 2>/dev/null || git rev-parse --short HEAD 2>/dev/null
 }
 
 _tf_prompt() {
-	local branch=""
-	local reset="\[\e[0m\]"
-	local pink="\[\e[38;2;233;60;171m\]"
-	local green="\[\e[38;2;1;255;0m\]"
-	local blue="\[\e[38;2;80;170;255m\]"
+    local branch=""
+    local reset="\[\e[0m\]"
+    local pink="\[\e[38;2;233;60;171m\]"
+    local green="\[\e[38;2;1;255;0m\]"
+    local blue="\[\e[38;2;80;170;255m\]"
 
-	branch="$(_tf_git_branch)"
-	if [ -n "$branch" ]; then
-		branch=" ${blue}(${branch})${reset}"
-	fi
+    branch="$(_tf_git_branch)"
+    if [ -n "$branch" ]; then
+        branch=" ${blue}(${branch})${reset}"
+    fi
 
-	PS1="${pink}\u${reset}:${green}\w${reset}${branch}\\$ "
+    PS1="${pink}\u${reset}:${green}\w${reset}${branch}\\$ "
 }
 PROMPT_COMMAND="_tf_prompt"
 
 # ---------- navigation ----------
 if [ "${TF_AUTO_CD_REPO:-1}" = "1" ] && [ -n "${TF_REPO_DIR:-}" ] && [ "$PWD" = "$HOME" ]; then
-	cd "$TF_REPO_DIR" || true
+    cd "$TF_REPO_DIR" || true
 fi
 
 # ---------- aliases ----------

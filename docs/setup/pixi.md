@@ -1,0 +1,44 @@
+---
+title: Native Setup
+description: Run the simulation natively using pixi.
+---
+
+The native workflow installs ROS 2 Jazzy and Gazebo Harmonic into a self-contained environment inside the repository using [pixi](https://pixi.sh), not requiring Docker and using your system directly without another layer, producing better performance.
+
+> **Supported platforms:** Linux (x86-64, ARM64), macOS (Intel and Apple Silicon), WSL2.
+
+:::warning
+This way of running the project does not support the Chrono sim, only Gazebo! See [Docker](../../setup/docker)
+:::
+
+## 1. Install pixi
+
+```bash
+curl -fsSL https://pixi.sh/install.sh | bash
+```
+
+Restart your shell after installation!
+
+## 2. Install dependencies
+
+From the repo root, install all project dependencies using the following command:
+
+```bash
+pixi install
+```
+
+This downloads ~3–5 GB on first run, and takes a while. Subsequent runs are instant.
+
+## 3. Launch a simulation
+
+```bash
+pixi run sim gazebo native arm
+```
+
+This builds the ROS 2 workspace and launches 3 windows, Gazebo, RViz, and the Joint GUI.
+
+See [Running Gazebo](../../guides/gazebo/) for full CLI options and flags.
+
+:::tip
+Do not use `pixi shell` as your regular working shell. It modifies library paths in a way that can break system tools like `git` on macOS. Use `pixi run <command>` instead. For example: `pixi run sim gazebo native arm`.
+:::

@@ -1,0 +1,26 @@
+repos:
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.15.21
+      hooks:
+          - id: ruff
+            args: [--fix]
+          - id: ruff-format
+
+    - repo: https://github.com/pre-commit/mirrors-clang-format
+      rev: v18.1.8
+      hooks:
+          - id: clang-format
+            types_or: [c, c++]
+
+    - repo: https://github.com/scop/pre-commit-shfmt
+      rev: v3.10.0-1
+      hooks:
+          - id: shfmt
+            args: [-i, "4", -s, -w]
+            files: ^(\.devcontainer|docker)/
+
+    - repo: https://github.com/jorisroovers/gitlint
+      rev: v0.19.1
+      hooks:
+          - id: gitlint
+            stages: [commit-msg]

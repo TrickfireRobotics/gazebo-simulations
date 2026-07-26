@@ -38,7 +38,7 @@ def auth() -> None:
         die("Connection timed out")
 
     if resp.status_code == 401:
-        die("Invalid API key — generate a new one at Settings → CLI access.")
+        die("Invalid API key! Generate a new one at Settings → CLI access.")
     if not resp.ok:
         die(f"Verification failed ({resp.status_code}). Check the dashboard URL.")
 

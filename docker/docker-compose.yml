@@ -3,6 +3,7 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
+      target: sim
       network: host
     image: simulations:latest
     container_name: simulations
@@ -17,6 +18,7 @@ services:
 
     volumes:
       - ..:/home/trickfire/simulations
+      - /lib/modules:/lib/modules:ro
       - type: bind
         source: ${XDG_RUNTIME_DIR:-/run/user/1000}
         target: /run/user/1000

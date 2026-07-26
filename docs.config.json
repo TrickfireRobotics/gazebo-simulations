@@ -7,40 +7,44 @@
         {
             "label": "Setup",
             "items": [
-                { "label": "Native", "slug": "setup/macos" },
-                { "label": "Dev Container", "slug": "setup/devcontainer" },
-                { "label": "Nvidia Container", "slug": "setup/nvidia" }
+                { "label": "Native (pixi)", "slug": "setup/pixi" },
+                { "label": "Docker", "slug": "setup/docker" },
+                { "label": "Docker + Nvidia", "slug": "setup/nvidia" }
             ]
         },
         {
-            "label": "Simulation",
+            "label": "Gazebo",
             "items": [
                 {
-                    "label": "Running Simulations",
-                    "slug": "guides/running-simulations"
+                    "label": "Running Gazebo",
+                    "slug": "gazebo/gazebo"
                 },
-                { "label": "Moving Joints", "slug": "guides/moving-joints" },
+                { "label": "Moving Joints", "slug": "gazebo/moving-joints" },
                 {
                     "label": "Adding a New Robot",
-                    "slug": "guides/adding-robots"
-                }
+                    "slug": "gazebo/adding-robots"
+                },
+                { "label": "ROS Workspace", "slug": "gazebo/ros-workspace" },
+                { "label": "Launch System", "slug": "gazebo/launch-system" },
+                {
+                    "label": "Robot Packages",
+                    "slug": "gazebo/robot-packages"
+                },
+                { "label": "Joint GUI", "slug": "gazebo/joint-gui" }
             ]
         },
         {
-            "label": "Deep Dives",
+            "label": "Chrono",
+            "items": [{ "label": "Running Simulations", "slug": "chrono/chrono" }]
+        },
+        {
+            "label": "Reference",
             "items": [
                 { "label": "Dev Notes", "slug": "reference/dev-notes" },
-                { "label": "ROS Workspace", "slug": "reference/ros-workspace" },
                 {
                     "label": "Docker Environment",
                     "slug": "reference/docker-environment"
-                },
-                { "label": "Launch System", "slug": "reference/launch-system" },
-                {
-                    "label": "Robot Packages",
-                    "slug": "reference/robot-packages"
-                },
-                { "label": "Joint GUI", "slug": "reference/joint-gui" }
+                }
             ]
         }
     ]
