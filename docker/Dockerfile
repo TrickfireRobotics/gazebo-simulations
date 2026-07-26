@@ -14,7 +14,7 @@ RUN echo "------------------- BASE -------------------"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && \
-    apt-get install --no-install-recommends -y locales curl gcc libc6-dev sudo && \
+    apt-get install --no-install-recommends -y locales curl gcc libc6-dev sudo ca-certificates && \
     locale-gen en_US en_US.UTF-8 && \
     update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
@@ -51,7 +51,7 @@ RUN echo "-------------------- VSG -------------------"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates git build-essential cmake \
+    git build-essential cmake \
     libeigen3-dev \
     libvulkan-dev \
     mesa-vulkan-drivers \
