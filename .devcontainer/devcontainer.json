@@ -16,6 +16,9 @@
 
     "customizations": {
         "vscode": {
+            "settings": {
+                "shfmt.executablePath": "/usr/local/bin/shfmt"
+            },
             "extensions": [
                 // --- Python ---
                 "ms-python.python",
