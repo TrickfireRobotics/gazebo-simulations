@@ -54,6 +54,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     git build-essential cmake \
     libeigen3-dev \
     libvulkan-dev \
+    libxcb1-dev \
     mesa-vulkan-drivers \
     ninja-build \
     pkg-config \
@@ -251,7 +252,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     openssh-server python3.12-venv wget zstd
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip3 install ruff pre-commit --break-system-packages
+    pip3 install ruff pre-commit --break-system-packages --ignore-installed
 
 RUN curl -sSL "https://github.com/mvdan/sh/releases/latest/download/shfmt_$(curl -sSL https://api.github.com/repos/mvdan/sh/releases/latest | grep -oP '(?<="tag_name": ")v[^"]+')_linux_amd64" \
     -o /usr/local/bin/shfmt && \
