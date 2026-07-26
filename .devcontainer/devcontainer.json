@@ -11,8 +11,9 @@
     "remoteEnv": {
         "HOST_WORKSPACE": "${localWorkspaceFolder}"
     },
-    "postCreateCommand": "pip3 install --break-system-packages -e . && python3 chrono/scripts/vendor.py",
-    "postStartCommand": "bash ./.devcontainer/x_server.sh || exit 0",
+    "postCreateCommand": "pip3 install --break-system-packages -e .", // install the sim cli
+    // run the x-server script and copy c++ headers to workspace
+    "postStartCommand": "bash ./.devcontainer/x_server.sh || true; python3 chrono/scripts/vendor.py",
 
     "customizations": {
         "vscode": {
