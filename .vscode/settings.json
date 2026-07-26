@@ -53,8 +53,7 @@
         ".vscode/browse.vc.db-shm": true,
         ".vscode/browse.vc.db-wal": true,
         ".cache/": true,
-        ".pixi/": true,
-        "chrono/vendor/": true
+        ".pixi/": true
     },
 
     "python.terminal.activateEnvironment": false,
