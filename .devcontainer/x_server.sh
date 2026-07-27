@@ -8,6 +8,7 @@ set -eo pipefail
 # --------------------------------------------------------------------------------------------
 
 VERBOSE=false
+FORCE_VNC=${FORCE_VNC:-}
 LOG_FILE="/tmp/start_x_server.log"
 PIDS=()
 : >"$LOG_FILE"
@@ -46,16 +47,28 @@ cleanup() {
 
 # --------------------------------------------------------------------------------------------
 
-# Parse --verbose flag
+# Parse flags
 for arg in "$@"; do
-    case "$arg" in -v | --verbose) VERBOSE=true ;; esac
+    case "$arg" in
+    -v | --verbose) VERBOSE=true ;;
+    --force-vnc) FORCE_VNC=1 ;;
+    esac
 done
 
-# wayland is the best for this, just use that if the host has it
-WAYLAND_SOCK="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
-if [ -S "$WAYLAND_SOCK" ]; then
-    log "[X11] Using Wayland socket at $WAYLAND_SOCK"
-    exit 0
+if [ -n "$FORCE_VNC" ]; then
+    # Dev/testing override: skip Wayland/host-X11 passthrough and always stand up
+    # our own virtual X server + x11vnc + noVNC. Use a display number distinct from
+    # the host's (rather than $DISPLAY) so we don't collide with the real host X11
+    # socket bind-mounted into /tmp/.X11-unix by docker-compose-dev.yml.
+    DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
+    log "[X11] FORCE_VNC set - forcing virtual display $DISPLAY + VNC/noVNC"
+else
+    # wayland is the best for this, just use that if the host has it
+    WAYLAND_SOCK="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
+    if [ -S "$WAYLAND_SOCK" ]; then
+        log "[X11] Using Wayland socket at $WAYLAND_SOCK"
+        exit 0
+    fi
 fi
 
 # Jetson/Tegra has no /dev/dri but Xorg drivers (nvidia, modesetting, dummy) all need it.

@@ -1,7 +1,7 @@
 services:
   sim:
     environment:
-      - DISPLAY
+      # - FORCE_VNC=1
       - WAYLAND_DISPLAY
       - XDG_RUNTIME_DIR=/run/host-runtime
       - QT_SCALE_FACTOR
