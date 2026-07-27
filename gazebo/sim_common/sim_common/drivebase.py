@@ -1,19 +1,16 @@
 """
-Sim equivalent of the real rover's drivebase node (urc-2023/src/drivebase).
-Converts mission-control's per-side speed commands into wheel velocity
-commands for the chassis's forward_velocity_controller, so mission-control
-can drive the sim with no changes on its end.
+Sim equivalent of the real rover's drivebase node
 """
 
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32, Float64MultiArray
 
-# Matches urc-2023/src/drivebase/drivebase/drivebase.py so a given joystick
+# matches urc-2023/src/drivebase/drivebase/drivebase.py so a given joystick
 # deflection produces the same wheel speed on the sim as on the real rover
 SPEED = 6.28 * 1.5  # rad/s
 
-# Order must match the joints list in chassis_bringup/config/chassis.controller.yaml
+# order must match the joints list in chassis_bringup/config/chassis.controller.yaml
 WHEEL_ORDER = ["fl_wheel", "ml_wheel", "bl_wheel", "fr_wheel", "mr_wheel", "br_wheel"]
 LEFT_WHEELS = ("fl_wheel", "ml_wheel", "bl_wheel")
 RIGHT_WHEELS = ("fr_wheel", "mr_wheel", "br_wheel")
@@ -41,7 +38,6 @@ class Drivebase(Node):
         self._publish()
 
     def _on_right(self, msg: Float32) -> None:
-        # Right side motors are mirror-mounted, same as on the real rover.
         vel = msg.data * SPEED
         for wheel in RIGHT_WHEELS:
             self.wheel_velocity[wheel] = -vel

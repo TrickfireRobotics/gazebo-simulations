@@ -2,46 +2,25 @@
 Launch script for the Gazebo arm simulation
 """
 
-import os
-import shutil
-import subprocess
-import sys
-
-import xacro
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import (
-    DeclareLaunchArgument,
-    ExecuteProcess,
-    IncludeLaunchDescription,
-    RegisterEventHandler,
-    TimerAction,
-)
+from launch.actions import DeclareLaunchArgument, TimerAction
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from sim_common.launch_utils import get_asset
+from sim_common.launch_utils import (
+    chain_controller_spawners,
+    clock_bridge_node,
+    controller_spawner_node,
+    gazebo_launch_actions,
+    get_asset,
+    joint_state_broadcaster_spawner,
+    process_robot_description,
+    robot_state_publisher_node,
+    rviz_node,
+    spawn_robot_node,
+)
 
-
-def _gz_supports_sim_command():
-    """Return True when `gz` exists and exposes the `sim` subcommand."""
-    if shutil.which("gz") is None:
-        return False
-
-    try:
-        result = subprocess.run(
-            ["gz", "--commands"],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-    except OSError:
-        return False
-
-    commands = result.stdout.splitlines()
-    return any(line.strip() == "sim" for line in commands)
+ROBOT_NAME = "arm"
 
 
 def generate_launch_description():
@@ -53,121 +32,12 @@ def generate_launch_description():
     urdf_file = get_asset("arm_description", "urdf", "arm.urdf")
     gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
 
-    # ----------------------------------------------
-    # xacro generate URDF
-    # ----------------------------------------------
+    robot_desc = process_robot_description(urdf_file, controller_config)
 
-    robot_desc = xacro.process_file(
-        urdf_file,
-        mappings={
-            "controller_config": controller_config,
-            "plugin_extension": ".dylib" if sys.platform == "darwin" else ".so",
-        },
-    ).toxml()
-
-    # ----------------------------------------------
-    # Gazebo launch arguments
-    # ----------------------------------------------
-
-    use_split_gui = _gz_supports_sim_command()
-    gz_server_args = (
-        ["-r", "-s", world_file]
-        if use_split_gui
-        else ["-r", world_file, "--gui-config", gz_gui_config]
-    )
-
-    gz_server = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
-        ),
-        launch_arguments={"gz_args": " ".join(gz_server_args)}.items(),
-    )
-
-    gz_gui = ExecuteProcess(
-        cmd=["gz", "sim", "--force-version", "8", "-g", "--gui-config", gz_gui_config],
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("gui")),
-    )
-
-    # ----------------------------------------------
-    # Gazebo spawn model
-    # ----------------------------------------------
-
-    spawn_robot = Node(
-        package="ros_gz_sim",
-        executable="create",
-        arguments=[
-            "-name",
-            "arm",
-            "-string",
-            robot_desc,
-            "-x",
-            "0",
-            "-y",
-            "0",
-            "-z",
-            "0.1",
-        ],
-        output="screen",
-    )
-
-    # ----------------------------------------------
-    # Robot state publisher
-    # ----------------------------------------------
-
-    robot_state_publisher = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        name="robot_state_publisher",
-        output="both",
-        parameters=[{"robot_description": robot_desc}],
-    )
-
-    # ----------------------------------------------
-    # Joint controllers
-    # ----------------------------------------------
-
-    joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "joint_state_broadcaster",
-        ],
-    )
-    joint_trajectory_controller_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "joint_trajectory_controller",
-            "--param-file",
-            controller_config,
-        ],
-    )
-
-    # ----------------------------------------------
-    # RVIZ
-    # ----------------------------------------------
-
-    rviz = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        arguments=[
-            "-d",
-            rviz_config,
-        ],
-        condition=IfCondition(LaunchConfiguration("rviz")),
-    )
-
-    # ----------------------------------------------
-    # ROS GZ BRIDGE
-    # ----------------------------------------------
-
-    bridge = Node(
-        package="ros_gz_bridge",
-        executable="parameter_bridge",
-        arguments=["/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock"],
-        output="screen",
+    spawn_robot = spawn_robot_node(ROBOT_NAME, robot_desc)
+    joint_state_broadcaster = joint_state_broadcaster_spawner()
+    joint_trajectory_controller = controller_spawner_node(
+        "joint_trajectory_controller", controller_config
     )
 
     # ----------------------------------------------
@@ -182,32 +52,18 @@ def generate_launch_description():
         output="screen",
     )
 
-    spawn_robot_delayed = TimerAction(period=5.0, actions=[spawn_robot])
-    gz_gui_delayed = TimerAction(period=2.0, actions=[gz_gui])
-    maybe_gui_action = gz_gui_delayed if use_split_gui else None
-
     return LaunchDescription(
         [
-            gz_server,
-            *([maybe_gui_action] if maybe_gui_action is not None else []),
-            spawn_robot_delayed,
-            robot_state_publisher,
+            *gazebo_launch_actions(world_file, gz_gui_config),
+            TimerAction(period=5.0, actions=[spawn_robot]),
+            robot_state_publisher_node(robot_desc),
             DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),
             DeclareLaunchArgument("gui", default_value="true", description="Open Joint GUI."),
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=spawn_robot,
-                    on_exit=[joint_state_broadcaster_spawner],
-                )
+            *chain_controller_spawners(
+                spawn_robot, joint_state_broadcaster, joint_trajectory_controller
             ),
-            RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=joint_state_broadcaster_spawner,
-                    on_exit=[joint_trajectory_controller_spawner],
-                )
-            ),
-            bridge,
-            rviz,
+            clock_bridge_node(),
+            rviz_node(rviz_config),
             joint_gui,
         ]
     )
