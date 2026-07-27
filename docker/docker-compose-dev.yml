@@ -1,13 +1,13 @@
 services:
   sim:
     environment:
-      # - FORCE_VNC=1
-      - WAYLAND_DISPLAY
-      - XDG_RUNTIME_DIR=/run/host-runtime
-      - QT_SCALE_FACTOR
-      - QT_ENABLE_HIGHDPI_SCALING
-      - GDK_SCALE
-      - GDK_DPI_SCALE
+      WAYLAND_DISPLAY: "${WAYLAND_DISPLAY:-}"
+      XDG_RUNTIME_DIR: /run/host-runtime
+      QT_SCALE_FACTOR: "${QT_SCALE_FACTOR:-}"
+      QT_ENABLE_HIGHDPI_SCALING: "${QT_ENABLE_HIGHDPI_SCALING:-}"
+      GDK_SCALE: "${GDK_SCALE:-}"
+      GDK_DPI_SCALE: "${GDK_DPI_SCALE:-}"
+      FORCE_VNC: "${FORCE_VNC:-}"
     build:
       args:
         USER_UID: "${UID:-1000}"

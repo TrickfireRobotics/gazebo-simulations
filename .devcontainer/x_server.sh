@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-set -eo pipefail
 
 # --------------------------------------------------------------------------------------------
 # Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
 # Intended for running GUI apps (Gazebo) in Docker.
 # Supports --verbose flag for debugging (prints all output to console instead of log file).
 # --------------------------------------------------------------------------------------------
+
+set -eo pipefail
+trap '' HUP
 
 VERBOSE=false
 FORCE_VNC=${FORCE_VNC:-}
@@ -15,7 +17,6 @@ PIDS=()
 
 log() { printf "\033[1;36m%s\033[0m\n" "$1"; }
 
-# Foreground commands: exit with log dump on failure
 run() {
     if $VERBOSE; then
         "$@"
@@ -29,7 +30,6 @@ run() {
     }; fi
 }
 
-# Background services: just redirect output
 start() {
     if $VERBOSE; then
         "$@" &
@@ -37,7 +37,6 @@ start() {
     PIDS+=($!)
 }
 
-# Cleanup function to kill background processes on exit
 cleanup() {
     trap - SIGINT SIGTERM EXIT
     log "[CLEANUP] Shutting down X11 / VNC / noVNC…"
@@ -47,7 +46,6 @@ cleanup() {
 
 # --------------------------------------------------------------------------------------------
 
-# Parse flags
 for arg in "$@"; do
     case "$arg" in
     -v | --verbose) VERBOSE=true ;;
@@ -56,14 +54,10 @@ for arg in "$@"; do
 done
 
 if [ -n "$FORCE_VNC" ]; then
-    # Dev/testing override: skip Wayland/host-X11 passthrough and always stand up
-    # our own virtual X server + x11vnc + noVNC. Use a display number distinct from
-    # the host's (rather than $DISPLAY) so we don't collide with the real host X11
-    # socket bind-mounted into /tmp/.X11-unix by docker-compose-dev.yml.
     DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
-    log "[X11] FORCE_VNC set - forcing virtual display $DISPLAY + VNC/noVNC"
+    unset WAYLAND_DISPLAY
+    log "[X11] FORCE_VNC set. Forcing virtual display $DISPLAY + VNC/noVNC"
 else
-    # wayland is the best for this, just use that if the host has it
     WAYLAND_SOCK="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
     if [ -S "$WAYLAND_SOCK" ]; then
         log "[X11] Using Wayland socket at $WAYLAND_SOCK"
@@ -71,10 +65,16 @@ else
     fi
 fi
 
-# Jetson/Tegra has no /dev/dri but Xorg drivers (nvidia, modesetting, dummy) all need it.
-# Use Xvfb on Jetson; GPU rendering still happens via EGL through the injected Tegra libs.
-# Desktop NVIDIA has /proc/driver/nvidia; everything else gets the dummy Xorg driver.
-if [ -e /dev/nvmap ] && [ ! -d /dev/dri ]; then
+if [ -n "$FORCE_VNC" ]; then
+    # FORCE_VNC always runs alongside a real host session, so real Xorg here
+    # (dummy, vkms-targeted, or real GPU driver - it doesn't matter which) has
+    # repeatedly ended up touching real display hardware and hijacking the
+    # host's screen. Xvfb is the only backend that's structurally incapable of
+    # touching /dev/dri at all, so FORCE_VNC always uses it, no exceptions.
+    BACKEND="xvfb"
+    XORG_CONF="/etc/X11/xorg.dummy.conf" # only used below to read screen resolution
+    log "[X11] FORCE_VNC: using Xvfb unconditionally (no direct GPU access)"
+elif [ -e /dev/nvmap ] && [ ! -d /dev/dri ]; then
     BACKEND="xvfb"
     XORG_CONF="/etc/X11/xorg.nvidia.conf"
     log "[X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL"
@@ -88,8 +88,9 @@ else
     sudo modprobe vkms 2>/dev/null || true
     VKMS_CARD=""
     for card in /dev/dri/card*; do
-        drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null) || continue
-        [[ $drv == *vkms* ]] && {
+        drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null)
+        dev_path=$(readlink -f "/sys/class/drm/$(basename "$card")/device" 2>/dev/null)
+        [[ $drv == *vkms* || $dev_path == *vkms* ]] && {
             VKMS_CARD="$card"
             break
         }
@@ -128,12 +129,12 @@ Section "ServerLayout"
 EndSection
 XCONF
     else
-        log "[X11] vkms unavailable, falling back to dummy driver (no DRI3)"
-        XORG_CONF="/etc/X11/xorg.dummy.conf"
+        log "[X11] vkms unavailable, falling back to Xvfb (no real GPU access, no DRI3)"
+        BACKEND="xvfb"
+        XORG_CONF="/etc/X11/xorg.dummy.conf" # only used below to read screen resolution
     fi
 fi
 
-# Parse screen resolution from Xorg config (in docker/xorg.dummy|nvidia.conf)
 SCREEN_MODE=$(grep -oP '(?<=Modes ")[^"]+' "$XORG_CONF" | head -1)
 SCREEN_WIDTH=$(echo "$SCREEN_MODE" | cut -dx -f1)
 SCREEN_HEIGHT=$(echo "$SCREEN_MODE" | cut -dx -f2)
@@ -143,18 +144,15 @@ if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; 
     exit 1
 fi
 
-# Set in the Dockerfile and docker compose.
 : "${DISPLAY:?DISPLAY is not set}"
 : "${VNC_PORT:?VNC_PORT is not set}"
 : "${NOVNC_PORT:?NOVNC_PORT is not set}"
 
-# Check if DISPLAY is already in use
 if xdpyinfo -display "$DISPLAY" &>/dev/null; then
     log "[ERROR] Display $DISPLAY is already in use!"
     exit 1
 fi
 
-# Kill all child processes on exit
 trap cleanup SIGINT SIGTERM
 
 # Start X server (Xorg or Xvfb determined above)

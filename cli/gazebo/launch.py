@@ -121,6 +121,23 @@ def _check_display() -> None:
         die("Cannot connect to display " + display)
 
 
+def _configure_force_vnc_rendering(env: dict[str, str]) -> list[str]:
+    """Force software GL rendering for Gazebo/OGRE2 when running under FORCE_VNC.
+
+    FORCE_VNC intentionally never touches real GPU/render-node devices - every
+    attempt to give it direct GPU access (Xorg with a real or virtual KMS
+    device, VirtualGL through the render node) has ended up interfering with
+    the host's real display. Mesa's software rasterizer is unaccelerated but
+    it's the only backend that's actually safe here.
+    """
+    if not os.environ.get("FORCE_VNC"):
+        return []
+
+    info("FORCE_VNC: forcing software rendering (llvmpipe) - no direct GPU access")
+    env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+    return []
+
+
 def _setup_pixi_env() -> None:
     """Configure Gazebo plugin/resource paths and Qt platform for a pixi environment."""
     pixi_dir = REPO_DIR / ".pixi"
@@ -171,6 +188,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     build = not no_build
     launch = not build_only
     env = os.environ.copy()
+    render_prefix = _configure_force_vnc_rendering(env)
     bringup_pkg, description_pkg, launch_file_name = _validate_robot_layout(robot_name)
 
     if build:
@@ -237,7 +255,7 @@ else
     echo \"       Expected: $SIM_WORLDS_SHARE/worlds\"
 fi
 
-exec ros2 launch \"{bringup_pkg}\" \"{launch_file_name}\" gui:=true
+exec {" ".join(render_prefix)} ros2 launch \"{bringup_pkg}\" \"{launch_file_name}\" gui:=true
 """.strip()
 
     try:
