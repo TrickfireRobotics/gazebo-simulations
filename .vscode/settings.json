@@ -74,5 +74,6 @@
         "${workspaceFolder}/gazebo/sim_common"
     ],
     "ROS2.distro": "jazzy",
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "autoDevcontainer.enabled": true
 }
