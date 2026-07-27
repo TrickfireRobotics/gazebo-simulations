@@ -10,7 +10,6 @@ from .drpc import rpc_start
 from .output import die, info
 from .paths import GAZEBO_WORKSPACE_DIR
 
-
 _GAZEBO_SUBCOMMANDS = frozenset({"clean", "create", "update", "auth"})
 
 
@@ -85,7 +84,7 @@ def main() -> None:
             _launch_gazebo(sys.argv[2], sys.argv[3:])
         except KeyboardInterrupt:
             sys.exit(130)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - top-level handler, report and exit
             die(str(e))
         return
 
@@ -95,8 +94,8 @@ def main() -> None:
     )
     subparsers = parser.add_subparsers(dest="sim")
 
-    gazebo_parser, gazebo_subs, create_p = _build_gazebo_parser(subparsers)
-    chrono_parser, chrono_subs = _build_chrono_parser(subparsers)
+    gazebo_parser, _gazebo_subs, create_p = _build_gazebo_parser(subparsers)
+    chrono_parser, _chrono_subs = _build_chrono_parser(subparsers)
 
     args = parser.parse_args()
 
@@ -116,7 +115,7 @@ def main() -> None:
             parser.print_help()
     except KeyboardInterrupt:
         sys.exit(130)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 - top-level handler, report and exit
         die(str(e))
 
 

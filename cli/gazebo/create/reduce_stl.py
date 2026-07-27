@@ -62,7 +62,7 @@ def batch_process_directory(input_dir: str, output_dir: str, reduction_ratio: fl
     old_file_size = 0
     new_file_size = 0
 
-    trimesh, pyfqmr = _imports()
+    trimesh, _pyfqmr = _imports()
     for file_path in stl_files:
         filename = os.path.basename(file_path)
         out_path = os.path.join(output_dir, filename)

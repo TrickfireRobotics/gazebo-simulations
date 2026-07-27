@@ -4,8 +4,9 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from ...output import die as err
+from ...output import info, warn
 from . import PACKAGE_DIR
-from ...output import die as err, info, warn
 from .onshape import download, parse_onshape_url
 from .reduce_stl import batch_process_directory
 from .registry import load_robots_json, save_robots_json

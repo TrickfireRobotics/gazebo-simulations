@@ -45,5 +45,5 @@ def rpc_start(is_docker: bool = False, robot_name: str = "Unknown Robot") -> Non
         )
         while True:
             time.sleep(15)
-    except Exception as e:  # pylint: disable=broad-except
+    except Exception as e:  # noqa: BLE001 - RPC is best-effort, never fatal
         print(f"Discord RPC unavailable: {e}")
