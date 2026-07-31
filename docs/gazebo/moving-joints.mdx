@@ -31,9 +31,9 @@ You can also:
 2. It subscribes to `/joint_states` to discover which joints are actually active and their starting positions
 3. When you hit **Send**, it publishes a `JointTrajectory` message to the selected topic with positions offset by each joint's origin angle
 
-:::tip
-If the GUI shows "Discovering joints from /joint_states..." for a long time, the joint controllers may not have started yet. Wait for Gazebo to fully load.
-:::
+<Callout type="idea" title="Tip">
+    If the GUI shows "Discovering joints from /joint_states..." for a long time, the joint controllers may not have started yet. Wait for Gazebo to fully load.
+</Callout>
 
 ## move_joints node (CLI)
 

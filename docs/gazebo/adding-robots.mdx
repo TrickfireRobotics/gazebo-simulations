@@ -21,9 +21,9 @@ You do not need any credentials or local setup. The **Create new robot** workflo
 
 Running `sim gazebo create` locally requires authentication via the TrickFire dashboard:
 
-:::note[note]
-This method uses your GitHub `ssh` key. Make sure it is set up. In the Dev Container, your SSH keys are mounted automatically from the host.
-:::
+<Callout type="info" title="note">
+    This method uses your GitHub `ssh` key. Make sure it is set up. In the Dev Container, your SSH keys are mounted automatically from the host.
+</Callout>
 
 ```bash title="Terminal"
 sim gazebo auth
@@ -35,9 +35,9 @@ Then you can create the robot using:
 sim gazebo create <robot_name> <onshape_url>
 ```
 
-:::tip[Tip]
-This sim will work with any Onshape API key and secret as long as you put them in the `cli/onshape.env` file under `ONSHAPE_API_KEY` and `ONSHAPE_API_SECRET` (in standard env format). The above is just for TrickFire specific robots.
-:::
+<Callout type="idea" title="Tip">
+    This sim will work with any Onshape API key and secret as long as you put them in the `cli/onshape.env` file under `ONSHAPE_API_KEY` and `ONSHAPE_API_SECRET` (in standard env format). The above is just for TrickFire specific robots.
+</Callout>
 
 ## Flags
 

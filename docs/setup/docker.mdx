@@ -11,9 +11,9 @@ If you are using VSCode, open the cloned folder in VSCode. You should see a prom
 
 If you are using the CLI, navigate to the folder in your terminal and then run `devcontainer up`.
 
-:::note
-This will take a long time if it is your first time (30 mins)! Docker builds Chrono and its dependencies (many lines of C++) from source, and then the same for Gazebo and ROS! Subsequent launches will be very fast though.
-:::
+<Callout type="info" title="Note">
+    This will take a long time if it is your first time (30 mins)! Docker builds Chrono and its dependencies (many lines of C++) from source, and then the same for Gazebo and ROS! Subsequent launches will be very fast though.
+</Callout>
 
 ## 2. Check if display works
 
@@ -53,13 +53,13 @@ followed by:
 
 Once you see `[MAIN] All services started`, connect with a VNC viewer at `localhost:5900`. You should see a blank desktop.
 
-:::note
-Good VNC viewers I would reccomend are [TigerVNC](https://tigervnc.org/) or [VNCViewer](https://www.realvnc.com/en/connect/download/viewer/?lai_sr=0-4&lai_sl=l)
-:::
+<Callout type="info" title="Note">
+    Good VNC viewers I would reccomend are [TigerVNC](https://tigervnc.org/) or [VNCViewer](https://www.realvnc.com/en/connect/download/viewer/?lai_sr=0-4&lai_sl=l)
+</Callout>
 
-:::tip
-For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in your browser. Note that noVNC doesn't forward modifier keys (Alt, Super, etc.) correctly, so a native VNC viewer is better for regular use.
-:::
+<Callout type="idea" title="Tip">
+    For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in your browser. Note that noVNC doesn't forward modifier keys (Alt, Super, etc.) correctly, so a native VNC viewer is better for regular use.
+</Callout>
 
 If the script fails, it automatically dumps `/tmp/start_x_server.log` to the terminal to help you diagnose the problem.
 
