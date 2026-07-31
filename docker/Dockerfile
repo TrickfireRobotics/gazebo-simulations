@@ -4,6 +4,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 ARG TZ="America/Los_Angeles"
 ARG BUILD_JOBS
 
+ARG VNC_PORT
+ARG NOVNC_PORT
+ARG ROSBRIDGE_PORT
+
 # ---------------------------------------------------------------------------- #
 #                                     BASE                                     #
 # ---------------------------------------------------------------------------- #
@@ -218,7 +222,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     ros-jazzy-rviz2 \
     ros-jazzy-xacro \
     ros-jazzy-joint-state-publisher-gui \
-    ros-jazzy-gz-ros2-control
+    ros-jazzy-gz-ros2-control \
+    ros-jazzy-rosbridge-suite
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install --break-system-packages pypresence trimesh pyfqmr
@@ -236,9 +241,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     mesa-utils libglx-mesa0 libgl1-mesa-dri x11-apps \
     xserver-xorg-core xserver-xorg-video-dummy kmod
 
-EXPOSE 6080 5900
-ENV VNC_PORT=5900
-ENV NOVNC_PORT=6080
 
 # ---------------------------------------------------------------------------- #
 #                                  DEV TOOLING                                 #
@@ -264,6 +266,16 @@ RUN rosdep fix-permissions && \
 
 COPY docker/xorg.nvidia.conf /etc/X11/xorg.nvidia.conf
 COPY docker/xorg.dummy.conf /etc/X11/xorg.dummy.conf
+COPY docker/xorg.vkms.conf /etc/X11/xorg.vkms.conf
 COPY docker/bashrc.sh /home/trickfire/.bashrc
+
+EXPOSE ${NOVNC_PORT}
+EXPOSE ${VNC_PORT}
+EXPOSE ${ROSBRIDGE_PORT}
+
+ENV VNC_PORT=${VNC_PORT}
+ENV NOVNC_PORT=${NOVNC_PORT}
+ENV ROSBRIDGE_PORT=${ROSBRIDGE_PORT}
+
 
 USER trickfire

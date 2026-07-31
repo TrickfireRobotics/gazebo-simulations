@@ -11,7 +11,8 @@ import requests
 
 from ... import config as cfg
 from ...auth import DASHBOARD_URL
-from ...output import die as err, info
+from ...output import die as err
+from ...output import info
 
 _ONSHAPE_URL_RE = re.compile(
     r"documents/([0-9a-f]+)/[wv]/([0-9a-f]+)/e/([0-9a-f]+)",
@@ -102,7 +103,7 @@ def download(
     if not resp.ok:
         try:
             msg = resp.json().get("error", resp.text)
-        except Exception:
+        except Exception:  # noqa: BLE001 - fall back to raw response text
             msg = resp.text
         err(f"Export failed ({resp.status_code}): {msg}")
 
@@ -113,8 +114,7 @@ def download(
     archive_path = tmpdir / "export.tar.gz"
     info("Downloading export archive...")
     with open(archive_path, "wb") as f:
-        for chunk in resp.iter_content(chunk_size=65536):
-            f.write(chunk)
+        f.writelines(resp.iter_content(chunk_size=65536))
 
     info("Extracting...")
     with tarfile.open(archive_path, "r:gz") as tf:

@@ -6,7 +6,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from ...output import info
-from ...paths import REPO_DIR, GAZEBO_WORKSPACE_DIR
+from ...paths import GAZEBO_WORKSPACE_DIR, REPO_DIR
 
 PACKAGE_DIR = Path(__file__).parent
 TEMPLATES = PACKAGE_DIR / "templates"

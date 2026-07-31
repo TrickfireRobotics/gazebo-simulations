@@ -1,10 +1,11 @@
-import sys
 import os
-from typing import Callable, NoReturn
+import sys
+from collections.abc import Callable
+from typing import NoReturn
 
 try:
     _is_tty = os.isatty(sys.stdout.fileno())
-except Exception:  # pylint: disable=broad-except
+except Exception:  # noqa: BLE001 - fall back to non-tty output
     _is_tty = False
 if _is_tty:
     _B = "\033[1m"  # bold

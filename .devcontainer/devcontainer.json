@@ -1,11 +1,7 @@
 {
-    "dockerComposeFile": [
-        "../docker/docker-compose.yml",
-        "../docker/docker-compose-dev.yml"
-    ],
+    "dockerComposeFile": ["../docker/docker-compose.yml", "../docker/docker-compose-dev.yml"],
     "service": "sim",
     "runServices": ["sim"],
-    "forwardPorts": [6080, 5900],
 
     "workspaceFolder": "/home/trickfire/simulations",
     "remoteEnv": {

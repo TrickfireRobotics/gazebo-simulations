@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -eo pipefail
 
 # --------------------------------------------------------------------------------------------
 # Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
@@ -7,36 +6,41 @@ set -eo pipefail
 # Supports --verbose flag for debugging (prints all output to console instead of log file).
 # --------------------------------------------------------------------------------------------
 
+set -eo pipefail
+trap '' HUP
+
 VERBOSE=false
+FORCE_VNC=${FORCE_VNC:-}
 LOG_FILE="/tmp/start_x_server.log"
 PIDS=()
 : >"$LOG_FILE"
 
 log() { printf "\033[1;36m%s\033[0m\n" "$1"; }
 
-# Foreground commands: exit with log dump on failure
 run() {
     if $VERBOSE; then
         "$@"
-    else "$@" >>"$LOG_FILE" 2>&1 || {
-        echo
-        echo "[ERROR] Command failed: $*"
-        echo "────────── OUTPUT START ──────────"
-        cat "$LOG_FILE"
-        echo "─────────── OUTPUT END ───────────"
-        exit 1
-    }; fi
+    else
+        "$@" >>"$LOG_FILE" 2>&1 || {
+            echo
+            echo "[ERROR] Command failed: $*"
+            echo "────────── OUTPUT START ──────────"
+            cat "$LOG_FILE"
+            echo "─────────── OUTPUT END ───────────"
+            exit 1
+        }
+    fi
 }
 
-# Background services: just redirect output
 start() {
     if $VERBOSE; then
         "$@" &
-    else "$@" >>"$LOG_FILE" 2>&1 & fi
+    else
+        "$@" >>"$LOG_FILE" 2>&1 &
+    fi
     PIDS+=($!)
 }
 
-# Cleanup function to kill background processes on exit
 cleanup() {
     trap - SIGINT SIGTERM EXIT
     log "[CLEANUP] Shutting down X11 / VNC / noVNC…"
@@ -44,130 +48,148 @@ cleanup() {
     wait 2>/dev/null || true
 }
 
-# --------------------------------------------------------------------------------------------
+parse_args() {
+    for arg in "$@"; do
+        case "$arg" in
+        -v | --verbose) VERBOSE=true ;;
+        --force-vnc) FORCE_VNC=1 ;;
+        esac
+    done
+}
 
-# Parse --verbose flag
-for arg in "$@"; do
-    case "$arg" in -v | --verbose) VERBOSE=true ;; esac
-done
+# Exits the script early (code 0) if a host Wayland compositor socket is
+# available, since Vulkan/GL clients can talk to it directly without any
+# in-container X server. FORCE_VNC always skips this and forces the VNC path.
+try_wayland_passthrough() {
+    if [ -n "$FORCE_VNC" ]; then
+        DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
+        unset WAYLAND_DISPLAY
+        log "[X11] FORCE_VNC set. Forcing virtual display $DISPLAY + VNC/noVNC"
+        return
+    fi
 
-# wayland is the best for this, just use that if the host has it
-WAYLAND_SOCK="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
-if [ -S "$WAYLAND_SOCK" ]; then
-    log "[X11] Using Wayland socket at $WAYLAND_SOCK"
-    exit 0
-fi
+    local wayland_sock="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
+    if [ -S "$wayland_sock" ]; then
+        log "[X11] Using Wayland socket at $wayland_sock"
+        exit 0
+    fi
+}
 
-# Jetson/Tegra has no /dev/dri but Xorg drivers (nvidia, modesetting, dummy) all need it.
-# Use Xvfb on Jetson; GPU rendering still happens via EGL through the injected Tegra libs.
-# Desktop NVIDIA has /proc/driver/nvidia; everything else gets the dummy Xorg driver.
-if [ -e /dev/nvmap ] && [ ! -d /dev/dri ]; then
-    BACKEND="xvfb"
-    XORG_CONF="/etc/X11/xorg.nvidia.conf"
-    log "[X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL"
-elif [ -e /proc/driver/nvidia ] || nvidia-smi &>/dev/null; then
-    BACKEND="xorg"
-    XORG_CONF="/etc/X11/xorg.nvidia.conf"
-    log "[X11] Desktop NVIDIA GPU detected, using Xorg nvidia driver"
-else
+# Sets BACKEND ("xorg"/"xvfb") and XORG_CONF based on available hardware.
+detect_backend() {
+    if [ -n "$FORCE_VNC" ]; then
+        # FORCE_VNC always runs alongside a real host session, so real Xorg here
+        # (dummy, vkms-targeted, or real GPU driver - it doesn't matter which) has
+        # repeatedly ended up touching real display hardware and hijacking the
+        # host's screen. Xvfb is the only backend that's structurally incapable of
+        # touching /dev/dri at all, so FORCE_VNC always uses it, no exceptions.
+        BACKEND="xvfb"
+        XORG_CONF="/etc/X11/xorg.dummy.conf" # only used below to read screen resolution
+        log "[X11] FORCE_VNC: using Xvfb unconditionally (no direct GPU access)"
+    elif [ -e /dev/nvmap ] && [ ! -d /dev/dri ]; then
+        BACKEND="xvfb"
+        XORG_CONF="/etc/X11/xorg.nvidia.conf"
+        log "[X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL"
+    elif [ -e /proc/driver/nvidia ] || nvidia-smi &>/dev/null; then
+        BACKEND="xorg"
+        XORG_CONF="/etc/X11/xorg.nvidia.conf"
+        log "[X11] Desktop NVIDIA GPU detected, using Xorg nvidia driver"
+    else
+        detect_vkms_backend
+    fi
+}
+
+# No-GPU case: sets BACKEND and XORG_CONF, preferring a vkms virtual display
+# over plain Xvfb when the kernel module is available.
+detect_vkms_backend() {
     BACKEND="xorg"
     log "[X11] No GPU detected - trying vkms for DRI3-capable headless display"
     sudo modprobe vkms 2>/dev/null || true
+
+    local card drv dev_path
     VKMS_CARD=""
     for card in /dev/dri/card*; do
-        drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null) || continue
-        [[ $drv == *vkms* ]] && {
+        drv=$(readlink -f "/sys/class/drm/$(basename "$card")/device/driver" 2>/dev/null)
+        dev_path=$(readlink -f "/sys/class/drm/$(basename "$card")/device" 2>/dev/null)
+        [[ $drv == *vkms* || $dev_path == *vkms* ]] && {
             VKMS_CARD="$card"
             break
         }
     done
-    if [ -n "$VKMS_CARD" ]; then
-        log "[X11] Using vkms virtual display ($VKMS_CARD)"
-        XORG_CONF=$(mktemp /tmp/xorg-vkms.XXXXXX.conf)
-        cat >"$XORG_CONF" <<XCONF
-Section "Module"
-  Load "glx"
-EndSection
-Section "Device"
-  Identifier "VKMSDevice"
-  Driver "modesetting"
-  Option "kmsdev" "$VKMS_CARD"
-  Option "DRI" "3"
-EndSection
-Section "Monitor"
-  Identifier "DummyMonitor"
-  HorizSync 28-80
-  VertRefresh 48-75
-EndSection
-Section "Screen"
-  Identifier "DummyScreen"
-  Device "VKMSDevice"
-  Monitor "DummyMonitor"
-  DefaultDepth 24
-  SubSection "Display"
-    Depth 24
-    Modes "1920x1080"
-  EndSubSection
-EndSection
-Section "ServerLayout"
-  Identifier "DummyLayout"
-  Screen "DummyScreen"
-EndSection
-XCONF
-    else
-        log "[X11] vkms unavailable, falling back to dummy driver (no DRI3)"
-        XORG_CONF="/etc/X11/xorg.dummy.conf"
+
+    if [ -z "$VKMS_CARD" ]; then
+        log "[X11] vkms unavailable, falling back to Xvfb (no real GPU access, no DRI3)"
+        BACKEND="xvfb"
+        XORG_CONF="/etc/X11/xorg.dummy.conf" # only used below to read screen resolution
+        return
     fi
-fi
 
-# Parse screen resolution from Xorg config (in docker/xorg.dummy|nvidia.conf)
-SCREEN_MODE=$(grep -oP '(?<=Modes ")[^"]+' "$XORG_CONF" | head -1)
-SCREEN_WIDTH=$(echo "$SCREEN_MODE" | cut -dx -f1)
-SCREEN_HEIGHT=$(echo "$SCREEN_MODE" | cut -dx -f2)
-SCREEN_DEPTH=$(grep -oP '(?<=DefaultDepth )\d+' "$XORG_CONF" | head -1)
-if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; then
-    echo "[ERROR] Could not parse resolution from $XORG_CONF"
-    exit 1
-fi
+    log "[X11] Using vkms virtual display ($VKMS_CARD)"
+    XORG_CONF=$(mktemp /tmp/xorg-vkms.XXXXXX.conf)
+    sed "s|__VKMS_CARD__|$VKMS_CARD|" /etc/X11/xorg.vkms.conf >"$XORG_CONF"
+}
 
-# Set in the Dockerfile and docker compose.
-: "${DISPLAY:?DISPLAY is not set}"
-: "${VNC_PORT:?VNC_PORT is not set}"
-: "${NOVNC_PORT:?NOVNC_PORT is not set}"
+# Reads SCREEN_WIDTH/SCREEN_HEIGHT/SCREEN_DEPTH out of $XORG_CONF.
+parse_screen_resolution() {
+    SCREEN_MODE=$(grep -oP '(?<=Modes ")[^"]+' "$XORG_CONF" | head -1)
+    SCREEN_WIDTH=$(echo "$SCREEN_MODE" | cut -dx -f1)
+    SCREEN_HEIGHT=$(echo "$SCREEN_MODE" | cut -dx -f2)
+    SCREEN_DEPTH=$(grep -oP '(?<=DefaultDepth )\d+' "$XORG_CONF" | head -1)
+    if [ -z "$SCREEN_WIDTH" ] || [ -z "$SCREEN_HEIGHT" ] || [ -z "$SCREEN_DEPTH" ]; then
+        echo "[ERROR] Could not parse resolution from $XORG_CONF"
+        exit 1
+    fi
+}
 
-# Check if DISPLAY is already in use
-if xdpyinfo -display "$DISPLAY" &>/dev/null; then
-    log "[ERROR] Display $DISPLAY is already in use!"
-    exit 1
-fi
+start_services() {
+    trap cleanup SIGINT SIGTERM
 
-# Kill all child processes on exit
-trap cleanup SIGINT SIGTERM
+    # Start X server (Xorg or Xvfb determined above)
+    if [ "$BACKEND" = "xvfb" ]; then
+        log "[X11] Starting Xvfb on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
+        start Xvfb "$DISPLAY" -screen 0 "${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
+    else
+        log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
+        start sudo Xorg "$DISPLAY" -noreset -config "$XORG_CONF"
+    fi
+    sleep 1
+    stty sane 2>/dev/null || true # Xorg alters terminal CR/LF settings
 
-# Start X server (Xorg or Xvfb determined above)
-if [ "$BACKEND" = "xvfb" ]; then
-    log "[X11] Starting Xvfb on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
-    start Xvfb "$DISPLAY" -screen 0 "${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
-else
-    log "[X11] Starting Xorg on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
-    start sudo Xorg "$DISPLAY" -noreset -config "$XORG_CONF"
-fi
-sleep 1
-stty sane 2>/dev/null || true # Xorg alters terminal CR/LF settings
+    # Start window manager
+    log "[WM] Starting Openbox window manager"
+    start openbox-session
 
-# Start window manager
-log "[WM] Starting Openbox window manager"
-start openbox-session
+    # Start x11vnc server for VNC connection
+    log "[VNC] Starting x11vnc on port ${VNC_PORT}"
+    start x11vnc -display "$DISPLAY" -forever -shared -rfbport "$VNC_PORT" -nopw -xkb
 
-# Start x11vnc server for VNC connection
-log "[VNC] Starting x11vnc on port ${VNC_PORT}"
-start x11vnc -display "$DISPLAY" -forever -shared -rfbport "$VNC_PORT" -nopw -xkb
+    # Start noVNC web client to serve the VNC desktop in a browser
+    log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
+    start /usr/share/novnc/utils/novnc_proxy --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}"
+    log "[noVNC] Desktop available at: http://localhost:${NOVNC_PORT}/vnc.html"
 
-# Start noVNC web client to serve the VNC desktop in a browser
-log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
-start /usr/share/novnc/utils/novnc_proxy --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}"
-log "[noVNC] Desktop available at: http://localhost:${NOVNC_PORT}/vnc.html"
+    # Detach all background services so they survive this script exiting
+    disown "${PIDS[@]}" || true
+    log "[MAIN] All services started"
+}
 
-# Detach all background services so they survive this script exiting
-disown "${PIDS[@]}" || true
-log "[MAIN] All services started"
+main() {
+    parse_args "$@"
+    try_wayland_passthrough
+
+    detect_backend
+    parse_screen_resolution
+
+    : "${DISPLAY:?DISPLAY is not set}"
+    : "${VNC_PORT:?VNC_PORT is not set}"
+    : "${NOVNC_PORT:?NOVNC_PORT is not set}"
+
+    if xdpyinfo -display "$DISPLAY" &>/dev/null; then
+        log "[ERROR] Display $DISPLAY is already in use!"
+        exit 1
+    fi
+
+    start_services
+}
+
+main "$@"

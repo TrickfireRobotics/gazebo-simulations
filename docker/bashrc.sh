@@ -72,7 +72,12 @@ if [ -z "${TF_ENV_SOURCED:-}" ]; then
 fi
 
 # ---------- display ----------
-if [[ -n ${DISPLAY:-} && ${DISPLAY} != :* ]]; then
+if [ -n "${FORCE_VNC:-}" ]; then
+    # Point new shells at the virtual display x_server.sh set up for FORCE_VNC,
+    # not the host's real DISPLAY (which is still reachable via the bind-mounted
+    # X11 socket and would otherwise render GUI apps on the host instead of VNC).
+    export DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
+elif [[ -n ${DISPLAY:-} && ${DISPLAY} != :* ]]; then
     export DISPLAY=":${DISPLAY}"
 fi
 
@@ -107,8 +112,6 @@ alias c='clear'
 alias ll='ls -alF --color=auto'
 alias la='ls -A --color=auto'
 alias l='ls -CF --color=auto'
-alias ..='cd ..'
-alias ...='cd ../..'
 
 alias rs='tf_source_env'
 alias rsource='tf_source_env'
@@ -117,3 +120,6 @@ alias rtl='ros2 topic list'
 alias rte='ros2 topic echo'
 alias gtl='gz topic -l'
 alias gte='gz topic -e -t'
+
+alias sg='sim gazebo'
+alias sc='sim chrono'

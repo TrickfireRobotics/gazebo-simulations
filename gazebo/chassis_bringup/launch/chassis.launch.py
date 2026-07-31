@@ -1,12 +1,14 @@
 """
-Launch script for the Gazebo __ROBOT__ simulation
+Launch script for the Gazebo chassis simulation
 """
+
+import os
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, TimerAction
-from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from sim_common.launch_utils import (
     chain_controller_spawners,
     clock_bridge_node,
@@ -20,36 +22,47 @@ from sim_common.launch_utils import (
     spawn_robot_node,
 )
 
-ROBOT_NAME = "__ROBOT__"
+ROBOT_NAME = "chassis"
 
 
 def generate_launch_description():
     """ROS launch method, must have this name"""
 
-    controller_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.controller.yaml")
+    controller_config = get_asset("chassis_bringup", "config", "chassis.controller.yaml")
     world_file = get_asset("sim_worlds", "worlds", "empty.world.sdf")
-    rviz_config = get_asset("__ROBOT___bringup", "config", "__ROBOT__.rviz")
-    urdf_file = get_asset("__ROBOT___description", "urdf", "__ROBOT__.urdf")
+    rviz_config = get_asset("chassis_bringup", "config", "chassis.rviz")
+    urdf_file = get_asset("chassis_description", "urdf", "chassis.urdf")
     gz_gui_config = get_asset("sim_worlds", "gui", "gui.config")
 
     robot_desc = process_robot_description(urdf_file, controller_config)
 
     spawn_robot = spawn_robot_node(ROBOT_NAME, robot_desc)
     joint_state_broadcaster = joint_state_broadcaster_spawner()
-    joint_trajectory_controller = controller_spawner_node(
-        "joint_trajectory_controller", controller_config
+    forward_velocity_controller = controller_spawner_node(
+        "forward_velocity_controller", controller_config
     )
 
     # ----------------------------------------------
-    # Joint GUI
+    # Drivebase bridge
     # ----------------------------------------------
 
-    joint_gui = Node(
+    drivebase_bridge = Node(
         package="sim_common",
-        executable="joint_gui",
-        arguments=[urdf_file],
-        condition=IfCondition(LaunchConfiguration("gui")),
+        executable="drivebase",
         output="screen",
+    )
+
+    # ----------------------------------------------
+    # Rosbridge
+    # ----------------------------------------------
+
+    rosbridge = Node(
+        package="rosbridge_server",
+        executable="rosbridge_websocket",
+        output="screen",
+        parameters=[
+            {"port": ParameterValue(LaunchConfiguration("rosbridge_port"), value_type=int)}
+        ],
     )
 
     return LaunchDescription(
@@ -58,12 +71,18 @@ def generate_launch_description():
             TimerAction(period=5.0, actions=[spawn_robot]),
             robot_state_publisher_node(robot_desc),
             DeclareLaunchArgument("rviz", default_value="true", description="Open RViz."),
-            DeclareLaunchArgument("gui", default_value="true", description="Open Joint GUI."),
+            DeclareLaunchArgument("gui", default_value="true", description="Open Gazebo GUI."),
+            DeclareLaunchArgument(
+                "rosbridge_port",
+                default_value=os.environ.get("ROSBRIDGE_PORT", "9090"),
+                description="Port for the rosbridge WebSocket server.",
+            ),
             *chain_controller_spawners(
-                spawn_robot, joint_state_broadcaster, joint_trajectory_controller
+                spawn_robot, joint_state_broadcaster, forward_velocity_controller
             ),
             clock_bridge_node(),
             rviz_node(rviz_config),
-            joint_gui,
+            drivebase_bridge,
+            rosbridge,
         ]
     )

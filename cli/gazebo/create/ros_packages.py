@@ -3,8 +3,9 @@
 import shutil
 from pathlib import Path
 
+from ...output import die as err
+from ...output import info
 from . import TEMPLATES
-from ...output import die as err, info
 from .template import write_template
 
 
