@@ -8,7 +8,7 @@ from pypresence import Presence
 
 
 def _find_discord_socket_dir() -> str | None:
-    """Return the directory containing a discord-ipc-N socket, or None if not found."""
+    """Return the directory containing a discord-ipc-N socket, or None if not found"""
     candidates = [
         os.environ.get("XDG_RUNTIME_DIR"),  # standard Linux user session
         os.environ.get("TMPDIR"),

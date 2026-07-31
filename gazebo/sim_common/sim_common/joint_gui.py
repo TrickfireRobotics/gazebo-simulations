@@ -91,7 +91,7 @@ class JointPublisher(Node):
         return self._joints_ready.wait(timeout=timeout)
 
     def discover_trajectory_topics(self) -> list[str]:
-        """Return all currently advertised topics that carry JointTrajectory messages."""
+        """Return all currently advertised topics that carry JointTrajectory messages"""
         return [
             topic
             for topic, types in self.get_topic_names_and_types()
@@ -177,7 +177,7 @@ class JointGui:
             self.root.after(self._POLL_MS, lambda: self._poll_discovery(attempt + 1))
 
     def _refresh_topics(self) -> None:
-        """Re-query available trajectory topics and update the combobox values."""
+        """Re-query available trajectory topics and update the combobox values"""
         topics = self.node.discover_trajectory_topics()
         if self._topics_combo is not None:
             self._topics_combo["values"] = topics
@@ -275,11 +275,11 @@ class JointGui:
     # ------------------------------------------------------------------
 
     def _on_slider(self, joint: str, val: str) -> None:
-        """Update the numeric label next to a slider whenever its value changes."""
+        """Update the numeric label next to a slider whenever its value changes"""
         self.value_labels[joint].config(text=f"{float(val):+.3f}")
 
     def _send(self) -> None:
-        """Read current slider positions and publish a trajectory command to the selected topic."""
+        """Read current slider positions and publish a trajectory command to the selected topic"""
         joints = self.node.joint_names
         positions = [self.sliders[j].get() + self.node.possible_joints[j]["origin"] for j in joints]
         topic = self._topic_var.get().strip()
@@ -290,7 +290,7 @@ class JointGui:
         self.status_var.set(f"Sent to {topic}: {[f'{p:.2f}' for p in positions]}")
 
     def _sync(self) -> None:
-        """Sync sliders to the current joint positions reported by /joint_states."""
+        """Sync sliders to the current joint positions reported by /joint_states"""
         current = self.node.current_positions
         if not current:
             self.status_var.set("No joint state data available")
@@ -303,7 +303,7 @@ class JointGui:
         self.status_var.set("Synced sliders to current joint positions")
 
     def _reset(self) -> None:
-        """Zero all joint sliders and reset their display labels."""
+        """Zero all joint sliders and reset their display labels"""
         for joint in self.node.joint_names:
             self.sliders[joint].set(0.0)
             self.value_labels[joint].config(text="0.0")
@@ -312,7 +312,7 @@ class JointGui:
 
 def main() -> None:
     """Take in the filename,
-    Initialise ROS2, spin the node on a background thread, then run the Tkinter event loop."""
+    Initialise ROS2, spin the node on a background thread, then run the Tkinter event loop"""
     if len(sys.argv) < 2:
         print("Failed no path was provided")
         sys.exit(1)

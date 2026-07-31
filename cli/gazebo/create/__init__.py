@@ -1,4 +1,4 @@
-"""sim create/update - robot package generation from OnShape."""
+"""sim create/update - robot package generation from OnShape"""
 
 from __future__ import annotations
 
