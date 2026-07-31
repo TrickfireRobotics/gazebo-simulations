@@ -57,9 +57,6 @@ parse_args() {
     done
 }
 
-# Exits the script early (code 0) if a host Wayland compositor socket is
-# available, since Vulkan/GL clients can talk to it directly without any
-# in-container X server. FORCE_VNC always skips this and forces the VNC path.
 try_wayland_passthrough() {
     if [ -n "$FORCE_VNC" ]; then
         DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
@@ -75,16 +72,10 @@ try_wayland_passthrough() {
     fi
 }
 
-# Sets BACKEND ("xorg"/"xvfb") and XORG_CONF based on available hardware.
 detect_backend() {
     if [ -n "$FORCE_VNC" ]; then
-        # FORCE_VNC always runs alongside a real host session, so real Xorg here
-        # (dummy, vkms-targeted, or real GPU driver - it doesn't matter which) has
-        # repeatedly ended up touching real display hardware and hijacking the
-        # host's screen. Xvfb is the only backend that's structurally incapable of
-        # touching /dev/dri at all, so FORCE_VNC always uses it, no exceptions.
         BACKEND="xvfb"
-        XORG_CONF="/etc/X11/xorg.dummy.conf" # only used below to read screen resolution
+        XORG_CONF="/etc/X11/xorg.dummy.conf"
         log "[X11] FORCE_VNC: using Xvfb unconditionally (no direct GPU access)"
     elif [ -e /dev/nvmap ] && [ ! -d /dev/dri ]; then
         BACKEND="xvfb"
@@ -99,8 +90,6 @@ detect_backend() {
     fi
 }
 
-# No-GPU case: sets BACKEND and XORG_CONF, preferring a vkms virtual display
-# over plain Xvfb when the kernel module is available.
 detect_vkms_backend() {
     BACKEND="xorg"
     log "[X11] No GPU detected - trying vkms for DRI3-capable headless display"
@@ -120,7 +109,7 @@ detect_vkms_backend() {
     if [ -z "$VKMS_CARD" ]; then
         log "[X11] vkms unavailable, falling back to Xvfb (no real GPU access, no DRI3)"
         BACKEND="xvfb"
-        XORG_CONF="/etc/X11/xorg.dummy.conf" # only used below to read screen resolution
+        XORG_CONF="/etc/X11/xorg.dummy.conf"
         return
     fi
 
@@ -129,7 +118,6 @@ detect_vkms_backend() {
     sed "s|__VKMS_CARD__|$VKMS_CARD|" /etc/X11/xorg.vkms.conf >"$XORG_CONF"
 }
 
-# Reads SCREEN_WIDTH/SCREEN_HEIGHT/SCREEN_DEPTH out of $XORG_CONF.
 parse_screen_resolution() {
     SCREEN_MODE=$(grep -oP '(?<=Modes ")[^"]+' "$XORG_CONF" | head -1)
     SCREEN_WIDTH=$(echo "$SCREEN_MODE" | cut -dx -f1)
@@ -144,7 +132,6 @@ parse_screen_resolution() {
 start_services() {
     trap cleanup SIGINT SIGTERM
 
-    # Start X server (Xorg or Xvfb determined above)
     if [ "$BACKEND" = "xvfb" ]; then
         log "[X11] Starting Xvfb on display ${DISPLAY} (${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH})"
         start Xvfb "$DISPLAY" -screen 0 "${SCREEN_WIDTH}x${SCREEN_HEIGHT}x${SCREEN_DEPTH}"
@@ -153,22 +140,18 @@ start_services() {
         start sudo Xorg "$DISPLAY" -noreset -config "$XORG_CONF"
     fi
     sleep 1
-    stty sane 2>/dev/null || true # Xorg alters terminal CR/LF settings
+    stty sane 2>/dev/null || true
 
-    # Start window manager
     log "[WM] Starting Openbox window manager"
     start openbox-session
 
-    # Start x11vnc server for VNC connection
     log "[VNC] Starting x11vnc on port ${VNC_PORT}"
     start x11vnc -display "$DISPLAY" -forever -shared -rfbport "$VNC_PORT" -nopw -xkb
 
-    # Start noVNC web client to serve the VNC desktop in a browser
     log "[noVNC] Starting browser-based desktop on port ${NOVNC_PORT}"
     start /usr/share/novnc/utils/novnc_proxy --vnc "localhost:${VNC_PORT}" --listen "${NOVNC_PORT}"
     log "[noVNC] Desktop available at: http://localhost:${NOVNC_PORT}/vnc.html"
 
-    # Detach all background services so they survive this script exiting
     disown "${PIDS[@]}" || true
     log "[MAIN] All services started"
 }

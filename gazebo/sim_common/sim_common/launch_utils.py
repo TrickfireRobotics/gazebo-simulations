@@ -1,4 +1,4 @@
-"""Shared launch utilities for simulation packages."""
+"""Shared launch utilities for simulation packages"""
 
 import os
 import shutil
@@ -22,12 +22,12 @@ from launch_ros.actions import Node
 
 
 def log(msg):
-    """Green info log for launch files."""
+    """Green info log for launch files"""
     print("\033[0;32m", "[INFO] [launch]: ", msg, "\x1b[0m", sep="")
 
 
 def err(msg):
-    """Red error log, exits with code 1."""
+    """Red error log, exits with code 1"""
     print("\033[0;31m", "[ERROR] [launch]: ", msg, "\x1b[0m", sep="")
     sys.exit(1)
 
@@ -45,7 +45,7 @@ def get_asset(package, *parts):
 
 
 def gz_supports_sim_command():
-    """Return True when `gz` exists and exposes the `sim` subcommand."""
+    """Return True when `gz` exists and exposes the `sim` subcommand"""
     if shutil.which("gz") is None:
         return False
 
@@ -64,7 +64,7 @@ def gz_supports_sim_command():
 
 
 def process_robot_description(urdf_file, controller_config):
-    """Run xacro over `urdf_file`, wiring in the controller config and platform plugin extension."""
+    """Run xacro over `urdf_file`, wiring in the controller config and platform plugin extension"""
     return xacro.process_file(
         urdf_file,
         mappings={
@@ -106,7 +106,7 @@ def gazebo_launch_actions(world_file, gz_gui_config, gui_launch_arg="gui"):
 
 
 def spawn_robot_node(robot_name, robot_desc):
-    """Node that spawns `robot_desc` into the running gz sim world as `robot_name`."""
+    """Node that spawns `robot_desc` into the running gz sim world as `robot_name`"""
     return Node(
         package="ros_gz_sim",
         executable="create",
@@ -126,7 +126,7 @@ def robot_state_publisher_node(robot_desc):
 
 
 def clock_bridge_node():
-    """ros_gz_bridge node that bridges the gz sim clock onto /clock."""
+    """ros_gz_bridge node that bridges the gz sim clock onto /clock"""
     return Node(
         package="ros_gz_bridge",
         executable="parameter_bridge",

@@ -122,14 +122,7 @@ def _check_display() -> None:
 
 
 def _configure_force_vnc_rendering(env: dict[str, str]) -> list[str]:
-    """Force software GL rendering for Gazebo/OGRE2 when running under FORCE_VNC.
-
-    FORCE_VNC intentionally never touches real GPU/render-node devices - every
-    attempt to give it direct GPU access (Xorg with a real or virtual KMS
-    device, VirtualGL through the render node) has ended up interfering with
-    the host's real display. Mesa's software rasterizer is unaccelerated but
-    it's the only backend that's actually safe here.
-    """
+    """Force software GL rendering for Gazebo/OGRE2 when running under FORCE_VNC"""
     if not os.environ.get("FORCE_VNC"):
         return []
 
@@ -139,10 +132,10 @@ def _configure_force_vnc_rendering(env: dict[str, str]) -> list[str]:
 
 
 def _setup_pixi_env() -> None:
-    """Configure Gazebo plugin/resource paths and Qt platform for a pixi environment."""
+    """Configure Gazebo plugin/resource paths and Qt platform for a pixi environment"""
     pixi_dir = REPO_DIR / ".pixi"
     if not pixi_dir.is_dir():
-        die(f"No pixi environment at {pixi_dir}\n        Install dependencies first: pixi install")
+        die(f"No pixi environment at {pixi_dir}\nInstall dependencies first: pixi install")
 
     conda_prefix = os.environ.get("CONDA_PREFIX", "")
     if conda_prefix:
@@ -165,8 +158,6 @@ def _setup_pixi_env() -> None:
         if ogre2_media not in paths:
             os.environ["GZ_RENDERING_RESOURCE_PATH"] = ":".join([ogre2_media] + paths)
 
-    # The pixi Qt build ships only the xcb plugin; force it when the session
-    # sets QT_QPA_PLATFORM=wayland (common on Wayland desktops like Hyprland).
     if os.environ.get("QT_QPA_PLATFORM") == "wayland":
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 

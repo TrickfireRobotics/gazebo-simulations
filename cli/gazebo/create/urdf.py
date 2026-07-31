@@ -1,4 +1,4 @@
-"""URDF post-processing: xacro injection, mesh path rewriting, control generation."""
+"""URDF post-processing: xacro injection, mesh path rewriting, control generation"""
 
 import re
 import xml.etree.ElementTree as ET

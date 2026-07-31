@@ -6,9 +6,6 @@
     ],
     "service": "sim",
     "runServices": ["sim"],
-    // Ports are published in docker/docker-compose.yml (sourced from docker/.env),
-    // so VS Code auto-forwards them without needing forwardPorts here.
-
     "workspaceFolder": "/home/trickfire/simulations",
     "remoteEnv": {
         "HOST_WORKSPACE": "${localWorkspaceFolder}"

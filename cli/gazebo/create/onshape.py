@@ -36,7 +36,7 @@ def parse_onshape_url(url: str) -> tuple:
 
 
 def _poll_job(dashboard_url: str, job_id: str) -> requests.Response:
-    """Poll until the job is done; returns the streaming archive response."""
+    """Poll until the job is done; returns the streaming archive response"""
     deadline = time.monotonic() + _POLL_TIMEOUT
     while time.monotonic() < deadline:
         time.sleep(_POLL_INTERVAL)
