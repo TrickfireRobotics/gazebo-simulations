@@ -15,6 +15,7 @@ services:
 
     environment:
       DISPLAY: "${DISPLAY:-:0}"
+      XAUTHORITY: "${XAUTHORITY:-}"
       VNC_PORT: "${VNC_PORT:?VNC_PORT must be set, see docker/.env}"
       NOVNC_PORT: "${NOVNC_PORT:?NOVNC_PORT must be set, see docker/.env}"
       ROSBRIDGE_PORT: "${ROSBRIDGE_PORT:?ROSBRIDGE_PORT must be set, see docker/.env}"

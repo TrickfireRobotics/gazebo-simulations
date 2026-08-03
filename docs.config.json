@@ -31,7 +31,8 @@
                     "label": "Robot Packages",
                     "slug": "gazebo/robot-packages"
                 },
-                { "label": "Joint GUI", "slug": "gazebo/joint-gui" }
+                { "label": "Joint GUI", "slug": "gazebo/joint-gui" },
+                { "label": "Drone (ArduPilot SITL)", "slug": "gazebo/drone" }
             ]
         },
         {

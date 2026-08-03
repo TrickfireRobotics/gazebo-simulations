@@ -14,5 +14,5 @@ services:
 
     command: >-
       bash -lc 'set -e;
-      python3 -m venv .venv && source .venv/bin/activate && pip install -e . && \
+      python3 -m venv .venv && source .venv/bin/activate && pip install -e . &&
       exec sleep infinity'

@@ -1,0 +1,98 @@
+---
+title: Drone (ArduPilot SITL)
+description: Fly a simulated S500 quadcopter with ArduPilot SITL, Gazebo Harmonic, and QGroundControl.
+---
+
+`sim gazebo drone` launches an S500-class quadcopter running ArduCopter
+SITL (simulating a Pixhawk 2.4.8) alongside Gazebo Harmonic, using the
+[`ardupilot_gazebo`](https://github.com/ArduPilot/ardupilot_gazebo) plugin
+for the physics/sensor bridge. Unlike the arm and chassis, the drone isn't
+generated from an OnShape model - it's flown through **QGroundControl**,
+not RViz or the Joint GUI.
+
+## One-time setup
+
+ArduPilot SITL and the `ardupilot_gazebo` plugin are built from source the
+first time you use the drone sim, rather than being baked into the Docker
+image:
+
+```bash title="Terminal (inside the Dev Container)"
+sim gazebo setup-drone
+```
+
+This clones and builds:
+
+- **ArduPilot** (`ArduCopter` SITL binary, via `waf`)
+- **ardupilot_gazebo** (the Gazebo plugin that bridges SITL to Gazebo Harmonic)
+
+into `.native/` at the repo root (gitignored). It only needs to be run
+once - re-running it is a no-op if both are already built. This step
+downloads and compiles a fair amount of code, so expect it to take a
+while.
+
+## Running the simulation
+
+```bash title="Terminal"
+sim gazebo drone
+```
+
+This builds `drone_bringup`/`drone_description` like any other robot, then:
+
+1. Starts Gazebo Harmonic with a world containing the quadcopter model
+   (`ardupilot_gazebo`'s stock `iris_with_ardupilot` model, wired to the
+   `ArduPilotPlugin`)
+2. Starts ArduCopter SITL, connected to the Gazebo plugin via its JSON
+   backend, with its primary MAVLink output on UDP port 14550
+
+## Connecting QGroundControl
+
+QGroundControl and the Flysky i6X controller run on your **host machine**,
+not inside the container:
+
+1. Install [QGroundControl](http://qgroundcontrol.com/) on your host
+2. If your host runs a firewall (e.g. `ufw`), allow inbound UDP 14550 -
+   SITL's telemetry arrives from the container as normal LAN traffic, and
+   a default-deny incoming policy silently drops it with no error on
+   either side:
+   ```bash title="Terminal (on your host, not the container)"
+   sudo ufw allow 14550/udp comment "QGroundControl / ArduPilot SITL MAVLink"
+   ```
+3. Plug the Flysky i6X USB receiver into your host - QGroundControl reads
+   it directly through its own joystick support, so no container/USB
+   passthrough configuration is needed
+4. Start `sim gazebo drone`
+5. QGroundControl auto-connects over UDP - `drone.launch.py` reads the
+   container's own default gateway (from `/proc/net/route`) at launch
+   time and points SITL's MAVLink output directly at it, since that's
+   where the host - and QGroundControl - is reachable from inside the
+   container. There's no port published/forwarded on the container; it
+   isn't needed, since SITL is the one initiating the connection outbound
+   rather than QGroundControl connecting in.
+6. In QGroundControl, go to **Application Settings → Joystick** to enable
+   and calibrate the Flysky i6X, then fly as normal
+
+## Troubleshooting
+
+**`ArduPilot SITL + ardupilot_gazebo plugin are not built yet`:** Run
+`sim gazebo setup-drone` first.
+
+**QGroundControl shows "Disconnected" with no errors on either side:**
+The most common cause is a host firewall silently dropping the inbound
+UDP packets - there's no error message anywhere for this, since dropped
+packets aren't reported back. Check your firewall status
+(`sudo ufw status verbose` if using `ufw`) and allow UDP 14550 in per the
+setup step above.
+
+**QGroundControl fails to bind port 14550 ("address already in use"):**
+Make sure nothing else on your host is already bound to UDP 14550 -
+notably, do NOT add a `ports:` entry for it in `docker-compose.yml`.
+Docker's own port-publish mechanism (`docker-proxy`) binds the host port
+itself, which blocks QGroundControl from ever binding it and intercepts
+SITL's outbound packets instead of letting them reach QGroundControl.
+Check with `sudo lsof -i :14550` on the host - it should show only
+QGroundControl, nothing else.
+
+**No image in Gazebo / model missing:** `ardupilot_gazebo`'s `models/` and
+`worlds/` directories are resolved via `GZ_SIM_RESOURCE_PATH`, which `sim
+gazebo drone` points at the checkout from `sim gazebo setup-drone`. If
+that checkout was moved or deleted, re-run setup.

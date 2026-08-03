@@ -15,6 +15,41 @@ from ..paths import REPO_DIR, WORKSPACE_DIR
 _ANSI_RE = re.compile(r"\x1B\[[0-9;]*[mK]")
 
 
+def _robot_type(robot_name: str) -> str | None:
+    from .create.registry import load_robots_json
+
+    entry = next((e for e in load_robots_json() if e["name"] == robot_name), None)
+    return entry.get("type") if entry else None
+
+
+def _configure_ardupilot_env(robot_name: str, env: dict[str, str]) -> None:
+    """For ArduPilot-type robots, point Gazebo at the plugin/models built by
+    `sim gazebo setup-drone` and expose the SITL binary path to the launch file."""
+    if _robot_type(robot_name) != "ardupilot":
+        return
+
+    from . import ardupilot
+
+    if not ardupilot.is_installed():
+        die(
+            "ArduPilot SITL + ardupilot_gazebo plugin are not built yet.\n"
+            "        Run: sim gazebo setup-drone"
+        )
+
+    for var, paths in (
+        (
+            "GZ_SIM_RESOURCE_PATH",
+            [ardupilot.ARDUPILOT_GAZEBO_DIR / "models", ardupilot.ARDUPILOT_GAZEBO_DIR / "worlds"],
+        ),
+        ("GZ_SIM_SYSTEM_PLUGIN_PATH", [ardupilot.ARDUPILOT_GAZEBO_BUILD_DIR]),
+    ):
+        existing = [p for p in env.get(var, "").split(":") if p]
+        additions = [str(p) for p in paths if str(p) not in existing]
+        env[var] = ":".join(additions + existing)
+
+    env["ARDUCOPTER_BIN"] = str(ardupilot.ARDUCOPTER_BIN)
+
+
 def in_pixi() -> bool:
     return bool(os.environ.get("PIXI_PROJECT_ROOT") or os.environ.get("CONDA_PREFIX"))
 
@@ -180,6 +215,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     launch = not build_only
     env = os.environ.copy()
     render_prefix = _configure_force_vnc_rendering(env)
+    _configure_ardupilot_env(robot_name, env)
     bringup_pkg, description_pkg, launch_file_name = _validate_robot_layout(robot_name)
 
     if build:
