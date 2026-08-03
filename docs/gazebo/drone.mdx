@@ -46,6 +46,11 @@ This builds `drone_bringup`/`drone_description` like any other robot, then:
 
 ## Connecting QGroundControl
 
+> [!NOTE]
+> You can use a standard game controller, but the controls
+> will not be identical to the Flysky controller.
+
+
 QGroundControl and the Flysky i6X controller run on your **host machine**,
 not inside the container:
 
@@ -69,7 +74,7 @@ not inside the container:
    isn't needed, since SITL is the one initiating the connection outbound
    rather than QGroundControl connecting in.
 6. In QGroundControl, go to **Application Settings → Joystick** to enable
-   and calibrate the Flysky i6X, then fly as normal
+   and calibrate the Flysky i6X, then fly as normal (Use mode 2 when calibrating)
 
 ## Troubleshooting
 
