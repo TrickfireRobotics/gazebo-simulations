@@ -241,6 +241,33 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     mesa-utils libglx-mesa0 libgl1-mesa-dri x11-apps \
     xserver-xorg-core xserver-xorg-video-dummy kmod
 
+# VirtualGL - makes Gazebo/RViz render on macOS (XQuartz) and Windows (VcXsrv/X410).
+#
+# Those hosts can display X11 windows over TCP just fine, but they cannot hand back a usable
+# OpenGL context: their indirect GLX (IGLX) is deprecated and broken, so OGRE2 - which both
+# Gazebo and RViz use - fails at glXMakeCurrent with GLXBadContext and never creates a
+# renderer. Forcing Mesa down the indirect path doesn't help, and the direct/software path
+# can't match XQuartz's GLX fbconfigs at all ("failed to create drisw screen").
+# Upstream considers IGLX a dead end: https://github.com/XQuartz/XQuartz/issues/144
+#
+# VirtualGL splits the two concerns instead. GL rendering runs against a local headless X
+# server inside the container (Mesa llvmpipe, OpenGL 4.5), and only the finished frames are
+# handed to the host's X server as ordinary X11 images - which XQuartz/VcXsrv do reliably.
+# Not used on native Linux/WSLg, where the app's GL already works directly against the host.
+#
+# Not packaged in Ubuntu, so install the upstream .deb (checksummed per architecture).
+ARG VIRTUALGL_VERSION=3.1.4
+RUN ARCH="$(dpkg --print-architecture)" && \
+    case "${ARCH}" in \
+    arm64) VGL_SHA256="5583e08ee5694d14c6ea0f25d2cfd73fa6d5077869c6645c334a948265a777bb" ;; \
+    amd64) VGL_SHA256="02edc6b599571c385389af1a006f07a70c298e1d97c580a9bfd4b39d835c51e6" ;; \
+    *) echo "No VirtualGL build for architecture '${ARCH}'" >&2; exit 1 ;; \
+    esac && \
+    curl -L -s -f -o /tmp/virtualgl.deb \
+    "https://github.com/VirtualGL/virtualgl/releases/download/${VIRTUALGL_VERSION}/virtualgl_${VIRTUALGL_VERSION}_${ARCH}.deb" && \
+    echo "${VGL_SHA256} */tmp/virtualgl.deb" | sha256sum --strict --check && \
+    dpkg -i /tmp/virtualgl.deb && \
+    rm -f /tmp/virtualgl.deb
 
 # ---------------------------------------------------------------------------- #
 #                                  DEV TOOLING                                 #
