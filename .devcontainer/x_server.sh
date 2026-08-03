@@ -57,7 +57,51 @@ parse_args() {
     done
 }
 
-try_wayland_passthrough() {
+# VirtualGL's "3D X server": a container-local headless X server that GL rendering actually
+# happens against. Only needed when $DISPLAY is a remote X server (macOS/XQuartz,
+# Windows/VcXsrv), which can display windows but can't provide a usable OpenGL context - its
+# indirect GLX is deprecated and broken, so OGRE2 apps (Gazebo, RViz) fail to create a
+# renderer. VirtualGL renders here instead (Mesa llvmpipe, OpenGL 4.5) and sends only the
+# finished frames to the host's X server as plain X11 images.
+#
+# Skipped for local passthrough (native Linux, WSLg): there the app's GL already works
+# directly against the host's GPU, and routing through VirtualGL would only cost performance.
+start_vgl_3d_server() {
+    if [[ $DISPLAY == :* ]]; then
+        return 0
+    fi
+
+    if ! command -v vglrun >/dev/null 2>&1; then
+        log "[VGL] vglrun not found - skipping (Gazebo/RViz will not be able to render)"
+        return 0
+    fi
+
+    local vgl_display="${VGL_DISPLAY:-:88}"
+    if xdpyinfo -display "$vgl_display" &>/dev/null; then
+        log "[VGL] 3D X server already running on $vgl_display"
+        return 0
+    fi
+
+    log "[VGL] Starting VirtualGL 3D X server (Xvfb) on $vgl_display"
+    Xvfb "$vgl_display" -screen 0 2560x1440x24 >>"$LOG_FILE" 2>&1 &
+    local vgl_pid=$!
+    disown "$vgl_pid" 2>/dev/null || true
+
+    # Xvfb takes a moment to start listening; without this the first `sim gazebo` after a
+    # container start could race it and silently fall back to unaccelerated rendering.
+    local i
+    for i in $(seq 1 20); do
+        if xdpyinfo -display "$vgl_display" &>/dev/null; then
+            log "[VGL] 3D X server ready on $vgl_display"
+            return 0
+        fi
+        sleep 0.25
+    done
+
+    log "[VGL] WARNING: 3D X server on $vgl_display did not come up - see $LOG_FILE"
+}
+
+try_display_passthrough() {
     if [ -n "$FORCE_VNC" ]; then
         DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
         unset WAYLAND_DISPLAY
@@ -65,9 +109,24 @@ try_wayland_passthrough() {
         return
     fi
 
+    # Case 1: Linux host with a Wayland compositor, or WSL2 with WSLg. The host socket is
+    # bind-mounted into /run/host-runtime by docker-compose-dev.yml.
     local wayland_sock="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
     if [ -S "$wayland_sock" ]; then
         log "[X11] Using Wayland socket at $wayland_sock"
+        exit 0
+    fi
+
+    # Case 2: a real X11 display is already reachable at $DISPLAY. This covers:
+    #   - native Linux X11 (host's /tmp/.X11-unix bind-mounted, DISPLAY inherited from the host)
+    #   - WSL2 with WSLg's X11 socket
+    #   - macOS + XQuartz reachable over TCP at host.docker.internal:0
+    #     (see docker/docker-compose-macos.yml / .devcontainer/macos)
+    #   - Windows + VcXsrv/X410 reachable over TCP at host.docker.internal:0
+    #     (see docker/docker-compose-windows.yml / .devcontainer/windows)
+    if [ -n "$DISPLAY" ] && xdpyinfo -display "$DISPLAY" &>/dev/null; then
+        log "[X11] Using host X11 display at $DISPLAY"
+        start_vgl_3d_server
         exit 0
     fi
 }
@@ -158,7 +217,18 @@ start_services() {
 
 main() {
     parse_args "$@"
-    try_wayland_passthrough
+    try_display_passthrough
+
+    # try_display_passthrough only returns (rather than exiting) when no host display was
+    # usable, so it's safe to claim $DISPLAY for our own Xvfb/Xorg below - we just confirmed
+    # nothing answers on it. However $DISPLAY may hold a remote/TCP spec like
+    # "host.docker.internal:0" (macOS/Windows configs, when XQuartz/VcXsrv wasn't reachable) -
+    # that's not a valid local display for Xvfb/Xorg to bind to, so normalize it to a plain
+    # local display number first. Valid local specs always start with ':'.
+    if [[ $DISPLAY != :* ]]; then
+        log "[X11] $DISPLAY unreachable; falling back to internal Xvfb/Xorg on :0"
+        DISPLAY=":0"
+    fi
 
     detect_backend
     parse_screen_resolution
@@ -166,11 +236,6 @@ main() {
     : "${DISPLAY:?DISPLAY is not set}"
     : "${VNC_PORT:?VNC_PORT is not set}"
     : "${NOVNC_PORT:?NOVNC_PORT is not set}"
-
-    if xdpyinfo -display "$DISPLAY" &>/dev/null; then
-        log "[ERROR] Display $DISPLAY is already in use!"
-        exit 1
-    fi
 
     start_services
 }

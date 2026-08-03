@@ -1,0 +1,39 @@
+# Windows (native, no WSL2/WSLg) addon compose for base compose.
+#
+# If Docker Desktop is using the WSL2 backend and you open this repo from inside a WSL2 distro,
+# you don't need this file - WSLg already forwards Wayland/X11 through the same
+# docker-compose-dev.yml socket bind mounts used on native Linux, so use the default
+# .devcontainer/devcontainer.json instead.
+#
+# This file is for the remaining case: Docker Desktop's Hyper-V backend, or VS Code connecting
+# from a native (non-WSL) Windows filesystem path. There, the container can't reach any host
+# Wayland/X11 socket directly, so GUI windows are forwarded over the X11 protocol's native TCP
+# transport to a Windows-hosted X server, reachable via Docker Desktop's "host.docker.internal"
+# DNS name.
+#
+# Setup required on the Windows host (see docs/setup/docker.mdx for details):
+#   1. Install an X server that supports TCP, e.g. VcXsrv (https://sourceforge.net/projects/vcxsrv)
+#      or X410 (Microsoft Store).
+#   2. Launch it with network access enabled and access control disabled, e.g. for VcXsrv's
+#      XLaunch: "Multiple windows", display number 0, check "Disable access control".
+#   3. Allow the X server through Windows Defender Firewall when prompted (Private networks).
+#
+# Use this file instead of docker-compose-gpu.yml (there is no GPU passthrough here).
+#
+# VcXsrv/X410 can display windows but their indirect GLX (IGLX) can't give Gazebo/RViz (OGRE2)
+# a usable OpenGL context - the same architectural dead end confirmed by hand on macOS/XQuartz.
+# GL rendering therefore goes through VirtualGL against a local headless X server inside the
+# container, with only finished frames sent to the Windows X server as plain X11 images.
+# x_server.sh starts that 3D X server; `sim gazebo` wraps the launch in `vglrun`.
+
+services:
+  sim:
+    environment:
+      # Matches the ":0" / display-number-0 default used by VcXsrv's XLaunch and X410.
+      DISPLAY: "host.docker.internal:0"
+      # Display number of the container-local X server VirtualGL renders into (started by
+      # .devcontainer/x_server.sh). Kept clear of :0 and of FORCE_VNC's :77.
+      VGL_DISPLAY: ":88"
+      # VirtualGL's X11 Transport: deliver rendered frames as ordinary X11 images over the
+      # existing connection. Avoids needing a vglclient process on Windows or an extra port.
+      VGL_COMPRESS: "proxy"
