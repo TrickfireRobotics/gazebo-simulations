@@ -77,7 +77,11 @@ if [ -n "${FORCE_VNC:-}" ]; then
     # not the host's real DISPLAY (which is still reachable via the bind-mounted
     # X11 socket and would otherwise render GUI apps on the host instead of VNC).
     export DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
-elif [[ -n ${DISPLAY:-} && ${DISPLAY} != :* ]]; then
+elif [[ -n ${DISPLAY:-} && ${DISPLAY} =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+    # Some environments export DISPLAY as a bare number (e.g. "1") instead of ":1" - normalize
+    # that case only. Don't touch host:display specs like "host.docker.internal:0" or
+    # "172.20.32.1:0" (WSL2/macOS/Windows passthrough) - those are already valid as-is, and
+    # prepending ":" to them would turn a valid remote display into a broken local one.
     export DISPLAY=":${DISPLAY}"
 fi
 
