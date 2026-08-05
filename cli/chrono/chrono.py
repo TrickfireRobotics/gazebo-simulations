@@ -7,7 +7,9 @@ from ..paths import CHRONO_TERRAIN_DIR
 
 
 def run():
-    result = subprocess.run(["make", "run"], cwd=CHRONO_TERRAIN_DIR, check=False)
+    result = subprocess.run(["make"], cwd=CHRONO_TERRAIN_DIR, check=False, stdout=open("/dev/null", 'w'))
+    result = subprocess.run(["./sim"], cwd=CHRONO_TERRAIN_DIR, check=False)
+
     if result.returncode != 0:
         sys.exit(result.returncode)
 
