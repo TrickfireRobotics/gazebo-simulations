@@ -8,6 +8,11 @@
     "remoteEnv": {
         "HOST_WORKSPACE": "${localWorkspaceFolder}"
     },
+    // Runs on the host before the container starts: detects the OS and writes
+    // docker/.env.host so GUI forwarding (XQuartz/VcXsrv/Wayland) is auto-configured
+    // without hand-picking a macos/windows variant. `|| true` so a hiccup here never
+    // blocks container creation.
+    "initializeCommand": "bash .devcontainer/detect-host-gui-env.sh || true",
     "postCreateCommand": "pip3 install --break-system-packages -e .", // install the sim cli
     "postStartCommand": "bash ./.devcontainer/x_server.sh || true",
 

@@ -7,15 +7,17 @@ With this approcach everything runs inside a Docker container with everything de
 
 ## 1. Build the devcontainer
 
-There's a base devcontainer config plus a couple of variants for GUI forwarding on hosts that can't share a Linux display socket directly (see [Check if display works](#2-check-if-display-works) below to figure out which one you need):
+The **default config auto-detects your host** and configures GUI forwarding for you — no variant picking needed. Before the container starts, the base devcontainer's `initializeCommand` runs `.devcontainer/detect-host-gui-env.sh`, which detects your OS and writes `docker/.env.host` (loaded by the compose `env_file`) so the right display is forwarded:
 
-- **Linux (Wayland or X11) and WSL2** → default config, no changes needed.
-- **macOS with XQuartz** → `macos` config.
-- **Windows without WSL2/WSLg** (Hyper-V backend, or opening the repo from a native Windows path) → `windows` config.
+- **Linux (Wayland or X11) and WSL2/WSLg** → host display socket, passed straight through.
+- **macOS with XQuartz** → forwarded over TCP to XQuartz via `host.docker.internal`, rendered with VirtualGL.
+- **Windows without WSL2/WSLg** (Hyper-V backend, or a native Windows path) → forwarded over TCP to VcXsrv/X410.
+
+So on every platform you just use the default config below. The `macos` and `windows` config variants still exist as explicit overrides if auto-detection ever gets it wrong; use the `nvidia` variant to opt into GPU acceleration (see [nvidia setup](/setup/nvidia)).
 
 ### VSCode
 
-Open the cloned folder in VSCode. You should see a prompt to **Reopen in Container** in your bottom right. To pick a variant, open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **Dev Containers: Reopen in Container**, then select **macos** or **windows** from the configuration picker instead of the default. If the prompt doesn't appear, make sure you have the [extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
+Open the cloned folder in VSCode. You should see a prompt to **Reopen in Container** in your bottom right — accept it, or run **Dev Containers: Reopen in Container** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and pick the default config. If the prompt doesn't appear, make sure you have the [extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
 
 ### CLI
 
@@ -23,7 +25,7 @@ Open the cloned folder in VSCode. You should see a prompt to **Reopen in Contain
 devcontainer up
 ```
 
-Or, for a variant:
+To force a specific variant (rarely needed — only if auto-detection is wrong, or for GPU):
 
 ```bash title="Terminal"
 devcontainer up --config .devcontainer/macos/devcontainer.json

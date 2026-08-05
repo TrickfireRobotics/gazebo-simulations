@@ -10,6 +10,9 @@
     "remoteEnv": {
         "HOST_WORKSPACE": "${localWorkspaceFolder}"
     },
+    // Generate docker/.env.host on the host so DISPLAY/VirtualGL are set (base compose
+    // reads it via env_file). `|| true` so a hiccup never blocks container creation.
+    "initializeCommand": "bash .devcontainer/detect-host-gui-env.sh || true",
     "postCreateCommand": "pip3 install --break-system-packages -e .", // install the sim cli
     "postStartCommand": "bash ./.devcontainer/x_server.sh || true",
 

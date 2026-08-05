@@ -13,8 +13,16 @@ services:
         container_name: simulations
         user: trickfire
 
+        # Host-detected GUI env (DISPLAY, VirtualGL). Generated on the host by
+        # .devcontainer/detect-host-gui-env.sh (base devcontainer initializeCommand),
+        # so `devcontainer up` forwards the right display per-platform without
+        # picking a macos/windows variant. required:false: fine if absent (e.g. the
+        # explicit macos/windows overlays set DISPLAY themselves and override this).
+        env_file:
+            - path: .env.host
+              required: false
+
         environment:
-            DISPLAY: "${DISPLAY:-:0}"
             VNC_PORT: "${VNC_PORT:?VNC_PORT must be set, see docker/.env}"
             NOVNC_PORT: "${NOVNC_PORT:?NOVNC_PORT must be set, see docker/.env}"
             ROSBRIDGE_PORT: "${ROSBRIDGE_PORT:?ROSBRIDGE_PORT must be set, see docker/.env}"
