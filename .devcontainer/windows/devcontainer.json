@@ -16,6 +16,9 @@
     "customizations": {
         "vscode": {
             "settings": {
+                // Keep the Activity Bar (and its Explorer icon) visible in the
+                // container window so the file explorer can't disappear on launch.
+                "workbench.activityBar.location": "default",
                 "shfmt.executablePath": "/usr/local/bin/shfmt"
             },
             "extensions": [
