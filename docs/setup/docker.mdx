@@ -7,17 +7,18 @@ With this approcach everything runs inside a Docker container with everything de
 
 ## 1. Build the devcontainer
 
-The **default config auto-detects your host** and configures GUI forwarding for you — no variant picking needed. Before the container starts, the base devcontainer's `initializeCommand` runs `.devcontainer/detect-host-gui-env.sh`, which detects your OS and writes `docker/.env.host` (loaded by the compose `env_file`) so the right display is forwarded:
+There is **one devcontainer config, and it auto-detects your host** — no variant to pick. Before the container starts, its `initializeCommand` runs `.devcontainer/detect-host-env.sh`, which detects your OS and GPU and generates `docker/.env` + `docker/.env.host` (loaded by compose) so GUI forwarding *and* GPU acceleration are configured for you:
 
 - **Linux (Wayland or X11) and WSL2/WSLg** → host display socket, passed straight through.
 - **macOS with XQuartz** → forwarded over TCP to XQuartz via `host.docker.internal`, rendered with VirtualGL.
 - **Windows without WSL2/WSLg** (Hyper-V backend, or a native Windows path) → forwarded over TCP to VcXsrv/X410.
+- **NVIDIA GPU** (Linux, with the [nvidia container toolkit](/setup/nvidia) installed) → detected automatically and handed to the container; otherwise the default runtime is used.
 
-So on every platform you just use the default config below. The `macos` and `windows` config variants still exist as explicit overrides if auto-detection ever gets it wrong; use the `nvidia` variant to opt into GPU acceleration (see [nvidia setup](/setup/nvidia)).
+So on every platform you just use the single config below.
 
 ### VSCode
 
-Open the cloned folder in VSCode. You should see a prompt to **Reopen in Container** in your bottom right — accept it, or run **Dev Containers: Reopen in Container** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and pick the default config. If the prompt doesn't appear, make sure you have the [extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
+Open the cloned folder in VSCode. You should see a prompt to **Reopen in Container** in your bottom right — accept it, or run **Dev Containers: Reopen in Container** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`). If the prompt doesn't appear, make sure you have the [extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
 
 ### CLI
 
@@ -25,11 +26,9 @@ Open the cloned folder in VSCode. You should see a prompt to **Reopen in Contain
 devcontainer up
 ```
 
-To force a specific variant (rarely needed — only if auto-detection is wrong, or for GPU):
-
-```bash title="Terminal"
-devcontainer up --config .devcontainer/macos/devcontainer.json
-```
+<Callout type="info" title="Per-machine overrides">
+    Ports and flags are defined in `docker/.env.defaults` (committed). To change them on your machine, put the keys you want in `docker/.env.local` (gitignored) — e.g. `FORCE_VNC=1`. The real `docker/.env` is regenerated from the defaults, your `.env.local`, and host detection on every `devcontainer up`, so don't edit it directly.
+</Callout>
 
 <Callout type="info" title="Note">
     This will take a long time if it is your first time (30 mins)! Docker builds Chrono and its dependencies (many lines of C++) from source, and then the same for Gazebo and ROS! Subsequent launches will be very fast though.
@@ -65,7 +64,7 @@ WSL2 includes WSLg, a built-in Wayland compositor with X11 forwarding. Gazebo an
 
 ### macOS with XQuartz (no VNC needed)
 
-Make sure you built the `macos` devcontainer variant (see [step 1](#1-build-the-devcontainer)). GUI windows are forwarded over the X11 protocol to [XQuartz](https://www.xquartz.org) instead of VNC:
+On macOS the container is auto-configured for XQuartz (see [step 1](#1-build-the-devcontainer)). GUI windows are forwarded over the X11 protocol to [XQuartz](https://www.xquartz.org) instead of VNC:
 
 1. Install XQuartz if you don't already have it: `brew install --cask xquartz`, or download it from [xquartz.org](https://www.xquartz.org).
 2. Open XQuartz, go to **XQuartz > Settings > Security**, and check **"Allow connections from network clients"**.
@@ -98,7 +97,7 @@ If the display *is* reachable but `sim gazebo launch` (or similar) still fails w
 
 ### Windows without WSL2/WSLg (no VNC needed)
 
-Make sure you built the `windows` devcontainer variant (see [step 1](#1-build-the-devcontainer)). If you're using WSL2 with Docker Desktop's WSL2 backend, you don't need this - use the default config, which gets WSLg support automatically (see above).
+On native Windows the container is auto-configured for a TCP X server (see [step 1](#1-build-the-devcontainer)). If you're using WSL2 with Docker Desktop's WSL2 backend, none of this is needed - detection uses WSLg's socket automatically (see above). Native Windows detection requires bash on PATH (Git for Windows) so the host script can run.
 
 1. Install an X server that supports TCP connections: [VcXsrv](https://sourceforge.net/projects/vcxsrv) (free) or X410 (Microsoft Store, paid).
 2. Launch it with network access enabled. For VcXsrv's XLaunch: choose "Multiple windows", display number `0`, then on the "Extra settings" page check **"Disable access control"**.

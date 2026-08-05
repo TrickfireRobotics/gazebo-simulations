@@ -13,11 +13,18 @@ services:
         container_name: simulations
         user: trickfire
 
-        # Host-detected GUI env (DISPLAY, VirtualGL). Generated on the host by
-        # .devcontainer/detect-host-gui-env.sh (base devcontainer initializeCommand),
-        # so `devcontainer up` forwards the right display per-platform without
-        # picking a macos/windows variant. required:false: fine if absent (e.g. the
-        # explicit macos/windows overlays set DISPLAY themselves and override this).
+        # nvidia runtime, enabled only when the host has a working GPU. Detected on
+        # the host by .devcontainer/detect-host-env.sh, which writes SIM_GPU_RUNTIME
+        # into docker/.env (empty on non-GPU hosts, where compose omits `runtime`
+        # entirely and falls back to the default runtime).
+        runtime: "${SIM_GPU_RUNTIME:-}"
+
+        # Host-detected container env (DISPLAY + VirtualGL, and NVIDIA_* when a GPU
+        # is present). Generated on the host into docker/.env.host by
+        # .devcontainer/detect-host-env.sh (initializeCommand), so one config
+        # forwards the right display per-platform with no variant to pick.
+        # required:false: harmless if absent (e.g. raw `docker compose` outside the
+        # devcontainer, which doesn't run initializeCommand).
         env_file:
             - path: .env.host
               required: false
