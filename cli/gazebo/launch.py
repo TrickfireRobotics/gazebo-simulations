@@ -265,7 +265,7 @@ def _configure_virtualgl_rendering(env: dict[str, str]) -> list[str]:
             "        working GL context on this host - expect a blank Gazebo window and\n"
             "        rviz2 dying with 'Unable to create the rendering window'.\n"
             "        \n"
-            "        Rebuild the container to pick it up, or set FORCE_VNC=1 in docker/.env\n"
+            "        Rebuild the container to pick it up, or set FORCE_VNC=1 in docker/.env.local\n"
             "        and recreate the container to render over VNC instead."
         )
         return []
