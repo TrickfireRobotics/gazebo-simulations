@@ -24,7 +24,8 @@ _tf_find_repo() {
         "/workspaces/simulations" \
         "/workspace/simulations"; do
         if [ -d "$d/gazebo" ] && [ -f "$d/pyproject.toml" ]; then
-            printf "%s\n" "$d" return 0 fi
+            printf "%s\n" "$d" return 0
+        fi
     done
 
     d="$(git rev-parse --show-toplevel 2>/dev/null || true)"
