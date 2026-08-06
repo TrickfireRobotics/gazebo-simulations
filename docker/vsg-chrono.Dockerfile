@@ -107,6 +107,19 @@ RUN sed -i \
     's|    m_loader->m_active_domains.push_back(ad);|    if (!m_loader->m_user_domains)\n        m_loader->m_active_domains.clear();\n    m_loader->m_active_domains.push_back(ad);|' \
     /home/trickfire/chrono/src/chrono_vehicle/terrain/SCMTerrain.cpp
 
+# fix upstream portability bug:
+# FindSIMD.cmake unconditionally compiles with -march=native on any recent
+# GCC/Clang, baking in whatever SIMD extensions the *build* machine has
+# (e.g. SVE on GitHub's arm64 runners). Since this image is built once and
+# distributed to arbitrary machines, that produces SIGILL on hosts without
+# the exact same ISA (e.g. Apple Silicon, which has no SVE). Skip the
+# native shortcut on aarch64 so it falls through to Chrono's NEON detection,
+# which resolves to the portable "-march=armv8-a" baseline instead.
+RUN sed -i \
+    -e 's|GCC_VERSION_STRING VERSION_GREATER 4.2 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING|GCC_VERSION_STRING VERSION_GREATER 4.2 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64\|arm64"|' \
+    -e 's|CLANG_VERSION_STRING VERSION_GREATER_EQUAL 15.0 AND NOT CMAKE_CROSSCOMPILING|CLANG_VERSION_STRING VERSION_GREATER_EQUAL 15.0 AND NOT CMAKE_CROSSCOMPILING AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64\|arm64"|' \
+    /home/trickfire/chrono/cmake/FindSIMD.cmake
+
 RUN cmake -S /home/trickfire/chrono -B /home/trickfire/chrono/build \
     -GNinja \
     -DCMAKE_BUILD_TYPE=Release \

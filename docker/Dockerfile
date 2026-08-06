@@ -168,7 +168,9 @@ RUN echo "--------------- DEV TOOLING ----------------"
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
-    clangd openssh-server python3.12-venv wget zstd
+    clangd openssh-server python3.12-venv wget zstd \
+    build-essential cmake ninja-build \
+    libeigen3-dev libvulkan-dev libxcb1-dev pkg-config
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip3 install ruff pre-commit --break-system-packages --ignore-installed
