@@ -234,6 +234,7 @@ RUN rosdep init || true
 #                                 VNC / DISPLAY                                #
 # ---------------------------------------------------------------------------- #
 
+
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -241,21 +242,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     mesa-utils libglx-mesa0 libgl1-mesa-dri x11-apps \
     xserver-xorg-core xserver-xorg-video-dummy kmod
 
-# VirtualGL - makes Gazebo/RViz render on macOS (XQuartz) and Windows (VcXsrv/X410).
-#
-# Those hosts can display X11 windows over TCP just fine, but they cannot hand back a usable
-# OpenGL context: their indirect GLX (IGLX) is deprecated and broken, so OGRE2 - which both
-# Gazebo and RViz use - fails at glXMakeCurrent with GLXBadContext and never creates a
-# renderer. Forcing Mesa down the indirect path doesn't help, and the direct/software path
-# can't match XQuartz's GLX fbconfigs at all ("failed to create drisw screen").
-# Upstream considers IGLX a dead end: https://github.com/XQuartz/XQuartz/issues/144
-#
-# VirtualGL splits the two concerns instead. GL rendering runs against a local headless X
-# server inside the container (Mesa llvmpipe, OpenGL 4.5), and only the finished frames are
-# handed to the host's X server as ordinary X11 images - which XQuartz/VcXsrv do reliably.
-# Not used on native Linux/WSLg, where the app's GL already works directly against the host.
-#
-# Not packaged in Ubuntu, so install the upstream .deb (checksummed per architecture).
+# ---------------------------------------------------------------------------- #
+#                                 VirtualGL                                    #
+# ---------------------------------------------------------------------------- #
+
 ARG VIRTUALGL_VERSION=3.1.4
 RUN ARCH="$(dpkg --print-architecture)" && \
     case "${ARCH}" in \

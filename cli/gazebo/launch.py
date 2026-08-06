@@ -281,15 +281,10 @@ def _configure_virtualgl_rendering(env: dict[str, str]) -> list[str]:
         )
         return []
 
-    # These force Mesa onto the host X server's indirect-GLX path - the very thing VirtualGL
-    # exists to avoid. Left set, they also break the local GL context VirtualGL renders into,
-    # so drop them for the launched processes.
     for stale in ("LIBGL_ALWAYS_INDIRECT", "MESA_LOADER_DRIVER_OVERRIDE"):
         env.pop(stale, None)
 
     env["VGL_DISPLAY"] = vgl_display
-    # X11 Transport: hand rendered frames over as ordinary X11 images on the connection we
-    # already have. No vglclient process on the host and no extra port needed.
     env.setdefault("VGL_COMPRESS", "proxy")
 
     info(f"Rendering through VirtualGL ({vgl_display} -> {display})")

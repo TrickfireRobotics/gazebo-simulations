@@ -57,15 +57,6 @@ parse_args() {
     done
 }
 
-# VirtualGL's "3D X server": a container-local headless X server that GL rendering actually
-# happens against. Only needed when $DISPLAY is a remote X server (macOS/XQuartz,
-# Windows/VcXsrv), which can display windows but can't provide a usable OpenGL context - its
-# indirect GLX is deprecated and broken, so OGRE2 apps (Gazebo, RViz) fail to create a
-# renderer. VirtualGL renders here instead (Mesa llvmpipe, OpenGL 4.5) and sends only the
-# finished frames to the host's X server as plain X11 images.
-#
-# Skipped for local passthrough (native Linux, WSLg): there the app's GL already works
-# directly against the host's GPU, and routing through VirtualGL would only cost performance.
 start_vgl_3d_server() {
     if [[ $DISPLAY == :* ]]; then
         return 0
@@ -117,12 +108,6 @@ try_display_passthrough() {
         exit 0
     fi
 
-    # Case 2: a real X11 display is already reachable at $DISPLAY. This covers:
-    #   - native Linux X11 (host's /tmp/.X11-unix bind-mounted, DISPLAY inherited from the host)
-    #   - WSL2 with WSLg's X11 socket
-    #   - macOS + XQuartz reachable over TCP at host.docker.internal:0
-    #   - Windows + VcXsrv/X410 reachable over TCP at host.docker.internal:0
-    #     (both set by .devcontainer/detect-host-env.sh -> docker/.env.host)
     if [ -n "$DISPLAY" ] && xdpyinfo -display "$DISPLAY" &>/dev/null; then
         log "[X11] Using host X11 display at $DISPLAY"
         start_vgl_3d_server
@@ -218,12 +203,6 @@ main() {
     parse_args "$@"
     try_display_passthrough
 
-    # try_display_passthrough only returns (rather than exiting) when no host display was
-    # usable, so it's safe to claim $DISPLAY for our own Xvfb/Xorg below - we just confirmed
-    # nothing answers on it. However $DISPLAY may hold a remote/TCP spec like
-    # "host.docker.internal:0" (macOS/Windows hosts, when XQuartz/VcXsrv wasn't reachable) -
-    # that's not a valid local display for Xvfb/Xorg to bind to, so normalize it to a plain
-    # local display number first. Valid local specs always start with ':'.
     if [[ $DISPLAY != :* ]]; then
         log "[X11] $DISPLAY unreachable; falling back to internal Xvfb/Xorg on :0"
         DISPLAY=":0"

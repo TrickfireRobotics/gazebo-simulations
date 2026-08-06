@@ -8,10 +8,6 @@
     "remoteEnv": {
         "HOST_WORKSPACE": "${localWorkspaceFolder}"
     },
-    // Runs on the host before the container starts: detects the OS and GPU and
-    // generates docker/.env + docker/.env.host, so GUI forwarding (XQuartz/VcXsrv/
-    // Wayland) and nvidia GPU are auto-configured for every platform — no per-OS
-    // config to pick. `|| true` so a hiccup here never blocks container creation.
     "initializeCommand": "bash .devcontainer/detect-host-env.sh || true",
     "postCreateCommand": "pip3 install --break-system-packages -e .", // install the sim cli
     "postStartCommand": "bash ./.devcontainer/x_server.sh || true",
@@ -19,8 +15,6 @@
     "customizations": {
         "vscode": {
             "settings": {
-                // Keep the Activity Bar (and its Explorer icon) visible in the
-                // container window so the file explorer can't disappear on launch.
                 "workbench.activityBar.location": "default",
                 "shfmt.executablePath": "/usr/local/bin/shfmt"
             },
