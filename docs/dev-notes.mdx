@@ -1,0 +1,230 @@
+---
+title: Dev Notes
+description: Internal notes, tips, and architectural decisions for contributors.
+---
+
+## Architecture decisions
+
+### Docker vs. pixi
+
+Both workflows produce the same ROS 2 Jazzy + Gazebo Harmonic environment. Docker is the primary,
+recommended workflow; pixi is a supporting option for a faster Gazebo-only loop.
+
+<Tabs items={["Docker (primary)", "pixi (native, supporting)"]}>
+    <Tab value="Docker (primary)">
+        ROS 2 + Gazebo + Chrono are notoriously painful to install and keep in sync natively,
+        especially across different OS versions. The Dev Container pins every dependency (ROS 2
+        Jazzy, Gazebo Harmonic, VSG, Chrono, VirtualGL) inside a pre-built image, so it behaves the
+        same on Linux, macOS, and Windows, with or without a GPU. The display/GPU quirks that used
+        to make Docker painful - X11 forwarding, VirtualGL, NVIDIA runtime detection - are now
+        handled automatically by `.devcontainer/host-env.sh` and `.devcontainer/x_server.sh` (see
+        [below](#docker-environment)), so the container works out of the box. It's also the only
+        workflow that supports Chrono.
+    </Tab>
+    <Tab value="pixi (native, supporting)">
+        [pixi](https://pixi.sh) installs ROS 2 Jazzy and Gazebo Harmonic into a self-contained conda
+        environment inside the repo's `.pixi/` directory - no system-level ROS install, and deleting
+        the repo removes the environment cleanly. It's a faster loop than Docker since there's no
+        container layer, but it only supports Gazebo (not Chrono) and leaves you to work around any
+        OS-specific quirks yourself. Reach for it when you want the fastest Gazebo-only iteration;
+        use Docker for everything else, especially Chrono.
+    </Tab>
+</Tabs>
+
+<Accordions>
+    <Accordion title="Why Gazebo Harmonic?">
+        [Gazebo Harmonic](https://gazebosim.org/docs/harmonic/) is the current LTS release of the new-generation Gazebo and
+        pairs with ROS 2 Jazzy which is used on the Apollo rover this sim is mainly used to test components of and for. It
+        replaces the old [Gazebo Fortress](https://gazebosim.org/docs/fortress/) that was LTS for ROS Humble Viator uses.
+    </Accordion>
+    <Accordion title="Why two packages per robot?">
+        The `_description` / `_bringup` split is a ROS convention:
+
+        - **`_description`** contains the robot model (URDF + meshes) - things that change when the CAD changes
+        - **`_bringup`** contains runtime config (launch files, controller YAML, RViz config) - things you tweak during development
+
+        This separation means `sim gazebo update` can safely replace the description without
+        touching your launch customizations. See [Architecture](./gazebo/architecture) for the
+        full package layout.
+    </Accordion>
+
+</Accordions>
+
+## Docker environment
+
+The [Dev Container](./setup/docker) is built from two Dockerfiles that work together, plus a pair
+of host-side scripts that configure display and GPU access before the container starts.
+
+### Image build
+
+`docker/vsg-chrono.Dockerfile` builds VSG and Chrono from source - a slow, rarely-changing C++
+build - and publishes it as `ghcr.io/trickfirerobotics/simulations-vsg-chrono` via
+[CI](https://github.com/TrickfireRobotics/simulations/blob/main/.github/workflows/vsg-chrono.yml)
+on every push to `main` that touches it (or on manual dispatch), for both `amd64` and `arm64`.
+`docker/Dockerfile`'s `sim` stage then copies `/opt/vsg` and `/home/trickfire/chrono` out of that
+image and builds everything else on top as `simulations:latest` - changing the app Dockerfile
+never triggers a Chrono rebuild.
+
+| Section       | Contents                                                                 |
+| ------------- | ------------------------------------------------------------------------ |
+| BASE          | Locale, `trickfire` user, a libdrm stub needed for Jetson Mesa rendering |
+| VSG + CHRONO  | Copied in from the `vsg-chrono` base image                               |
+| GAZEBO        | ROS 2 Jazzy + Gazebo Harmonic, `ros-gz`, controllers, RViz, xacro        |
+| VNC / DISPLAY | Headless X stack: Xorg/Xvfb, Openbox, x11vnc, noVNC                      |
+| VirtualGL     | GL proxying for remote (XQuartz/VcXsrv) displays                         |
+| DEV TOOLING   | SSH server, ruff, pre-commit, shfmt, clangd                              |
+
+<Callout type="idea" title="Build parallelism">
+    A `BUILD_JOBS` build arg controls C++ build parallelism (defaults to `nproc`). Override it in
+    `docker/.env.local` if a full-parallel build overwhelms your machine. (my Macbook Air reaches
+    50°C normally doing a all 8-core build 😭)
+</Callout>
+
+### Host detection
+
+`.devcontainer/host-env.sh` runs as the devcontainer's `initializeCommand`, before the container
+starts. It writes `docker/.env` (loaded by compose) from three sources, in order:
+
+<Steps>
+    <Step>`docker/.env.defaults` - committed defaults (ports, etc.)</Step>
+    <Step>`docker/.env.local` - your machine-only overrides, gitignored</Step>
+    <Step>
+        Host/GPU detection - `DISPLAY`, `VGL_DISPLAY`, and `SIM_GPU_RUNTIME` based on `uname` and
+        whether `nvidia-smi` + the `nvidia` Docker runtime are both present
+    </Step>
+</Steps>
+
+| Variable                             | Set by                      | Purpose                                         |
+| ------------------------------------ | --------------------------- | ----------------------------------------------- |
+| `DISPLAY`                            | host-env.sh                 | Host display to forward (local or TCP)          |
+| `VGL_DISPLAY`                        | host-env.sh (macOS/Windows) | VirtualGL's in-container 3D X server            |
+| `SIM_GPU_RUNTIME`                    | host-env.sh                 | `nvidia` or empty - feeds `runtime:` in compose |
+| `WAYLAND_DISPLAY`, `XDG_RUNTIME_DIR` | docker-compose.yml          | Wayland socket passthrough for Vulkan (Chrono)  |
+
+### Display architecture
+
+`.devcontainer/x_server.sh` runs as `postStartCommand`, after the container is up, and picks the
+cheapest option that works:
+
+| Situation                                           | What happens                                                               |
+| --------------------------------------------------- | -------------------------------------------------------------------------- |
+| Host Wayland socket (`/run/host-runtime`) reachable | Used directly - no extra services started                                  |
+| Host X11 socket (`/tmp/.X11-unix`) reachable        | Used directly - no extra services started                                  |
+| Neither reachable                                   | Falls back to a self-contained stack: Xorg/Xvfb + Openbox + x11vnc + noVNC |
+
+<Callout type="info" title="Remote displays (XQuartz/VcXsrv)">
+    Over TCP it additionally starts a headless VirtualGL 3D X server on `:88` - that's what `vglrun`
+    (used automatically by `sim gazebo`) renders against, so Gazebo/RViz get a real GL context even
+    though the host X server can't provide one. See [Docker
+    setup](./setup/docker#2-check-if-display-works) for the per-OS walkthrough.
+</Callout>
+
+When falling back to VNC, the backend depends on available hardware:
+
+- Xorg with the NVIDIA driver on desktop GPUs
+- `vkms` for a virtual DRI3-capable display when no GPU is present
+- Xvfb + EGL on Jetson/Tegra (no `/dev/dri`)
+
+Chrono's Vulkan rendering uses the Wayland socket when present, independent of this X11 path.
+
+### Container user
+
+Runs as non-root `trickfire` (uid 1000) with passwordless sudo, so files created in the
+bind-mounted repo stay owned by your host user.
+
+### Extending the container
+
+<Steps>
+    <Step>
+        Edit `docker/Dockerfile` (or `docker/vsg-chrono.Dockerfile` for the VSG/Chrono base) to add
+        system packages.
+    </Step>
+    <Step>Rebuild with **Dev Containers: Rebuild Container**.</Step>
+</Steps>
+
+<Callout type="idea">
+    Python packages for simulation-time use go in the `pip3 install` line in the GAZEBO section;
+    dev-only tools go in DEV TOOLING.
+</Callout>
+
+## Useful CLI commands
+
+### Gazebo camera position
+
+To set the camera position in the Gazebo viewer:
+
+```bash
+gz service -s /gui/move_to/pose \
+    --reqtype gz.msgs.GUICamera \
+    --reptype gz.msgs.Boolean \
+    --timeout 2000 \
+    --req "pose: {position: {x: 0.0, y: -2.0, z: 2.0} orientation: {x: -0.2706, y: 0.2706, z: 0.6533, w: 0.6533}}"
+```
+
+To read the current camera position:
+
+```bash
+gz topic -e -t /gui/camera/pose
+```
+
+### ROS 2 inspection
+
+```bash
+# List all topics
+ros2 topic list
+
+# See joint states in real time
+ros2 topic echo /joint_states
+
+# List active controllers
+ros2 control list_controllers
+
+# Check controller manager status
+ros2 control list_hardware_interfaces
+```
+
+### Building a single package
+
+```bash
+cd gazebo
+colcon build --packages-select arm_description
+source install/setup.bash
+```
+
+## Community `apt` repository (Dev Container)
+
+Some ROS packages live in the `universe` repository rather than `main`. If `apt` can't find a package inside the container:
+
+```bash title="Inside devcontainer"
+apt-get update
+apt-get install -y software-properties-common
+add-apt-repository -y universe
+apt-get update
+```
+
+<Callout type="info" title="Note">
+    The Dockerfile already enables `universe` for the packages that need it.
+</Callout>
+
+## Common pitfalls
+
+<Accordions>
+    <Accordion title="Forgetting to source after build">
+        ROS 2 can't find packages until you run `source gazebo/install/setup.bash`. The launch
+        script does this automatically, but if you're running ROS commands manually, you need to
+        source first.
+    </Accordion>
+    <Accordion title="Stale build artifacts">
+        If something breaks for no obvious reason, run `sim gazebo clean` and rebuild. Colcon's
+        incremental builds can get confused after certain types of changes.
+    </Accordion>
+    <Accordion title="X server not running (Dev Container only)">
+        Gazebo and RViz will fail silently or crash if the X server isn't started. The Dev Container
+        starts it automatically, but if you need to restart it manually, run
+        `.devcontainer/x_server.sh`.
+    </Accordion>
+    <Accordion title="Port conflicts (Dev Container only)">
+        If port 6080 or 5900 is already in use, the X server script will fail. Make sure no other
+        VNC sessions or containers are using those ports.
+    </Accordion>
+</Accordions>
