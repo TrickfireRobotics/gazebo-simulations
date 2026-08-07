@@ -42,8 +42,9 @@ This replaces only `arm_description/urdf/arm.urdf` and `arm_description/meshes/`
         don't appear in the generated controller YAML.
     </Accordion>
     <Accordion title="There are URDF errors after generation">
-        See [Robot Packages](../reference/robot-packages/) for details on what post-processing
-        happens and how to inspect the raw OnShape output.
+        `sim gazebo create` post-processes the raw OnShape URDF (mesh paths, control xacro
+        generation, indentation). Check the OnShape assembly for unexpected geometry or joint
+        definitions if the generated URDF still looks wrong afterwards.
     </Accordion>
     <Accordion title="'sim gazebo auth' fails with 'no access'">
         Your API key may be invalid or expired. Generate a new one at

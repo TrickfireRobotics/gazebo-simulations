@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Sets up the container's display: Wayland/X11 passthrough when available, otherwise a
-# headless Xorg/Xvfb + Openbox + x11vnc + noVNC stack. See docs/reference/docker-environment.mdx.
+# headless Xorg/Xvfb + Openbox + x11vnc + noVNC stack. See docs/setup/docker.mdx.
 
 set -eo pipefail
 trap '' HUP

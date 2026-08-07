@@ -9,11 +9,11 @@ Everything runs inside a Docker container with all dependencies pinned and pre-b
 
 Before the container starts, `initializeCommand` runs `.devcontainer/host-env.sh`, which detects your OS and GPU and writes `docker/.env`. These are all possible options:
 
-| Host                                  | Display path                                                                                 |
-| ------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **Linux Wayland/X11** & **WSL2/WSLg** | Host socket, passed straight through                                                         |
-| **macOS** + **XQuartz**               | Forwarded over TCP via `host.docker.internal` & rendered with VirtualGL                      |
-| **Vanilla Windows**                   | Forwarded over TCP to VcXsrv & rendered with VirtualGL                                       |
+| Host                                  | Display path                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Linux Wayland/X11** & **WSL2/WSLg** | Host socket, passed straight through                                                              |
+| **macOS** + **XQuartz**               | Forwarded over TCP via `host.docker.internal` & rendered with VirtualGL                           |
+| **Vanilla Windows**                   | Forwarded over TCP to VcXsrv & rendered with VirtualGL                                            |
 | **Linux** + **NVIDIA GPU**            | Uses the [container toolkit](#nvidia-acceleration) and NVIDIA Docker runtime for faster rendering |
 
 <Tabs items={["VSCode", "CLI"]}>
@@ -44,7 +44,7 @@ Gazebo and RViz need a display. On container start, `.devcontainer/x_server.sh` 
 path for your host and prints which one it picked. Check the terminal you launched the
 container from.
 
-<Tabs items={["Linux / WSLg", "MacOS", "Windows", "VNC", "Nvidia"]}>
+<Tabs items={["Linux / WSLg", "MacOS", "Windows", "VNC", "NVIDIA"]}>
     <Tab value="Linux / WSLg">
         Wayland or X11 is forwarded straight through - no VNC needed. The log prints one of:
 
@@ -114,7 +114,7 @@ container from.
             `XQuartz` as plain `X11` images.
         </Callout>
     </Tab>
-    <Tab value="Headless (VNC)">
+    <Tab value="VNC">
         Used for headless servers, or when nothing above applies. `x_server.sh` starts a VNC
         stack, picking a backend based on available hardware:
 
