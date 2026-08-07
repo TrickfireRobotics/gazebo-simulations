@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-
-# --------------------------------------------------------------------------------------------
-# Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
-# Intended for running GUI apps (Gazebo) in Docker.
-# Supports --verbose flag for debugging (prints all output to console instead of log file).
-# --------------------------------------------------------------------------------------------
+# Sets up the container's display: Wayland/X11 passthrough when available, otherwise a
+# headless Xorg/Xvfb + Openbox + x11vnc + noVNC stack. See docs/reference/docker-environment.mdx.
 
 set -eo pipefail
 trap '' HUP
@@ -101,7 +97,7 @@ try_display_passthrough() {
     fi
 
     # Case 1: Linux host with a Wayland compositor, or WSL2 with WSLg. The host socket is
-    # bind-mounted into /run/host-runtime by docker-compose-dev.yml.
+    # bind-mounted into /run/host-runtime by docker-compose.yml.
     local wayland_sock="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
     if [ -S "$wayland_sock" ]; then
         log "[X11] Using Wayland socket at $wayland_sock"
