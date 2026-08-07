@@ -4,13 +4,12 @@
     "description": "Multi-sim environment: Gazebo Harmonic (ROS 2 Jazzy) for robot subsystems, and Project Chrono for terrain/wheel physics",
     "icon": "MonitorCloud",
     "sidebar": [
-        { "label": "Getting Started", "slug": "getting-started" },
+        { "label": "Getting Started", "slug": "index" },
         {
             "label": "Setup",
             "items": [
-                { "label": "Native (pixi)", "slug": "setup/pixi" },
                 { "label": "Docker", "slug": "setup/docker" },
-                { "label": "Docker + Nvidia", "slug": "setup/nvidia" }
+                { "label": "Native (pixi)", "slug": "setup/pixi" }
             ]
         },
         {
@@ -25,28 +24,13 @@
                     "label": "Adding a New Robot",
                     "slug": "gazebo/adding-robots"
                 },
-                { "label": "ROS Workspace", "slug": "gazebo/ros-workspace" },
-                { "label": "Launch System", "slug": "gazebo/launch-system" },
-                {
-                    "label": "Robot Packages",
-                    "slug": "gazebo/robot-packages"
-                },
-                { "label": "Joint GUI", "slug": "gazebo/joint-gui" }
+                { "label": "Architecture", "slug": "gazebo/architecture" }
             ]
         },
         {
             "label": "Chrono",
             "items": [{ "label": "Running Simulations", "slug": "chrono/chrono" }]
         },
-        {
-            "label": "Reference",
-            "items": [
-                { "label": "Dev Notes", "slug": "reference/dev-notes" },
-                {
-                    "label": "Docker Environment",
-                    "slug": "reference/docker-environment"
-                }
-            ]
-        }
+        { "label": "Dev Notes", "slug": "dev-notes" }
     ]
 }
