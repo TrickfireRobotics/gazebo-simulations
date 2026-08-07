@@ -1,5 +1,6 @@
 {
-    "dockerComposeFile": ["../docker/docker-compose.yml", "../docker/docker-compose-dev.yml"],
+    "name": "simulations",
+    "dockerComposeFile": "../docker/docker-compose.yml",
     "service": "sim",
     "runServices": ["sim"],
 
@@ -7,43 +8,37 @@
     "remoteEnv": {
         "HOST_WORKSPACE": "${localWorkspaceFolder}"
     },
+    "initializeCommand": "bash .devcontainer/host-env.sh || true",
     "postCreateCommand": "pip3 install --break-system-packages -e .", // install the sim cli
     "postStartCommand": "bash ./.devcontainer/x_server.sh || true",
 
     "customizations": {
         "vscode": {
             "settings": {
+                "workbench.activityBar.location": "default",
                 "shfmt.executablePath": "/usr/local/bin/shfmt"
             },
             "extensions": [
-                // --- Python ---
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "charliermarsh.ruff",
                 "ms-python.mypy-type-checker",
-
-                // --- C and C++ ---
                 "ms-vscode.cmake-tools",
                 "josetr.cmake-language-support-vscode",
                 "llvm-vs-code-extensions.vscode-clangd",
                 "ms-vscode.makefile-tools",
-
-                // --- Robotics / ROS / URDF / meshes ---
                 "Ranch-Hand-Robotics.rde-ros-2",
                 "smilerobotics.urdf",
                 "morningfrog.urdf-visualizer",
                 "misiekhardcore.stl-previewer",
-
-                // --- Container ---
                 "ms-azuretools.vscode-docker",
-
-                // --- Formatters ---
                 "esbenp.prettier-vscode",
                 "yzhang.markdown-all-in-one",
                 "DotJoshJohnson.xml",
                 "tamasfe.even-better-toml",
                 "github.vscode-github-actions",
-                "mkhl.shfmt"
+                "mkhl.shfmt",
+                "unifiedjs.vscode-mdx"
             ]
         }
     }

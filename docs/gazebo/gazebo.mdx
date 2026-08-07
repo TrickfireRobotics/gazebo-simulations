@@ -3,50 +3,52 @@ title: Running Gazebo
 description: How to build and launch robot simulations with the Gazebo sim CLI.
 ---
 
-Gazebo simulations are launched through the `sim gazebo` CLI. It auto-detects whether you are running natively (pixi) or inside the Dev Container and applies the right setup automatically. To launch the sim use:
+Gazebo simulations are launched through the `sim gazebo` CLI:
 
 ```bash
 sim gazebo <robot_name>
 ```
 
-Of course, if you are using pixi, it is going to be:
+<Callout>With **pixi**, prefix it all of the `sim ...` commands here with `pixi run`</Callout>
 
-```bash
-pixi run sim gazebo <robot_name>
-```
+## Flags
 
-## Options
-
-| Option         | Description                                                                                         |
-| -------------- | --------------------------------------------------------------------------------------------------- |
-| `--no-build`   | Skip the `colcon build` step. Use this when you haven't changed any code and want a faster startup. |
-| `--build-only` | Build the workspace but don't launch the simulation. Useful for checking if your changes compile.   |
-
-```bash
-# Skip building (already built)
-pixi run sim gazebo arm --no-build
-
-# Only build, don't launch
-pixi run sim gazebo arm --build-only
-```
+| Option         | Description                                          |
+| -------------- | ---------------------------------------------------- |
+| `--no-build`   | Skip the `colcon build` step.                        |
+| `--build-only` | Build the workspace but don't launch the simulation. |
 
 ## Cleaning the workspace
 
 To remove build artifacts and do a clean rebuild:
 
-```bash title="Terminal"
-pixi run sim gazebo clean
+```bash
+sim gazebo clean
 ```
 
 This deletes `gazebo/build/`, `gazebo/install/`, and `gazebo/log/`. Use this when you encounter unexplained build failures.
 
 ## Troubleshooting
 
-**Build fails with cryptic errors:**
-Run `sim gazebo clean` to delete stale build artifacts, then try again. Stale artifacts are the most common cause of unexplained build failures.
-
-**Gazebo window doesn't appear (Dev Container):**
-Connect via your VNC viewer at `localhost:5900` and verify it works with `xeyes`. If the display isn't running, restart it with `.devcontainer/x_server.sh`.
-
-**Package not found errors after launch:**
-Try running `sim gazebo clean` and building again.
+<Accordions>
+    <Accordion title="Build fails with cryptic errors">
+        Run `sim gazebo clean` to delete stale build artifacts, then try again. Stale artifacts
+        are the most common cause of unexplained build failures.
+    </Accordion>
+    <Accordion title="Gazebo window doesn't appear (Dev Container)">
+        Connect via your VNC viewer at `localhost:5900` and verify it works with `xeyes`. If the
+        display isn't running, restart it with `.devcontainer/x_server.sh`.
+    </Accordion>
+    <Accordion title='RViz crashes with "Unable to create the rendering window", or Gazebo shows a blank window (macOS/Windows)'>
+        The `VirtualGL` path that gives OGRE2 a working GL context isn't active. Check for a
+        warning from `sim gazebo` at startup, then see [Docker setup](../../setup/docker/) for
+        how to verify and fix it.
+    </Accordion>
+    <Accordion title="Package not found errors after launch">
+        Try running `sim gazebo clean` and building again.
+    </Accordion>
+    <Accordion title="Package '<name>_bringup' not found right after launch">
+        `sim gazebo <robot_name>` takes a robot name (`arm`, `chassis` ...) from configured robots in `robots.json`,
+        not a subcommand. Check the `robots.json` file for list of available robots or [create a new one](./adding-robots.mdx)
+    </Accordion>
+</Accordions>
