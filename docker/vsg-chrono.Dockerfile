@@ -102,18 +102,10 @@ RUN git clone --depth 1 https://github.com/projectchrono/chrono.git /home/trickf
 
 # fix upstream bug:
 # AddActiveDomain appends without clearing the null-body default domain
-# added by SetupInitial, causing a crash when OnBindAssets iterates all domains
+# added by SetupInitial, causing a crash when OnBindAssets iterates all domains.
 RUN sed -i \
     's|    m_loader->m_active_domains.push_back(ad);|    if (!m_loader->m_user_domains)\n        m_loader->m_active_domains.clear();\n    m_loader->m_active_domains.push_back(ad);|' \
     /home/trickfire/chrono/src/chrono_vehicle/terrain/SCMTerrain.cpp
-
-# fix upstream portability bug:
-# FindSIMD.cmake unconditionally compiles with -march=native on any recent
-# GCC/Clang, baking in whatever SIMD extensions the build machine has
-RUN sed -i \
-    -e 's|GCC_VERSION_STRING VERSION_GREATER 4.2 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING|GCC_VERSION_STRING VERSION_GREATER 4.2 AND NOT APPLE AND NOT CMAKE_CROSSCOMPILING AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64\|arm64"|' \
-    -e 's|CLANG_VERSION_STRING VERSION_GREATER_EQUAL 15.0 AND NOT CMAKE_CROSSCOMPILING|CLANG_VERSION_STRING VERSION_GREATER_EQUAL 15.0 AND NOT CMAKE_CROSSCOMPILING AND NOT CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64\|arm64"|' \
-    /home/trickfire/chrono/cmake/FindSIMD.cmake
 
 RUN cmake -S /home/trickfire/chrono -B /home/trickfire/chrono/build \
     -GNinja \
