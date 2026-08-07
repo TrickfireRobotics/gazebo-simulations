@@ -117,51 +117,26 @@ def _x11_port_for(display: str) -> int:
         return 6000
 
 
+_DOCKER_DOCS = "https://docs.trickfirerobotics.com/simulations/setup/docker"
+
+
 def _diagnose_display(display: str, xdpyinfo_stderr: str) -> str:
-    """Build a specific, actionable explanation for why `display` couldn't be opened.
-
-    Runs its own DNS/TCP checks (independent of xdpyinfo) so the error points at the
-    layer that's actually broken, instead of a bare "cannot connect".
-    """
+    """Pin down which layer (local socket, DNS, TCP, or X11 auth) is broken."""
     lines = [f"Cannot connect to display {display}", ""]
-    is_local = display.startswith(":")
 
-    if is_local:
+    if display.startswith(":"):
         lines += [
-            "This is a local display spec - the container expected a Wayland/X11 socket to",
-            "already be forwarded in (native Linux host, or WSL2/WSLg).",
-            "",
-            "Checks to run inside the container:",
-            "  1. grep X11 /tmp/start_x_server.log",
-            "     Look for '[X11] Using host X11 display' or '[X11] Using Wayland socket'.",
-            "     If you see Xvfb/vkms/dummy-driver/noVNC lines instead, passthrough failed",
-            "     at container startup and it fell back to the internal VNC stack - connect",
-            "     a VNC viewer to localhost:5900 (or http://localhost:6080/vnc.html), or fix",
-            "     passthrough on the host and restart the container to retry it.",
-            "  2. ls -la /tmp/.X11-unix/",
-            "     Empty means the host's X11 socket wasn't bind-mounted in, or nothing is",
-            "     listening on it on the host.",
+            "Expected a Wayland/X11 socket forwarded in from the hosts",
         ]
         return "\n".join(lines)
 
     host = display.split(":", 1)[0]
-    lines += [
-        f"This is a remote display spec (host '{host}') - used by the macOS/Windows",
-        "devcontainer configs to forward GUI windows to XQuartz/VcXsrv over TCP.",
-        "",
-    ]
 
     try:
         ip = socket.gethostbyname(host)
         lines.append(f"  [OK]   DNS: '{host}' resolves to {ip}")
     except OSError as e:
-        lines += [
-            f"  [FAIL] DNS: '{host}' did not resolve ({e})",
-            "",
-            "         Docker Desktop provides this name automatically to containers. If it's",
-            "         missing, Docker Desktop may not be running, or this isn't actually",
-            "         running inside the container (check your shell prompt).",
-        ]
+        lines += [f"  [FAIL] DNS: '{host}' did not resolve ({e})", "", "Is Docker Desktop running?"]
         return "\n".join(lines)
 
     port = _x11_port_for(display)
@@ -171,37 +146,14 @@ def _diagnose_display(display: str, xdpyinfo_stderr: str) -> str:
     except OSError as e:
         lines += [
             f"  [FAIL] TCP: could not connect to {host}:{port} ({e})",
-            "",
-            "         macOS + XQuartz:",
-            "           - Is XQuartz actually running? (`ps aux | grep -i xquartz` on the Mac)",
-            "           - XQuartz > Settings > Security > 'Allow connections from network",
-            "             clients' must be checked, then XQuartz fully restarted for it to",
-            "             take effect.",
-            "         Windows + VcXsrv/X410:",
-            "           - Is the X server running? For VcXsrv, XLaunch must have 'Disable",
-            "             access control' checked.",
-            "           - Windows Defender Firewall may be silently blocking it - check for a",
-            "             blocked-app prompt, or allow it manually for Private networks.",
+            f"See {_DOCKER_DOCS} for XQuartz/VcXsrv setup.",
         ]
         return "\n".join(lines)
 
     lines += [
         "  [FAIL] X11: connected over TCP, but the X server rejected the session:",
         f"         {xdpyinfo_stderr.strip() or '(no error output captured)'}",
-        "",
-        "         DNS and TCP are both fine, so this is an X11 access-control problem, not a",
-        "         network problem:",
-        "",
-        "         macOS:",
-        "           Run on the Mac (not in the container): `DISPLAY=:0 xhost + 127.0.0.1`",
-        "           Do NOT use `xhost -display :0 + ...` - this is a documented xhost bug:",
-        "           '-display' is parsed as 'remove a host named display', not a real flag.",
-        "           xhost always connects using your shell's $DISPLAY env var instead, so set",
-        "           it as a one-off prefix like above. This resets every time XQuartz",
-        "           restarts, so you'll need to re-run it after any XQuartz restart.",
-        "         Windows:",
-        "           Relaunch VcXsrv/X410 with 'Disable access control' checked - there's no",
-        "           separate allow-list step needed once that's set.",
+        f"See {_DOCKER_DOCS} for X11 authorization (xhost) setup.",
     ]
     return "\n".join(lines)
 
@@ -223,12 +175,7 @@ def _check_display() -> None:
     info("Checking for display...")
     display = os.environ.get("DISPLAY")
     if not display:
-        die(
-            "DISPLAY environment variable not set\n\n"
-            "        This is normally set by the devcontainer's compose config. If you're\n"
-            "        seeing this, something stripped it from your shell - try a fresh\n"
-            "        terminal/container restart, or run `env | grep DISPLAY` to confirm."
-        )
+        die("DISPLAY not set! Try restarting the container")
 
     result = subprocess.run(
         ["xdpyinfo", "-display", display],
@@ -242,42 +189,19 @@ def _check_display() -> None:
 
 
 def _configure_virtualgl_rendering(env: dict[str, str]) -> list[str]:
-    """Route GL rendering through VirtualGL when displaying on a remote X server.
-
-    macOS (XQuartz) and Windows (VcXsrv/X410) can display X11 windows over TCP, but can't
-    hand back a usable OpenGL context: their indirect GLX is deprecated and broken, so OGRE2
-    - which both Gazebo and RViz use - fails at glXMakeCurrent and never creates a renderer.
-
-    VirtualGL splits the two concerns. GL rendering runs against a container-local headless X
-    server (Mesa llvmpipe, OpenGL 4.5) started by .devcontainer/x_server.sh, and only the
-    finished frames go to the host's X server as ordinary X11 images - which it handles fine.
-
-    Returns the command prefix to launch under, or an empty prefix if VirtualGL isn't needed
-    or isn't usable (in which case the launch still proceeds, just without GL acceleration).
-    """
+    """Route GL rendering through VirtualGL when displaying on a remote X server"""
     display = os.environ.get("DISPLAY", "")
     if display.startswith(":"):
-        return []  # local passthrough (Linux/WSLg) - the app's GL already works directly
+        return []
 
     if not shutil.which("vglrun"):
-        warn(
-            "VirtualGL (vglrun) is not installed, so Gazebo/RViz have no way to get a\n"
-            "        working GL context on this host - expect a blank Gazebo window and\n"
-            "        rviz2 dying with 'Unable to create the rendering window'.\n"
-            "        \n"
-            "        Rebuild the container to pick it up, or set FORCE_VNC=1 in docker/.env.local\n"
-            "        and recreate the container to render over VNC instead."
-        )
+        warn(f"vglrun not installed - GL rendering will fail. See {_DOCKER_DOCS}")
         return []
 
     vgl_display = os.environ.get("VGL_DISPLAY", ":88")
     if not _display_reachable(vgl_display):
         warn(
-            f"VirtualGL's 3D X server on {vgl_display} isn't running, so Gazebo/RViz can't\n"
-            "        get a working GL context - expect rendering to fail.\n"
-            "        \n"
-            "        Start it with: bash .devcontainer/x_server.sh\n"
-            "        (it normally starts automatically when the container starts)"
+            f"VirtualGL's 3D X server on {vgl_display} isn't running - run .devcontainer/x_server.sh"
         )
         return []
 
@@ -294,7 +218,7 @@ def _configure_virtualgl_rendering(env: dict[str, str]) -> list[str]:
 def _configure_rendering(env: dict[str, str]) -> list[str]:
     """Pick how Gazebo/OGRE2 should get its GL context, based on where it's being displayed."""
     if os.environ.get("FORCE_VNC"):
-        info("FORCE_VNC: forcing software rendering (llvmpipe) - no direct GPU access")
+        info("FORCE_VNC: forcing software rendering (llvmpipe)")
         env["LIBGL_ALWAYS_SOFTWARE"] = "1"
         return []
 
@@ -333,11 +257,7 @@ def _setup_pixi_env() -> None:
 
 
 def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: bool = False) -> None:
-    """Build the ROS 2 workspace and launch a robot simulation.
-
-    Auto-detects the environment: configures pixi paths when running natively,
-    or checks the X display when running inside the Dev Container.
-    """
+    """Build the ROS 2 workspace and launch a robot simulation."""
     if build_only and no_build:
         die("Use either --build-only or --no-build, not both")
 
@@ -363,12 +283,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / f"{robot_name}-gazebo-{datetime.now():%Y-%m-%d_%H-%M}.log"  # noqa: DTZ005
 
-    print("--------------------------------------------------------------")
-    print(f"Robot:     {robot_name}")
-    print("Simulator: gazebo")
-    print(f"Workspace: {WORKSPACE_DIR}")
-    print(f"Log:       {log_path}")
-    print("--------------------------------------------------------------")
+    info(f"Launching {robot_name} - log: {log_path}")
 
     setup_bash = WORKSPACE_DIR / "install" / "setup.bash"
 
@@ -393,10 +308,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
         info("Build complete")
 
     if not setup_bash.is_file():
-        die(
-            "Missing install/setup.bash.\n"
-            "        Run without --no-build once to generate install artifacts."
-        )
+        die("Missing install/setup.bash - run without --no-build once to generate it")
 
     if not launch:
         info("Build-only requested; skipping launch")
