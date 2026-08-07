@@ -10,7 +10,7 @@ from .drpc import rpc_start
 from .output import die, info
 from .paths import GAZEBO_WORKSPACE_DIR
 
-_GAZEBO_SUBCOMMANDS = frozenset({"clean", "create", "update", "auth", "setup-drone"})
+_GAZEBO_SUBCOMMANDS = frozenset({"clean", "create", "update", "auth"})
 
 
 def _build_gazebo_parser(subparsers: argparse._SubParsersAction) -> tuple:
@@ -59,11 +59,6 @@ def _build_gazebo_parser(subparsers: argparse._SubParsersAction) -> tuple:
     update_p.add_argument("--no-reduce", action="store_true")
 
     gsubs.add_parser("auth", help="Configure dashboard API key for OnShape access")
-
-    gsubs.add_parser(
-        "setup-drone",
-        help="Build ArduPilot SITL + ardupilot_gazebo plugin (one-time, for 'sim gazebo drone')",
-    )
 
     return gazebo, gsubs, create_p
 
@@ -208,11 +203,6 @@ def _dispatch_gazebo(args, create_p) -> None:
 
     elif args.command == "auth":
         cmd_auth()
-
-    elif args.command == "setup-drone":
-        from .gazebo.ardupilot import setup as ardupilot_setup
-
-        ardupilot_setup()
 
 
 if __name__ == "__main__":

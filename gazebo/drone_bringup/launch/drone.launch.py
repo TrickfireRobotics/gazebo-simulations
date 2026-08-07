@@ -8,8 +8,6 @@ controller spawners, or RViz here.
 """
 
 import os
-import socket
-import struct
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, TimerAction
@@ -17,22 +15,6 @@ from sim_common.launch_utils import err, gazebo_launch_actions, get_asset
 
 # UW campus, arbitrary - override by editing --home below for a real flying field.
 SITL_HOME = "47.6521,-122.3037,0.0,0"
-
-
-def _default_gateway() -> str:
-    """The default gateway of *this* container's actual network namespace.
-
-    Docker's `extra_hosts: host.docker.internal:host-gateway` isn't reliably
-    scoped to whichever network a compose-created container lands on - it
-    can resolve to a different bridge's gateway than the one this container
-    is actually attached to. Reading /proc/net/route is the ground truth.
-    """
-    with open("/proc/net/route") as f:
-        for line in f.readlines()[1:]:
-            fields = line.split()
-            if fields[1] == "00000000":  # destination 0.0.0.0 = default route
-                return socket.inet_ntoa(struct.pack("<L", int(fields[2], 16)))
-    err("Could not determine default gateway from /proc/net/route")
 
 
 def generate_launch_description():
@@ -55,19 +37,18 @@ def generate_launch_description():
     # model's configured fdm ports. ArduPilot's serial-device parser has no
     # listening/server UDP mode - only udpclient: (see AP_HAL_SITL/UARTDriver.cpp) -
     # so SITL sends telemetry out to the GCS's address instead of waiting for
-    # one. That parser also uses the legacy inet_addr() to turn the address
-    # into a sockaddr, which cannot resolve hostnames, so a plain IP is
-    # required - QGroundControl runs on the host, reachable at this
-    # container's default gateway.
-    gcs_host = _default_gateway()
+    # one. QGroundControl runs in this same container, so that's just loopback.
     sitl = ExecuteProcess(
         cmd=[
             arducopter_bin,
-            "--model", "JSON",
-            "--home", SITL_HOME,
-            "--speedup", "1",
+            "--model",
+            "JSON",
+            "--home",
+            SITL_HOME,
+            "--speedup",
+            "1",
             "-I0",
-            f"--serial0=udpclient:{gcs_host}:14550",
+            "--serial0=udpclient:127.0.0.1:14550",
         ],
         output="screen",
     )

@@ -8,27 +8,10 @@ SITL (simulating a Pixhawk 2.4.8) alongside Gazebo Harmonic, using the
 [`ardupilot_gazebo`](https://github.com/ArduPilot/ardupilot_gazebo) plugin
 for the physics/sensor bridge. Unlike the arm and chassis, the drone isn't
 generated from an OnShape model - it's flown through **QGroundControl**,
-not RViz or the Joint GUI.
-
-## One-time setup
-
-ArduPilot SITL and the `ardupilot_gazebo` plugin are built from source the
-first time you use the drone sim, rather than being baked into the Docker
-image:
-
-```bash title="Terminal (inside the Dev Container)"
-sim gazebo setup-drone
-```
-
-This clones and builds:
-
-- **ArduPilot** (`ArduCopter` SITL binary, via `waf`)
-- **ardupilot_gazebo** (the Gazebo plugin that bridges SITL to Gazebo Harmonic)
-
-into `.native/` at the repo root (gitignored). It only needs to be run
-once - re-running it is a no-op if both are already built. This step
-downloads and compiles a fair amount of code, so expect it to take a
-while.
+not RViz or the Joint GUI. ArduPilot SITL, `ardupilot_gazebo`, and
+QGroundControl are all built from source into the Docker image (see
+`docker/Dockerfile` and `docker/qgroundcontrol.Dockerfile`), so there's no
+one-time setup step - `sim gazebo drone` is enough.
 
 ## Running the simulation
 
@@ -43,61 +26,45 @@ This builds `drone_bringup`/`drone_description` like any other robot, then:
    `ArduPilotPlugin`)
 2. Starts ArduCopter SITL, connected to the Gazebo plugin via its JSON
    backend, with its primary MAVLink output on UDP port 14550
+3. QGroundControl is available inside the container as `qgroundcontrol`
+   (run it from a shell in the container, or add it as its own launch
+   action if you want it to start automatically)
 
-## Connecting QGroundControl
+## Flying with QGroundControl
+
+QGroundControl runs **inside the container**, alongside SITL, so it
+auto-connects over `127.0.0.1:14550` with no firewall rules or port
+forwarding to configure - there's nothing host-side to set up for the
+MAVLink link itself.
+
+The Flysky i6X controller is different: it's a physical USB device, so it
+has to be plugged into whatever machine is running the container, and the
+container needs permission to read it:
 
 > [!NOTE]
 > You can use a standard game controller, but the controls
 > will not be identical to the Flysky controller.
 
-
-QGroundControl and the Flysky i6X controller run on your **host machine**,
-not inside the container:
-
-1. Install [QGroundControl](http://qgroundcontrol.com/) on your host
-2. If your host runs a firewall (e.g. `ufw`), allow inbound UDP 14550 -
-   SITL's telemetry arrives from the container as normal LAN traffic, and
-   a default-deny incoming policy silently drops it with no error on
-   either side:
-   ```bash title="Terminal (on your host, not the container)"
-   sudo ufw allow 14550/udp comment "QGroundControl / ArduPilot SITL MAVLink"
-   ```
-3. Plug the Flysky i6X USB receiver into your host - QGroundControl reads
-   it directly through its own joystick support, so no container/USB
-   passthrough configuration is needed
-4. Start `sim gazebo drone`
-5. QGroundControl auto-connects over UDP - `drone.launch.py` reads the
-   container's own default gateway (from `/proc/net/route`) at launch
-   time and points SITL's MAVLink output directly at it, since that's
-   where the host - and QGroundControl - is reachable from inside the
-   container. There's no port published/forwarded on the container; it
-   isn't needed, since SITL is the one initiating the connection outbound
-   rather than QGroundControl connecting in.
-6. In QGroundControl, go to **Application Settings → Joystick** to enable
+1. Plug the Flysky i6X USB receiver into your host
+2. `docker-compose.yml` bind-mounts `/dev/input` into the container and
+   joins it to your host's `input` group (`INPUT_GID`, auto-detected by
+   `.devcontainer/host-env.sh` into `docker/.env` - re-run that script if
+   the container can't see the device)
+3. Start `sim gazebo drone`, then run `qgroundcontrol` in a shell in the
+   container
+4. In QGroundControl, go to **Application Settings → Joystick** to enable
    and calibrate the Flysky i6X, then fly as normal (Use mode 2 when calibrating)
 
 ## Troubleshooting
 
-**`ArduPilot SITL + ardupilot_gazebo plugin are not built yet`:** Run
-`sim gazebo setup-drone` first.
-
-**QGroundControl shows "Disconnected" with no errors on either side:**
-The most common cause is a host firewall silently dropping the inbound
-UDP packets - there's no error message anywhere for this, since dropped
-packets aren't reported back. Check your firewall status
-(`sudo ufw status verbose` if using `ufw`) and allow UDP 14550 in per the
-setup step above.
-
-**QGroundControl fails to bind port 14550 ("address already in use"):**
-Make sure nothing else on your host is already bound to UDP 14550 -
-notably, do NOT add a `ports:` entry for it in `docker-compose.yml`.
-Docker's own port-publish mechanism (`docker-proxy`) binds the host port
-itself, which blocks QGroundControl from ever binding it and intercepts
-SITL's outbound packets instead of letting them reach QGroundControl.
-Check with `sudo lsof -i :14550` on the host - it should show only
-QGroundControl, nothing else.
+**QGroundControl can't see the joystick:** Check that `/dev/input` has
+device nodes for it (`ls -la /dev/input/by-id/` on the host) and that
+`INPUT_GID` in `docker/.env` matches your host's `input` group
+(`getent group input`) - a stale `docker/.env` from before the receiver
+was set up is the most common cause; regenerate it with
+`.devcontainer/host-env.sh` and recreate the container.
 
 **No image in Gazebo / model missing:** `ardupilot_gazebo`'s `models/` and
 `worlds/` directories are resolved via `GZ_SIM_RESOURCE_PATH`, which `sim
-gazebo drone` points at the checkout from `sim gazebo setup-drone`. If
-that checkout was moved or deleted, re-run setup.
+gazebo drone` points at `/opt/ardupilot_gazebo` (built into the image).
+If that's missing, rebuild the image.
