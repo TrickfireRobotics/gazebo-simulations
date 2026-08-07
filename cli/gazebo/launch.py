@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import re
 import shutil
+import socket
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -107,28 +108,121 @@ def _run_logged_command(
         raise subprocess.CalledProcessError(return_code, command)
 
 
+def _x11_port_for(display: str) -> int:
+    """The X11 protocol's TCP port for a display spec is 6000 + display number."""
+    try:
+        num_part = display.rsplit(":", 1)[-1].split(".")[0]
+        return 6000 + int(num_part)
+    except (ValueError, IndexError):
+        return 6000
+
+
+_DOCKER_DOCS = "https://docs.trickfirerobotics.com/simulations/setup/docker"
+
+
+def _diagnose_display(display: str, xdpyinfo_stderr: str) -> str:
+    """Pin down which layer (local socket, DNS, TCP, or X11 auth) is broken."""
+    lines = [f"Cannot connect to display {display}", ""]
+
+    if display.startswith(":"):
+        lines += [
+            "Expected a Wayland/X11 socket forwarded in from the hosts",
+        ]
+        return "\n".join(lines)
+
+    host = display.split(":", 1)[0]
+
+    try:
+        ip = socket.gethostbyname(host)
+        lines.append(f"  [OK]   DNS: '{host}' resolves to {ip}")
+    except OSError as e:
+        lines += [f"  [FAIL] DNS: '{host}' did not resolve ({e})", "", "Is Docker Desktop running?"]
+        return "\n".join(lines)
+
+    port = _x11_port_for(display)
+    try:
+        with socket.create_connection((host, port), timeout=3):
+            lines.append(f"  [OK]   TCP: port {port} on {host} is reachable")
+    except OSError as e:
+        lines += [
+            f"  [FAIL] TCP: could not connect to {host}:{port} ({e})",
+            f"See {_DOCKER_DOCS} for XQuartz/VcXsrv setup.",
+        ]
+        return "\n".join(lines)
+
+    lines += [
+        "  [FAIL] X11: connected over TCP, but the X server rejected the session:",
+        f"         {xdpyinfo_stderr.strip() or '(no error output captured)'}",
+        f"See {_DOCKER_DOCS} for X11 authorization (xhost) setup.",
+    ]
+    return "\n".join(lines)
+
+
+def _display_reachable(display: str) -> bool:
+    """Whether an X server is answering on `display`."""
+    return (
+        subprocess.run(
+            ["xdpyinfo", "-display", display],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        ).returncode
+        == 0
+    )
+
+
 def _check_display() -> None:
     info("Checking for display...")
     display = os.environ.get("DISPLAY")
     if not display:
-        die("DISPLAY environment variable not set")
-    if (
-        subprocess.call(
-            ["xdpyinfo", "-display", display], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
-        != 0
-    ):
-        die("Cannot connect to display " + display)
+        die("DISPLAY not set! Try restarting the container")
+
+    result = subprocess.run(
+        ["xdpyinfo", "-display", display],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        die(_diagnose_display(display, result.stderr))
 
 
-def _configure_force_vnc_rendering(env: dict[str, str]) -> list[str]:
-    """Force software GL rendering for Gazebo/OGRE2 when running under FORCE_VNC"""
-    if not os.environ.get("FORCE_VNC"):
+def _configure_virtualgl_rendering(env: dict[str, str]) -> list[str]:
+    """Route GL rendering through VirtualGL when displaying on a remote X server"""
+    display = os.environ.get("DISPLAY", "")
+    if display.startswith(":"):
         return []
 
-    info("FORCE_VNC: forcing software rendering (llvmpipe) - no direct GPU access")
-    env["LIBGL_ALWAYS_SOFTWARE"] = "1"
-    return []
+    if not shutil.which("vglrun"):
+        warn(f"vglrun not installed - GL rendering will fail. See {_DOCKER_DOCS}")
+        return []
+
+    vgl_display = os.environ.get("VGL_DISPLAY", ":88")
+    if not _display_reachable(vgl_display):
+        warn(
+            f"VirtualGL's 3D X server on {vgl_display} isn't running - run .devcontainer/x_server.sh"
+        )
+        return []
+
+    for stale in ("LIBGL_ALWAYS_INDIRECT", "MESA_LOADER_DRIVER_OVERRIDE"):
+        env.pop(stale, None)
+
+    env["VGL_DISPLAY"] = vgl_display
+    env.setdefault("VGL_COMPRESS", "proxy")
+
+    info(f"Rendering through VirtualGL ({vgl_display} -> {display})")
+    return ["vglrun"]
+
+
+def _configure_rendering(env: dict[str, str]) -> list[str]:
+    """Pick how Gazebo/OGRE2 should get its GL context, based on where it's being displayed."""
+    if os.environ.get("FORCE_VNC"):
+        info("FORCE_VNC: forcing software rendering (llvmpipe)")
+        env["LIBGL_ALWAYS_SOFTWARE"] = "1"
+        return []
+
+    return _configure_virtualgl_rendering(env)
 
 
 def _setup_pixi_env() -> None:
@@ -163,11 +257,7 @@ def _setup_pixi_env() -> None:
 
 
 def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: bool = False) -> None:
-    """Build the ROS 2 workspace and launch a robot simulation.
-
-    Auto-detects the environment: configures pixi paths when running natively,
-    or checks the X display when running inside the Dev Container.
-    """
+    """Build the ROS 2 workspace and launch a robot simulation."""
     if build_only and no_build:
         die("Use either --build-only or --no-build, not both")
 
@@ -179,7 +269,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     build = not no_build
     launch = not build_only
     env = os.environ.copy()
-    render_prefix = _configure_force_vnc_rendering(env)
+    render_prefix = _configure_rendering(env)
     bringup_pkg, description_pkg, launch_file_name = _validate_robot_layout(robot_name)
 
     if build:
@@ -193,12 +283,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
     log_dir.mkdir(parents=True, exist_ok=True)
     log_path = log_dir / f"{robot_name}-gazebo-{datetime.now():%Y-%m-%d_%H-%M}.log"  # noqa: DTZ005
 
-    print("--------------------------------------------------------------")
-    print(f"Robot:     {robot_name}")
-    print("Simulator: gazebo")
-    print(f"Workspace: {WORKSPACE_DIR}")
-    print(f"Log:       {log_path}")
-    print("--------------------------------------------------------------")
+    info(f"Launching {robot_name} - log: {log_path}")
 
     setup_bash = WORKSPACE_DIR / "install" / "setup.bash"
 
@@ -223,10 +308,7 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
         info("Build complete")
 
     if not setup_bash.is_file():
-        die(
-            "Missing install/setup.bash.\n"
-            "        Run without --no-build once to generate install artifacts."
-        )
+        die("Missing install/setup.bash - run without --no-build once to generate it")
 
     if not launch:
         info("Build-only requested; skipping launch")

@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-
-# --------------------------------------------------------------------------------------------
-# Starts a headless X11 desktop (Xorg/Xvfb + Openbox + x11vnc + noVNC) inside the container.
-# Intended for running GUI apps (Gazebo) in Docker.
-# Supports --verbose flag for debugging (prints all output to console instead of log file).
-# --------------------------------------------------------------------------------------------
+# Sets up the container's display: Wayland/X11 passthrough when available, otherwise a
+# headless Xorg/Xvfb + Openbox + x11vnc + noVNC stack. See docs/setup/docker.mdx.
 
 set -eo pipefail
 trap '' HUP
@@ -57,7 +53,42 @@ parse_args() {
     done
 }
 
-try_wayland_passthrough() {
+start_vgl_3d_server() {
+    if [[ $DISPLAY == :* ]]; then
+        return 0
+    fi
+
+    if ! command -v vglrun >/dev/null 2>&1; then
+        log "[VGL] vglrun not found - skipping (Gazebo/RViz will not be able to render)"
+        return 0
+    fi
+
+    local vgl_display="${VGL_DISPLAY:-:88}"
+    if xdpyinfo -display "$vgl_display" &>/dev/null; then
+        log "[VGL] 3D X server already running on $vgl_display"
+        return 0
+    fi
+
+    log "[VGL] Starting VirtualGL 3D X server (Xvfb) on $vgl_display"
+    Xvfb "$vgl_display" -screen 0 2560x1440x24 >>"$LOG_FILE" 2>&1 &
+    local vgl_pid=$!
+    disown "$vgl_pid" 2>/dev/null || true
+
+    # Xvfb takes a moment to start listening; without this the first `sim gazebo` after a
+    # container start could race it and silently fall back to unaccelerated rendering.
+    local i
+    for i in $(seq 1 20); do
+        if xdpyinfo -display "$vgl_display" &>/dev/null; then
+            log "[VGL] 3D X server ready on $vgl_display"
+            return 0
+        fi
+        sleep 0.25
+    done
+
+    log "[VGL] WARNING: 3D X server on $vgl_display did not come up - see $LOG_FILE"
+}
+
+try_display_passthrough() {
     if [ -n "$FORCE_VNC" ]; then
         DISPLAY="${FORCE_VNC_DISPLAY:-:77}"
         unset WAYLAND_DISPLAY
@@ -65,9 +96,17 @@ try_wayland_passthrough() {
         return
     fi
 
+    # Case 1: Linux host with a Wayland compositor, or WSL2 with WSLg. The host socket is
+    # bind-mounted into /run/host-runtime by docker-compose.yml.
     local wayland_sock="/run/host-runtime/${WAYLAND_DISPLAY:-wayland-0}"
     if [ -S "$wayland_sock" ]; then
         log "[X11] Using Wayland socket at $wayland_sock"
+        exit 0
+    fi
+
+    if [ -n "$DISPLAY" ] && xdpyinfo -display "$DISPLAY" &>/dev/null; then
+        log "[X11] Using host X11 display at $DISPLAY"
+        start_vgl_3d_server
         exit 0
     fi
 }
@@ -158,7 +197,12 @@ start_services() {
 
 main() {
     parse_args "$@"
-    try_wayland_passthrough
+    try_display_passthrough
+
+    if [[ $DISPLAY != :* ]]; then
+        log "[X11] $DISPLAY unreachable; falling back to internal Xvfb/Xorg on :0"
+        DISPLAY=":0"
+    fi
 
     detect_backend
     parse_screen_resolution
@@ -166,11 +210,6 @@ main() {
     : "${DISPLAY:?DISPLAY is not set}"
     : "${VNC_PORT:?VNC_PORT is not set}"
     : "${NOVNC_PORT:?NOVNC_PORT is not set}"
-
-    if xdpyinfo -display "$DISPLAY" &>/dev/null; then
-        log "[ERROR] Display $DISPLAY is already in use!"
-        exit 1
-    fi
 
     start_services
 }

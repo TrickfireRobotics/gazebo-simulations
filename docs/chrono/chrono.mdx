@@ -13,15 +13,23 @@ sim chrono run
 
 This builds the C++ simulation from `chrono/` (if not already built) and runs it. A Vulkan window opens in the VNC desktop showing the terrain simulation.
 
-## Cleaning
+<Callout type="info" title="Cleaning">
 
-```bash title="Inside devcontainer"
-sim chrono clean
-```
+    To force a clean rebuild (could help during any unexpected error) run:
 
-Deletes `chrono/build/`. Use this to force a clean rebuild.
+    ```bash title="Inside devcontainer"
+    sim chrono clean
+    ```
+
+    This deletes `chrono/build/`.
+
+</Callout>
 
 ## Troubleshooting
 
-**Chrono window doesn't appear:**
-Chrono uses Vulkan for rendering. Make sure the VNC desktop is running (`localhost:5900`) and that the container has Wayland/display access. If the window still doesn't appear, check the terminal output for Vulkan errors.
+<Accordions>
+    <Accordion title="Chrono window doesn't appear">
+        Chrono uses [Vulkan](https://en.wikipedia.org/wiki/Vulkan) for rendering. Make sure you followed all the steps for your platform [during setup](../setup/docker)
+    </Accordion>
+
+</Accordions>
