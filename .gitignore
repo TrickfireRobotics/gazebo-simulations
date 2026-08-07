@@ -7,22 +7,19 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# pixi
-.pixi/
-
-# Python
+# python
 .mypy_cache
 __pycache__
 *.egg-info/
 build/
 **/.venv
 
-# ROS2
+# ros
 gazebo/install
 gazebo/build
 gazebo/log
 
-# sim create tests
+# sim tests
 cli/gazebo/create/tests
 
 # chrono outputs
@@ -31,14 +28,8 @@ chrono/results/*
 
 # env
 **/*.env
-# docker/.env is generated each `devcontainer up` by .devcontainer/detect-host-env.sh
-# (from docker/.env.defaults + docker/.env.local + host detection). docker/.env.defaults
-# is the committed source of truth; docker/.env.local holds per-machine overrides.
 docker/.env
-docker/.env.host
 docker/.env.local
 
 # trickfire-docs
-.trickfire-docs/
 dist/
-.cache/
