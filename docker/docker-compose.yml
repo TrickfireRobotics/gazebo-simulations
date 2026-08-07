@@ -9,15 +9,12 @@ services:
                 VNC_PORT: "${VNC_PORT:?VNC_PORT must be set, see docker/.env}"
                 NOVNC_PORT: "${NOVNC_PORT:?NOVNC_PORT must be set, see docker/.env}"
                 ROSBRIDGE_PORT: "${ROSBRIDGE_PORT:?ROSBRIDGE_PORT must be set, see docker/.env}"
+                USER_UID: "${UID:-1000}"
         image: simulations:latest
         container_name: simulations
         user: trickfire
 
         runtime: "${SIM_GPU_RUNTIME:-}"
-
-        env_file:
-            - path: .env.host
-              required: false
 
         environment:
             VNC_PORT: "${VNC_PORT:?VNC_PORT must be set, see docker/.env}"
@@ -25,6 +22,19 @@ services:
             ROSBRIDGE_PORT: "${ROSBRIDGE_PORT:?ROSBRIDGE_PORT must be set, see docker/.env}"
             QT_X11_NO_MITSHM: "1"
             TZ: ${TZ:-UTC}
+            WAYLAND_DISPLAY: "${WAYLAND_DISPLAY:-}"
+            XDG_RUNTIME_DIR: /run/host-runtime
+            QT_SCALE_FACTOR: "${QT_SCALE_FACTOR:-}"
+            QT_ENABLE_HIGHDPI_SCALING: "${QT_ENABLE_HIGHDPI_SCALING:-}"
+            GDK_SCALE: "${GDK_SCALE:-}"
+            GDK_DPI_SCALE: "${GDK_DPI_SCALE:-}"
+            FORCE_VNC: "${FORCE_VNC:-}"
+            DISPLAY: "${DISPLAY:-}"
+            VGL_DISPLAY: "${VGL_DISPLAY:-}"
+            VGL_COMPRESS: "${VGL_COMPRESS:-}"
+            NVIDIA_VISIBLE_DEVICES: "${NVIDIA_VISIBLE_DEVICES:-}"
+            NVIDIA_DRIVER_CAPABILITIES: "${NVIDIA_DRIVER_CAPABILITIES:-}"
+            __EGL_VENDOR_LIBRARY_FILENAMES: "${__EGL_VENDOR_LIBRARY_FILENAMES:-}"
 
         volumes:
             - ..:/home/trickfire/simulations
@@ -32,6 +42,23 @@ services:
             - type: bind
               source: ${XDG_RUNTIME_DIR:-/run/user/1000}
               target: /run/user/1000
+              bind:
+                  create_host_path: true
+            - ${XDG_RUNTIME_DIR:-/tmp}:/run/host-runtime:ro
+            - type: bind
+              source: /tmp/.X11-unix
+              target: /tmp/.X11-unix
+              bind:
+                  create_host_path: true
+            - type: bind
+              source: ${HOME}/.config/trickfire
+              target: /home/trickfire/.config/trickfire
+              bind:
+                  create_host_path: true
+            - type: bind
+              source: ${HOME}/.ssh
+              target: /home/trickfire/.ssh
+              read_only: true
               bind:
                   create_host_path: true
 
