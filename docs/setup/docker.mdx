@@ -1,169 +1,212 @@
 ---
-title: Docker
-description: Run the simulation inside a container.
+title: Docker & Devcontainers
+description: Run the simulation inside a Docker container.
 ---
 
-With this approcach everything runs inside a Docker container with everything deterministically installed. The native approach is faster (except on Linux system, Docker runs with native speeds there) but you can have issues installing or running the sim using it. This project uses [devcontainers](https://containers.dev/) to build the Docker environment. You can build it either using the [VSCode extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) or the [CLI](https://code.visualstudio.com/docs/devcontainers/devcontainer-cli) if you do not want to/cannot use VSCode.
+Everything runs inside a Docker container with all dependencies pinned and pre-built. It's slower to start than [native (pixi)](../setup/pixi) on most systems (not Linux, Docker there works at close-to-native speeds) but works on any OS, including Chrono, without a local ROS/Gazebo install. This project uses [devcontainers](https://containers.dev/), built with the [VS Code extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) or the [CLI](https://code.visualstudio.com/docs/devcontainers/devcontainer-cli).
 
 ## 1. Build the devcontainer
 
-There is **one devcontainer config, and it auto-detects your host** — no variant to pick. Before the container starts, its `initializeCommand` runs `.devcontainer/detect-host-env.sh`, which detects your OS and GPU and generates `docker/.env` + `docker/.env.host` (loaded by compose) so GUI forwarding *and* GPU acceleration are configured for you:
+Before the container starts, `initializeCommand` runs `.devcontainer/host-env.sh`, which detects your OS and GPU and writes `docker/.env`. These are all possible options:
 
-- **Linux (Wayland or X11) and WSL2/WSLg** → host display socket, passed straight through.
-- **macOS with XQuartz** → forwarded over TCP to XQuartz via `host.docker.internal`, rendered with VirtualGL.
-- **Windows without WSL2/WSLg** (Hyper-V backend, or a native Windows path) → forwarded over TCP to VcXsrv/X410.
-- **NVIDIA GPU** (Linux, with the [nvidia container toolkit](/setup/nvidia) installed) → detected automatically and handed to the container; otherwise the default runtime is used.
+| Host                                  | Display path                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Linux Wayland/X11** & **WSL2/WSLg** | Host socket, passed straight through                                                              |
+| **macOS** + **XQuartz**               | Forwarded over TCP via `host.docker.internal` & rendered with VirtualGL                           |
+| **Vanilla Windows**                   | Forwarded over TCP to VcXsrv & rendered with VirtualGL                                            |
+| **Linux** + **NVIDIA GPU**            | Uses the [container toolkit](#nvidia-acceleration) and NVIDIA Docker runtime for faster rendering |
 
-So on every platform you just use the single config below.
+<Tabs items={["VSCode", "CLI"]}>
+    <Tab value="VSCode">
+        Open the repo in VS Code and accept the **Reopen in Container** prompt, or run **Dev
+        Containers: Reopen in Container** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+        Requires the [Dev Containers
+        extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
+    </Tab>
+    <Tab value="CLI">
 
-### VSCode
+        ```bash
+        devcontainer up
+        ```
 
-Open the cloned folder in VSCode. You should see a prompt to **Reopen in Container** in your bottom right — accept it, or run **Dev Containers: Reopen in Container** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`). If the prompt doesn't appear, make sure you have the [extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
+    </Tab>
 
-### CLI
+</Tabs>
 
-```bash title="Terminal"
-devcontainer up
-```
-
-<Callout type="info" title="Per-machine overrides">
-    Ports and flags are defined in `docker/.env.defaults` (committed). To change them on your machine, put the keys you want in `docker/.env.local` (gitignored) — e.g. `FORCE_VNC=1`. The real `docker/.env` is regenerated from the defaults, your `.env.local`, and host detection on every `devcontainer up`, so don't edit it directly.
-</Callout>
-
-<Callout type="info" title="Note">
-    This will take a long time if it is your first time (30 mins)! Docker builds Chrono and its dependencies (many lines of C++) from source, and then the same for Gazebo and ROS! Subsequent launches will be very fast though.
+<Callout type="idea" title="Configuration">
+    Ports and flags & other configuration is in `docker/.env.defaults`. To change any, add it to
+    `docker/.env.local`.
 </Callout>
 
 ## 2. Check if display works
 
-Gazebo and RViz need a display to render their GUIs. When the Dev Container starts, a script detects your host setup and picks the best display path automatically. Check the terminal you launched the container from — the log line it prints tells you which case applies to you.
+Gazebo and RViz need a display. On container start, `.devcontainer/x_server.sh` picks the best
+path for your host and prints which one it picked. Check the terminal you launched the
+container from.
 
-### Linux host with Wayland (no VNC needed)
+<Tabs items={["Linux / WSLg", "MacOS", "Windows", "VNC", "NVIDIA"]}>
+    <Tab value="Linux / WSLg">
+        Wayland or X11 is forwarded straight through - no VNC needed. The log prints one of:
 
-If your host runs a Wayland compositor (GNOME, KDE, Hyprland, etc.), the log prints:
+        ```
+        [X11] Using Wayland socket at /run/host-runtime/wayland-1
+        [X11] Using host X11 display at :0
+        ```
 
-```
-[X11] Using Wayland socket at /run/host-runtime/wayland-1
-```
+        WSL2 uses the same path automatically via WSLg's built-in compositor.
+    </Tab>
+    <Tab value="MacOS">
+        GUI windows forward over X11 to [XQuartz](https://www.xquartz.org) instead of VNC.
 
-The container forwards Wayland and X11 directly to your host compositor. GUI windows appear on your desktop natively — you can skip the VNC steps below.
+        <Steps>
+            <Step>Install XQuartz: `brew install --cask xquartz`, or from [xquartz.org](https://www.xquartz.org).</Step>
+            <Step>
+                Open **XQuartz > Settings > Security** and check **"Allow connections from
+                network clients"**, then fully quit and reopen XQuartz for it to take effect.
+            </Step>
+            <Step>
+                In a Mac terminal, run `DISPLAY=:0 xhost + 127.0.0.1` to authorize Docker
+                Desktop's VM. This resets every time XQuartz restarts, so re-run it after each
+                restart.
+            </Step>
+        </Steps>
 
-### Linux host with X11 (no VNC needed)
+        <Callout type="idea">
+            The log should print `[X11] Using host X11 display at host.docker.internal:0`. If it
+            falls back to Xvfb + noVNC instead, recheck steps 2-3, then check
+            `/tmp/start_x_server.log` inside the container.
+        </Callout>
 
-If your host runs Xorg instead of Wayland, the container forwards X11 directly through the host's `/tmp/.X11-unix` socket, which is bind-mounted in automatically. The log prints:
+        <Callout type="info" title="How GL rendering works here">
+            `XQuartz` can display `X11` windows but can't give them a working `OpenGL` context cause its
+            indirect `GLX` is deprecated and [unsupported
+            upstream](https://github.com/XQuartz/XQuartz/issues/144), so `OGRE2` (used by both
+            Gazebo and RViz) can't create a renderer over it. The container works around this
+            with [`VirtualGL`](https://virtualgl.org), where `GL` rendering happens against a headless X
+            server *inside* the container (Mesa `llvmpipe`), and only finished frames go to
+            `XQuartz` as plain `X11` images.
+        </Callout>
+    </Tab>
+    <Tab value="Windows">
+        Only needed without WSL2/WSLg, which uses the Linux path above instead. Requires [bash on
+        `PATH` (Git for Windows)](https://stackoverflow.com/questions/26620312/git-installing-git-in-path-with-github-client-for-windows) so the host script can run.
 
-```
-[X11] Using host X11 display at :0
-```
+        <Steps>
+            <Step>Install [VcXsrv](https://github.com/marchaesen/vcxsrv/releases/latest)</Step>
+            <Step>
+                Launch it with **network access enabled** - for VcXsrv's XLaunch: "Multiple
+                windows", display `0`, then check **"Disable access control"** on the Extra
+                Settings page.
+            </Step>
+            <Step>If Windows Defender Firewall prompts you, allow it on Private networks.</Step>
+        </Steps>
 
-GUI windows appear on your desktop natively — you can skip the VNC steps below.
+        The log should print `[X11] Using host X11 display at host.docker.internal:0`. If it
+        falls back to Xvfb + noVNC, confirm the X server is running with access control disabled
+        and the firewall isn't blocking it.
 
-### WSL2 with WSLg (no VNC needed)
+        <Callout type="info" title="How GL rendering works here">
+            `VcXsrv` can display `X11` windows but can't give them a working `OpenGL` context cause its
+            indirect `GLX` is deprecated, so `OGRE2` (used by both
+            Gazebo and RViz) can't create a renderer over it. The container works around this
+            with [`VirtualGL`](https://virtualgl.org), where `GL` rendering happens against a headless X
+            server *inside* the container (Mesa `llvmpipe`), and only finished frames go to
+            `XQuartz` as plain `X11` images.
+        </Callout>
+    </Tab>
+    <Tab value="VNC">
+        Used for headless servers, or when nothing above applies. `x_server.sh` starts a VNC
+        stack, picking a backend based on available hardware:
 
-WSL2 includes WSLg, a built-in Wayland compositor with X11 forwarding. Gazebo and RViz windows appear via WSLg automatically, the same as on native Linux with Wayland above.
+        ```
+        [X11] Using vkms virtual display (/dev/dri/card1)
+        [X11] vkms unavailable, falling back to dummy driver (no DRI3)
+        [X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL
+        ```
 
-### macOS with XQuartz (no VNC needed)
+        Once you see `[MAIN] All services started`, connect a VNC viewer
+        ([TigerVNC](https://tigervnc.org/), [RealVNC
+        Viewer](https://www.realvnc.com/en/connect/download/viewer/)) to `localhost:5900`, or
+        open `http://localhost:6080/vnc.html` for a quick browser check - noVNC doesn't forward
+        modifier keys correctly, so use a real client for regular use.
 
-On macOS the container is auto-configured for XQuartz (see [step 1](#1-build-the-devcontainer)). GUI windows are forwarded over the X11 protocol to [XQuartz](https://www.xquartz.org) instead of VNC:
+        If the script fails, it dumps `/tmp/start_x_server.log` to the terminal.
+    </Tab>
+    <Tab value="NVIDIA">
+        If you are using an NVIDIA GPU follow the [directions below](#nvidia-acceleration). If you have set up everything correctly you should see the following somewhere in the `x-server` output:
 
-1. Install XQuartz if you don't already have it: `brew install --cask xquartz`, or download it from [xquartz.org](https://www.xquartz.org).
-2. Open XQuartz, go to **XQuartz > Settings > Security**, and check **"Allow connections from network clients"**.
-3. Fully quit and reopen XQuartz (log out and back in, or restart) for that setting to take effect.
-4. In a Mac Terminal, run `DISPLAY=:0 xhost + 127.0.0.1` to authorize the connection from Docker Desktop's VM. You'll need to run this again every time XQuartz restarts, since it isn't a persistent setting.
+        ```
+        [X11] Desktop NVIDIA GPU detected, using Xorg NVIDIA driver
+        ```
 
-<Callout type="warning" title="Don't use xhost -display">
-    It's tempting to write `xhost -display :0 + 127.0.0.1`, but that doesn't do what it looks like. `xhost`'s own man page documents this as a bug: `-display` is parsed as "remove a host named `display`", not as a flag - `xhost` always connects using your shell's `$DISPLAY` env var instead, which may be stale (pointing at a dead XQuartz session) if you launched XQuartz manually rather than by opening the app normally. Set `DISPLAY` as an env var prefix on the command instead, as in step 4.
-</Callout>
+        <Callout type="info">
+            This log line specifically is only printed in the VNC/headless fallback path, since it comes from the
+            container's own Xorg server picking a driver. It does **not** mean the NVIDIA runtime only matters for
+            VNC: `runtime: nvidia` is applied to the container in every display mode, and Vulkan/Chrono rendering
+            (`vkcube`, vsg-chrono) always benefits from it regardless of which display path is active. Wayland
+            passthrough in particular still renders client-side inside the container, so it also needs the runtime
+            for real GPU acceleration - only the X11 passthrough case can lean on the host's own GPU for rendering.
+        </Callout>
 
-Once the container starts, the log should print:
+    </Tab>
 
-```
-[X11] Using host X11 display at host.docker.internal:0
-```
+</Tabs>
 
-If you instead see the container falling back to starting Xvfb + noVNC, double check steps 2-4 above, then check `/tmp/start_x_server.log` inside the container.
+### Verify it works
 
-If the display *is* reachable but `sim gazebo launch` (or similar) still fails with "Cannot connect to display", it now prints a diagnostic breakdown - DNS resolution, TCP reachability, and X11 authorization are checked separately, with specific fix suggestions for whichever layer is actually broken.
+- **X11 (Gazebo/RViz):** run `xeyes` inside the container - a pair of animated eyes should
+  appear.
+- **Vulkan (Chrono):** run `vkcube` inside the container - a spinning textured cube should
+  render.
 
-<Callout type="info" title="How GL rendering works here">
-    A working X11 connection isn't enough on its own to render Gazebo/RViz. XQuartz can display windows, but it can't give them a usable OpenGL context - its indirect GLX (IGLX) is deprecated and [unsupported upstream](https://github.com/XQuartz/XQuartz/issues/144), so OGRE2 (used by both Gazebo and RViz) fails to create a renderer at all.
-
-    The container works around this with [VirtualGL](https://virtualgl.org), which is set up automatically - there is nothing to install on your Mac beyond XQuartz itself, and no extra ports to open. GL rendering happens against a headless X server *inside* the container (Mesa llvmpipe, OpenGL 4.5), and only the finished frames are sent to XQuartz as ordinary X11 images, which it handles reliably. `sim gazebo` wraps the launch in `vglrun` for you.
-
-    You do **not** need to enable XQuartz's "Enable IGLX" / `enable_iglx` preference - VirtualGL deliberately avoids that path, and leaving it off is fine.
-
-    Rendering is done in software (llvmpipe), so expect modest frame rates rather than GPU performance - macOS has no GPU passthrough into Docker. If rendering still fails, `sim gazebo` prints a warning explaining which piece is missing; setting `FORCE_VNC=1` in `docker/.env` and recreating the container is the fallback.
-</Callout>
-
-### Windows without WSL2/WSLg (no VNC needed)
-
-On native Windows the container is auto-configured for a TCP X server (see [step 1](#1-build-the-devcontainer)). If you're using WSL2 with Docker Desktop's WSL2 backend, none of this is needed - detection uses WSLg's socket automatically (see above). Native Windows detection requires bash on PATH (Git for Windows) so the host script can run.
-
-1. Install an X server that supports TCP connections: [VcXsrv](https://sourceforge.net/projects/vcxsrv) (free) or X410 (Microsoft Store, paid).
-2. Launch it with network access enabled. For VcXsrv's XLaunch: choose "Multiple windows", display number `0`, then on the "Extra settings" page check **"Disable access control"**.
-3. If Windows Defender Firewall prompts you, allow the X server on Private networks.
-
-Once the container starts, the log should print:
-
-```
-[X11] Using host X11 display at host.docker.internal:0
-```
-
-If it falls back to Xvfb + noVNC instead, confirm the X server is running with access control disabled and that the firewall isn't blocking it.
-
-<Callout type="info" title="How GL rendering works here">
-    Same as the macOS/XQuartz note above: VcXsrv/X410 can display windows but can't provide Gazebo/RViz (OGRE2) with a usable OpenGL context over indirect GLX. The container routes GL through [VirtualGL](https://virtualgl.org) automatically - rendering happens inside the container with Mesa llvmpipe and only finished frames are sent to your X server, so there's nothing extra to install on Windows and no extra ports to open. Rendering is in software, so expect modest frame rates. If it still doesn't render, `sim gazebo` warns upfront - `FORCE_VNC=1` in `docker/.env` plus a container recreate is the fallback.
-</Callout>
-
-### All other cases (headless servers, or the above not configured)
-
-On hosts without a reachable Wayland or X11 display, the script starts a VNC stack. Depending on what GPU or virtual display driver is available, you will see one of the following:
-
-```
-[X11] Desktop NVIDIA GPU detected, using Xorg nvidia driver
-[X11] Using vkms virtual display (/dev/dri/card1)
-[X11] vkms unavailable, falling back to dummy driver (no DRI3)
-[X11] Jetson/Tegra detected (no DRI), using Xvfb + EGL
-```
-
-followed by:
-
-```
-[noVNC] Desktop available at: http://localhost:6080/vnc.html
-[MAIN] All services started
-```
-
-Once you see `[MAIN] All services started`, connect with a VNC viewer at `localhost:5900`. You should see a blank desktop.
-
-<Callout type="info" title="Note">
-    Good VNC viewers I would reccomend are [TigerVNC](https://tigervnc.org/) or [VNCViewer](https://www.realvnc.com/en/connect/download/viewer/?lai_sr=0-4&lai_sl=l)
-</Callout>
-
-<Callout type="idea" title="Tip">
-    For a quick check without a VNC client, open `http://localhost:6080/vnc.html` in your browser. Note that noVNC doesn't forward modifier keys (Alt, Super, etc.) correctly, so a native VNC viewer is better for regular use.
-</Callout>
-
-If the script fails, it automatically dumps `/tmp/start_x_server.log` to the terminal to help you diagnose the problem.
-
-### Verify the display works
-
-Before launching the sim, confirm both display paths are functioning:
-
-- **X11 (Gazebo / RViz):** Run `xeyes` inside the container. If a pair of animated eyes appears (in your VNC viewer or on your local desktop), X11 is working.
-- **Vulkan (Chrono):** Run `vkcube` inside the container. If a spinning textured cube renders without errors, Vulkan is working and Chrono's VSG visualizer will function.
-
-On macOS/Windows, `xeyes` only proves the X11 connection works - it doesn't use OpenGL, so it can succeed while Gazebo/RViz still fail to render. To check the GL path as well, run this inside the container:
+On macOS/Windows, `xeyes` only proves the X11 connection, not GL - check that separately:
 
 ```bash title="Container"
 vglrun /opt/VirtualGL/bin/glxspheres64
 ```
 
-A window of spinning spheres should appear on your desktop, and the terminal should report a frame rate and `OpenGL Renderer: llvmpipe`. If instead you get `vglrun: command not found`, rebuild the container; if it reports that it can't open the 3D X server, run `bash .devcontainer/x_server.sh` to start it.
+A window of spinning spheres should appear, and the terminal should report a frame rate with
+`OpenGL Renderer: llvmpipe`. `vglrun: command not found` means rebuild the container; "can't open
+the 3D X server" means run `bash .devcontainer/x_server.sh`.
 
 <Callout type="idea" title="Running GUI apps by hand">
-    `sim gazebo` adds the `vglrun` prefix for you, but anything you launch yourself that renders with OpenGL needs it too - `vglrun rviz2`, `vglrun gz sim`, and so on. Without it, those apps go straight to XQuartz/VcXsrv's broken indirect GLX and fail to create a renderer. Plain X11 tools like `xeyes` don't need it. This only applies on macOS/Windows; on Linux and WSLg, run them normally.
+    `sim gazebo` prefixes `vglrun` for you automatically. Anything else you launch yourself that
+    uses OpenGL needs it too - `vglrun rviz2`, `vglrun gz sim`, etc. Plain X11 tools like `xeyes`
+    don't need it. This only applies on macOS/Windows; run normally on Linux/WSLg.
 </Callout>
 
 ## 3. Launch the sim
 
-Once the display is running, head to [Running Gazebo](../../guides/gazebo/) to launch your first sim.
+Once the display works, head to [Running Gazebo](../gazebo/gazebo) to launch your first sim.
+
+---
+
+# NVIDIA Acceleration
+
+<Callout type="info" title="Non-Ubuntu/Debian hosts">
+    See the [official install
+    guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
+    for other distros.
+</Callout>
+
+If you have a Linux system with a NVIDIA GPU, you can use a special Docker runtime (`nvidia-container-toolkit`) to give the container hardware access to it - this speeds up both GL rendering (Gazebo/RViz) and Vulkan (Chrono) in every display mode, not just VNC. `host-env.sh` detects it automatically and enables it for you, but the runtime has to be installed and registered with Docker first. On a Debian-based distro, run this on your host:
+
+```bash
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+distribution=$(. /etc/os-release; echo $ID$VERSION_ID)
+curl -fsSL https://nvidia.github.io/libnvidia-container/libnvidia-container.list \
+  | sed 's|^deb |deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] |' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null
+
+sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+Verify Docker can see the GPU:
+
+```bash
+docker run --rm --runtime=nvidia --gpus all nvidia/cuda:12.0-base-ubuntu22.04 nvidia-smi
+```

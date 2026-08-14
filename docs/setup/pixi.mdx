@@ -1,14 +1,20 @@
 ---
-title: Native Setup
+title: Pixi Native
 description: Run the simulation natively using pixi.
 ---
 
 The native workflow installs ROS 2 Jazzy and Gazebo Harmonic into a self-contained environment inside the repository using [pixi](https://pixi.sh), not requiring Docker and using your system directly without another layer, producing better performance.
 
-> **Supported platforms:** Linux (x86-64, ARM64), macOS (Intel and Apple Silicon), WSL2.
+<Callout type="warning" title="Limitation">
 
-<Callout type="warning" title="Warning">
-    This way of running the project does not support the Chrono sim, only Gazebo! See [Docker](../../setup/docker)
+    1. This way of running the project does not support the Chrono sim, **only Gazebo**. See
+    [Docker](../../setup/docker).
+
+    2. Only the following platforms are supported:
+        - **Linux** (x86_64, ARM64)
+        - **MacOS** (Intel, Silicon)
+        - **WSL2**
+
 </Callout>
 
 ## 1. Install pixi
@@ -27,18 +33,16 @@ From the repo root, install all project dependencies using the following command
 pixi install
 ```
 
-This downloads ~3–5 GB on first run, and takes a while. Subsequent runs are instant.
+This downloads ~3-5 GB on first run, and takes a while. Subsequent runs are instant as everything is already downloaded. All of the pixi environment data is located in the `.pixi` folder in the project root.
 
 ## 3. Launch a simulation
 
+You can now launch the sim. It is the same as you would [normally would](../gazebo/gazebo) but all the commands are always prefixed by `pixi run` to use the pixi environment like so:
+
 ```bash
-pixi run sim gazebo native arm
+pixi run sim gazebo <robot_name>
 ```
 
-This builds the ROS 2 workspace and launches 3 windows, Gazebo, RViz, and the Joint GUI.
-
-See [Running Gazebo](../../guides/gazebo/) for full CLI options and flags.
-
-<Callout type="idea" title="Tip">
-    Do not use `pixi shell` as your regular working shell. It modifies library paths in a way that can break system tools like `git` on macOS. Use `pixi run <command>` instead. For example: `pixi run sim gazebo native arm`.
+<Callout type="warning" title="Note">
+    Do not use `pixi shell` as your regular working shell. It modifies library paths in a way that can break system tools like `git`. Use `pixi run <command>` instead. For example: `pixi run sim gazebo native arm`.
 </Callout>
