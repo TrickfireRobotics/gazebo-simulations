@@ -315,7 +315,13 @@ def _setup_pixi_env() -> None:
         os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 
-def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: bool = False) -> None:
+def build_and_launch(
+    robot_name: str,
+    *,
+    build_only: bool = False,
+    no_build: bool = False,
+    local_qgc: bool = False,
+) -> None:
     """Build the ROS 2 workspace and launch a robot simulation."""
     if build_only and no_build:
         die("Use either --build-only or --no-build, not both")
@@ -382,6 +388,9 @@ def build_and_launch(robot_name: str, *, build_only: bool = False, no_build: boo
         return
 
     info("Sourcing ROS2 environment and launching simulation...")
+    launch_args = "gui:=true"
+    if robot_type == "ardupilot" and local_qgc:
+        launch_args += " qgc:=false"
     launch_script = f"""
 set -e
 source install/setup.bash
@@ -395,7 +404,7 @@ else
     echo \"       Expected: $SIM_WORLDS_SHARE/worlds\"
 fi
 
-exec {" ".join(render_prefix)} ros2 launch \"{bringup_pkg}\" \"{launch_file_name}\" gui:=true
+exec {" ".join(render_prefix)} ros2 launch \"{bringup_pkg}\" \"{launch_file_name}\" {launch_args}
 """.strip()
 
     try:

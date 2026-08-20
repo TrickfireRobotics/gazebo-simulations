@@ -1,9 +1,6 @@
 ARG VSG_CHRONO_TAG=latest
 FROM ghcr.io/trickfirerobotics/simulations-vsg-chrono:${VSG_CHRONO_TAG} AS vsg-chrono
 
-ARG QGROUNDCONTROL_TAG=latest
-FROM ghcr.io/trickfirerobotics/simulations-qgroundcontrol:${QGROUNDCONTROL_TAG} AS qgroundcontrol
-
 FROM ubuntu:24.04 AS sim
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -215,7 +212,22 @@ RUN chown -R trickfire:trickfire "${ARDUPILOT_DIR}" "${ARDUPILOT_GAZEBO_DIR}"
 
 RUN echo "-------------- QGROUNDCONTROL ---------------"
 
-COPY --from=qgroundcontrol /opt/qgroundcontrol /opt/qgroundcontrol
+ARG QGC_VERSION=v5.1.0
+RUN ARCH="$(dpkg --print-architecture)" && \
+    case "${ARCH}" in \
+    arm64) QGC_FILE=QGroundControl-aarch64.AppImage; \
+    QGC_SHA256=a782d9ed66bae3345ad32752bb18762d194cfadfe2b1d6359bfc31ef9a99989e ;; \
+    amd64) QGC_FILE=QGroundControl-x86_64.AppImage; \
+    QGC_SHA256=6844d46dadc7228a164662f66be9e02bc763b6d993f574083a265b26f03c307f ;; \
+    *) echo "No QGroundControl build for architecture '${ARCH}'" >&2; exit 1 ;; \
+    esac && \
+    curl -L -s -f -o /tmp/qgc.AppImage \
+    "https://github.com/mavlink/qgroundcontrol/releases/download/${QGC_VERSION}/${QGC_FILE}" && \
+    echo "${QGC_SHA256} */tmp/qgc.AppImage" | sha256sum --strict --check && \
+    chmod +x /tmp/qgc.AppImage && \
+    cd /opt && /tmp/qgc.AppImage --appimage-extract && \
+    mv squashfs-root /opt/qgroundcontrol && \
+    rm -f /tmp/qgc.AppImage
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -223,7 +235,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libxcb1 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 \
     libxcb-randr0 libxcb-render0 libxcb-render-util0 libxcb-shape0 libxcb-shm0 \
     libxcb-sync1 libxcb-util1 libxcb-xfixes0 libxcb-xinerama0 libxcb-xkb1 \
-    libx11-xcb1 libdbus-1-3 libpulse0 libsdl2-2.0-0 libspeechd2
+    libx11-xcb1 libdbus-1-3 libpulse0 libsdl2-2.0-0 libspeechd2 libpipewire-0.3-0t64
 
 RUN ln -s /opt/qgroundcontrol/AppRun /usr/local/bin/qgroundcontrol
 
